@@ -1,5 +1,6 @@
 use super::PhotocraftApp;
 
+/// Compute a fast sampled hash of an RGBA8 buffer and its dimensions to detect unchanged copies.
 fn clip_signature(w: u32, h: u32, px: &[u8]) -> u64 {
     let mut sig = (w as u64) << 32 | h as u64;
     for b in px.iter().step_by(997) {
@@ -44,10 +45,7 @@ impl PhotocraftApp {
             self.os_clip_svg = None;
             // Bitmap equality cannot prove that an earlier external vector source is current.
             if self.clip_external && self.session.clipboard.as_ref().is_some_and(|clip| clip.svg.is_some()) {
-                self.session.clipboard = None;
-                self.os_clip_sig = None;
-                self.clip_external = false;
-                self.clip_unmirrored = true;
+                self.clear_external_clipboard();
             }
             return Ok(false);
         };
@@ -64,6 +62,7 @@ impl PhotocraftApp {
             error
         })?;
         self.os_clip_sig = Some(svg_clip_signature(&clip));
+        self.os_clip_wayland_sig = None;
         self.os_clip_svg = clip.svg.clone();
         self.session.clipboard = Some(clip);
         self.clip_external = true;
@@ -81,6 +80,7 @@ impl PhotocraftApp {
     /// Mirror the session clipboard onto the OS clipboard (RGBA8).
     pub(super) fn export_os_clipboard(&mut self) {
         self.clip_unmirrored = true;
+        self.os_clip_wayland_sig = None;
         if !self.session.prefs().general.export_clipboard {
             return;
         }
@@ -98,10 +98,12 @@ impl PhotocraftApp {
         let arboard_ok = self.services.clipboard_set_image.as_mut().is_some_and(|set| set(b.width(), b.height(), &bytes).is_ok());
         if self.services.is_wayland {
             let color_image = egui::ColorImage::from_rgba_unmultiplied([b.width() as usize, b.height() as usize], &bytes);
+            let wayland_bytes: Vec<u8> = color_image.pixels.iter().flat_map(|c| c.to_srgba_unmultiplied()).collect();
+            let wayland_sig = clip_signature(b.width(), b.height(), &wayland_bytes);
+            self.os_clip_wayland_sig = Some(wayland_sig);
             if !arboard_ok {
-                let wayland_bytes: Vec<u8> = color_image.pixels.iter().flat_map(|c| c.to_srgba_unmultiplied()).collect();
                 self.os_clip_svg = None;
-                self.os_clip_sig = Some(clip_signature(b.width(), b.height(), &wayland_bytes));
+                self.os_clip_sig = Some(wayland_sig);
             }
             self.pending_copy_image = Some(color_image);
         }
@@ -112,10 +114,86 @@ impl PhotocraftApp {
         }
     }
 
+    /// Emit any pending Wayland clipboard image as `OutputCommand::CopyImage` on `ctx` during
+    /// the current input batch so `egui-winit` can claim the selection with the active token.
     pub(super) fn flush_pending_copy_image(&mut self, ctx: &egui::Context) {
         if let Some(image) = self.pending_copy_image.take() {
             ctx.copy_image(image);
         }
+    }
+
+    /// Clear a previously imported external clipboard entry once the OS clipboard no longer holds it.
+    pub(super) fn clear_external_clipboard(&mut self) {
+        self.os_clip_svg = None;
+        self.os_clip_sig = None;
+        self.os_clip_wayland_sig = None;
+        self.session.clipboard = None;
+        self.clip_external = false;
+        self.clip_unmirrored = true;
+    }
+
+    /// Execute `edit.paste` after `import_os_clipboard` has already run for this paste, pasting in
+    /// place when an internal copy's bounds intersect the active view and centering otherwise.
+    pub(crate) fn run_edit_paste(&mut self) -> Result<serde_json::Value, String> {
+        self.clip_read_for_paste = true;
+        let external = self.clip_external;
+        let visible = !external
+            && self.session.active_index().zip(self.session.clipboard.as_ref()).is_some_and(|(i, clip)| {
+                let v = &self.ui.views[i];
+                let pz = self.point_zoom();
+                let (hw, hh) = (self.last_canvas_rect.width() / 2.0 / pz / self.ui.view.display_aspect(), self.last_canvas_rect.height() / 2.0 / pz);
+                let r = photocraft_geom::Rect::new((v.center[0] - hw) as i32, (v.center[1] - hh) as i32, (v.center[0] + hw) as i32, (v.center[1] + hh) as i32);
+                !clip.bounds.intersect(&r).is_empty()
+            });
+        let p = match self.session.active_index() {
+            Some(i) if !visible => serde_json::json!({"center": self.ui.views[i].center}),
+            _ => serde_json::json!({}),
+        };
+        self.run("edit.paste", p)
+    }
+
+    /// Record any `Event::PasteImage` in `raw_input`, execute or discard queued deferred menu paste
+    /// commands bound to their initiating documents, and report whether a Wayland paste arrived.
+    pub(super) fn preprocess_paste_events(&mut self, raw_input: &mut egui::RawInput, editing_text: bool) -> bool {
+        let mut async_wayland_paste = false;
+        let mut events = std::mem::take(&mut raw_input.events);
+        events.retain(|event| match event {
+            egui::Event::PasteImage(image) => {
+                async_wayland_paste |= self.services.is_wayland;
+                let active_doc = self.session.active().map(|d| d.doc.id);
+                if let Some((cmd, target_doc)) = self.pending_paste_cmd.pop_front() {
+                    if !editing_text && (cmd == "file.newFromClipboard" || active_doc == target_doc) {
+                        self.pending_paste_image = Some(std::sync::Arc::clone(image));
+                        let res = if cmd == "edit.paste" {
+                            self.import_os_clipboard().and_then(|_| self.run_edit_paste())
+                        } else {
+                            self.run(&cmd, serde_json::json!({}))
+                        };
+                        if let Err(error) = res {
+                            self.ui.status = error;
+                            self.ui.status_error = true;
+                        }
+                    }
+                    self.pending_paste_image = None;
+                    false
+                } else {
+                    self.pending_paste_image = Some(std::sync::Arc::clone(image));
+                    true
+                }
+            }
+            egui::Event::Paste(_) => {
+                async_wayland_paste |= self.services.is_wayland;
+                let _ = self.pending_paste_cmd.pop_front();
+                self.pending_paste_image = None;
+                if self.clip_external {
+                    self.clear_external_clipboard();
+                }
+                true
+            }
+            _ => true,
+        });
+        raw_input.events = events;
+        async_wayland_paste
     }
 
     /// If the OS clipboard holds an image that isn't the one we put there, make it the session
@@ -141,13 +219,18 @@ impl PhotocraftApp {
             Some((w, h, bytes))
         });
         let Some(get) = self.services.clipboard_get_image.as_mut() else {
-            let Some((w, h, bytes)) = pasted_event else { return Ok(false) };
+            let Some((w, h, bytes)) = pasted_event else {
+                if self.services.is_wayland && self.clip_external {
+                    self.clear_external_clipboard();
+                }
+                return Ok(false);
+            };
             return self.finish_import_os_clipboard(w, h, bytes);
         };
         // A read failure says nothing about the clipboard contents. Keep our editable copy and
         // its signature rather than treating the failure as an empty image.
         let image = match get() {
-            Ok(Some(image)) => Some(image),
+            Ok(Some(image)) => pasted_event.or(Some(image)),
             Ok(None) => pasted_event,
             Err(error) => {
                 if let Some(image) = pasted_event {
@@ -160,8 +243,11 @@ impl PhotocraftApp {
                         return Ok(false);
                     }
                     if self.services.clipboard_unreadable.as_ref().is_some_and(|unreadable| unreadable())
-                        && (self.session.clipboard.is_none() || self.services.is_wayland)
+                        && (self.session.clipboard.is_none() || (self.services.is_wayland && self.clip_external))
                     {
+                        if self.clip_external {
+                            self.clear_external_clipboard();
+                        }
                         // Let paste explain the unavailable backend without treating a saved copy as empty.
                         return Ok(false);
                     }
@@ -186,18 +272,18 @@ impl PhotocraftApp {
             }
             self.os_clip_svg = None;
             if (self.os_clip_sig.take().is_some() || self.clip_external) && !self.clip_unmirrored {
-                self.session.clipboard = None;
-                self.clip_external = false;
-                self.clip_unmirrored = true;
+                self.clear_external_clipboard();
             }
             return Ok(false);
         };
         self.finish_import_os_clipboard(w, h, bytes)
     }
 
+    /// Store validated external RGBA8 pixels `(w, h, bytes)` into the session clipboard unless their
+    /// signature matches the current copy.
     fn finish_import_os_clipboard(&mut self, w: u32, h: u32, bytes: Vec<u8>) -> Result<bool, String> {
         let sig = clip_signature(w, h, &bytes);
-        if self.os_clip_sig == Some(sig) && self.session.clipboard.is_some() {
+        if (self.os_clip_sig == Some(sig) || self.os_clip_wayland_sig == Some(sig)) && self.session.clipboard.is_some() {
             return Ok(false);
         }
         let r = photocraft_geom::Rect::new(0, 0, w as i32, h as i32);
@@ -209,6 +295,7 @@ impl PhotocraftApp {
         // newer than it, so Paste As must not bring it back while it is unchanged.
         self.os_clip_svg = self.os_svg_now().flatten();
         self.os_clip_sig = Some(sig);
+        self.os_clip_wayland_sig = None;
         self.clip_external = true;
         self.clip_unmirrored = !self.services.is_wayland && self.services.clipboard_unreadable.as_ref().is_some_and(|unreadable| unreadable());
         Ok(true)
