@@ -115,6 +115,23 @@ pub fn intercept(app: &mut PhotocraftApp, tool: Tool, x: f64, y: f64, pressure: 
     true
 }
 
+/// A Content-Aware Move drag released with non-zero `offset`: when Sample All Layers is off and
+/// the active type layer must be rasterized first, open the prompt and return true (#12187).
+pub fn intercept_content_aware_move(app: &mut PhotocraftApp, offset: [i32; 2]) -> bool {
+    if app.ui.tool_options.sample_all.content_aware_move {
+        return false;
+    }
+    let Some((kind @ Kind::Type, layer)) = needed(app) else { return false };
+    let Some(sel) = app.session.active().and_then(|st| st.doc.selection.as_ref()).map(crate::surface_fingerprint) else { return false };
+    if !app.ui.dialogs.iter().any(|d| owns(&d.fields)) {
+        let id = open(app, kind, layer, Tool::ContentAwareMove, [f64::from(offset[0]), f64::from(offset[1]), 1.0]);
+        if let Some(d) = app.ui.dialog_mut(id) {
+            d.fields.insert("selection".into(), json!(sel));
+        }
+    }
+    true
+}
+
 /// Open the prompt for `layer`; OK rasterizes it, then `tool` paints at `at` (x, y, pressure).
 pub fn open(app: &mut PhotocraftApp, kind: Kind, layer: photocraft_doc::LayerId, tool: Tool, at: [f64; 3]) -> u64 {
     let mut f = Map::new();
@@ -208,6 +225,11 @@ pub fn confirm(app: &mut PhotocraftApp, f: &Map<String, Value>) -> Result<Value,
     if let Some(filter) = f.get("filter").and_then(Value::as_str) {
         return confirm_filter(app, f, filter, layer);
     }
+    if let Some(sel) = f.get("selection").and_then(Value::as_u64)
+        && app.session.active().and_then(|st| st.doc.selection.as_ref()).map(crate::surface_fingerprint) != Some(sel)
+    {
+        return Err("the selection changed".into());
+    }
     let r = app.run(kind.command(), json!({ "layer": layer }))?;
     let tool = f.get("tool").and_then(Value::as_str).and_then(Tool::from_name);
     let at: Vec<f64> = f.get("at").and_then(Value::as_array).map(|a| a.iter().filter_map(Value::as_f64).collect()).unwrap_or_default();
@@ -219,8 +241,13 @@ pub fn confirm(app: &mut PhotocraftApp, f: &Map<String, Value>) -> Result<Value,
     app.ui.tool = tool;
     let before = app.session.active().map(|st| st.history.past_len());
     if app.session.active().and_then(|st| st.active_layer) == Some(photocraft_doc::LayerId(layer)) && x.is_finite() && y.is_finite() {
-        crate::canvas::tool_event(app, ToolEvent::Down { x, y, pressure: pressure.clamp(0.0, 1.0) }, egui::Modifiers::NONE);
-        crate::canvas::tool_event(app, ToolEvent::Up { x, y }, egui::Modifiers::NONE);
+        if tool == Tool::ContentAwareMove {
+            let off = [x.round().clamp(f64::from(i32::MIN), f64::from(i32::MAX)) as i32, y.round().clamp(f64::from(i32::MIN), f64::from(i32::MAX)) as i32];
+            crate::retouch_ui::apply_content_aware_move(app, off);
+        } else {
+            crate::canvas::tool_event(app, ToolEvent::Down { x, y, pressure: pressure.clamp(0.0, 1.0) }, egui::Modifiers::NONE);
+            crate::canvas::tool_event(app, ToolEvent::Up { x, y }, egui::Modifiers::NONE);
+        }
     }
     let painted = app.session.active().map(|st| st.history.past_len()) != before;
     Ok(json!({ "rasterized": r, "painted": painted }))
@@ -250,6 +277,8 @@ pub fn run_pending(app: &mut PhotocraftApp, ctx: &egui::Context) {
     }
 }
 
+#[cfg(test)]
+mod cam_tests;
 #[cfg(test)]
 mod tests;
 
