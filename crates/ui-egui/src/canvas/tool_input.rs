@@ -276,13 +276,15 @@ fn handle_move_pointer(app: &mut PhotocraftApp, ev: ToolEvent, tool: Tool, mods:
                     })
                 });
                 if locked_hit || (probe.as_ref().is_ok_and(|v| v["layer"].is_null()) && crate::move_box::empty_at(app, [x, y])) {
+                    let mut hit_id = None;
                     if locked_hit {
                         // A click still selects the locked layer, as in Photoshop; a drag's
                         // marquee then replaces that selection on release.
-                        let _ = app.run("layer.pickAt", json!({"x": x, "y": y, "target": target, "mode": mode}));
+                        let r = app.run("layer.pickAt", json!({"x": x, "y": y, "target": target, "mode": mode}));
+                        hit_id = r.ok().and_then(|v| v["layer"].as_u64()).map(photocraft_doc::LayerId);
                         note_move_pick(app, active_before);
                     }
-                    crate::move_box::begin(app, [x, y], mods.shift);
+                    crate::move_box::begin_with_layer(app, [x, y], mods.shift, hit_id);
                     return true;
                 }
                 let picked = app.run("layer.pickAt", json!({"x": x, "y": y, "target": target, "mode": mode}));
@@ -301,6 +303,8 @@ fn handle_move_pointer(app: &mut PhotocraftApp, ev: ToolEvent, tool: Tool, mods:
             // A locked layer: no drag, and Photoshop's message once the pointer moves (`move_lock`).
             if crate::move_lock::blocked(app, tool, [x, y], mods) {
                 app.move_blocked = true;
+                app.move_blocked_start = Some([x, y]);
+                app.move_viewport = app.current_viewport;
                 return true;
             }
             // With a selection: cut the selected pixels (⌥ copies them) and drag them as a floating
@@ -377,6 +381,46 @@ fn mixer_press_failed(app: &mut PhotocraftApp, message: String) {
     }
 }
 
+/// Handles pointer gestures on locked layers or targets where movement is disallowed.
+/// When dragging within the same document, shows the lock feedback promptly upon pointer movement
+/// (including when returning to the press point), while preserving cross-document drag transfers.
+fn handle_move_blocked_event(app: &mut PhotocraftApp, ev: ToolEvent, tool: Tool, mods: egui::Modifiers) -> bool {
+    // A locked layer (the Background without a selection, say): no drag, and the lock message
+    // once the pointer moves (a click says nothing). ⌘ with a selection tool here (#896); the Move
+    // tool below, once Auto-Select has picked the layer.
+    match ev {
+        ToolEvent::Down { x, y, .. } if tool != Tool::Move && app.ui.transform.is_none() && crate::move_lock::blocked(app, tool, [x, y], mods) => {
+            app.move_blocked = true;
+            app.move_blocked_start = Some([x, y]);
+            app.move_viewport = app.current_viewport;
+            true
+        }
+        ToolEvent::Move { .. } if app.move_blocked => {
+            // The window that armed the blocked drag resolves it: a second window's pointer
+            // must not clear the state or raise the lock dialog mid-drag.
+            if let (Some(owner), Some(here)) = (app.move_viewport, app.current_viewport)
+                && owner != here
+            {
+                return true;
+            }
+            if !crate::panels::layer_transfer::is_transfer_in_progress(app) {
+                app.move_blocked = false;
+                app.move_blocked_start = None;
+                app.move_viewport = None;
+                crate::move_lock::prompt(app);
+            }
+            true
+        }
+        ToolEvent::Up { .. } if app.move_blocked => {
+            app.move_blocked = false;
+            app.move_blocked_start = None;
+            app.move_viewport = None;
+            true
+        }
+        _ => false,
+    }
+}
+
 /// Tool state machine. Shared by mouse input and automation.
 pub fn tool_event(app: &mut PhotocraftApp, ev: ToolEvent, mods: egui::Modifiers) {
     if consumes_cancelled_vector_event(app, ev) {
@@ -388,24 +432,8 @@ pub fn tool_event(app: &mut PhotocraftApp, ev: ToolEvent, mods: egui::Modifiers)
     if handle_eyedropper_event(app, tool, ev, mods) {
         return;
     }
-    // A locked layer (the Background without a selection, say): no drag, and Photoshop's message
-    // once the pointer moves (a click says nothing). ⌘ with a selection tool here (#896); the Move
-    // tool below, once Auto-Select has picked the layer.
-    match ev {
-        ToolEvent::Down { x, y, .. } if tool != Tool::Move && app.ui.transform.is_none() && crate::move_lock::blocked(app, tool, [x, y], mods) => {
-            app.move_blocked = true;
-            return;
-        }
-        ToolEvent::Move { .. } if app.move_blocked => {
-            app.move_blocked = false;
-            crate::move_lock::prompt(app);
-            return;
-        }
-        ToolEvent::Up { .. } if app.move_blocked => {
-            app.move_blocked = false;
-            return;
-        }
-        _ => {}
+    if handle_move_blocked_event(app, ev, tool, mods) {
+        return;
     }
     if handle_move_pointer(app, ev, tool, mods) {
         return;
