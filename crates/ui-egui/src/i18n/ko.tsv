@@ -1862,6 +1862,8 @@
 	Mobile	모바일
 	Move Tool	이동 도구
 	Could not use the move tool because the layer is locked.	레이어가 잠겨 있어 이동 도구를 사용할 수 없습니다.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	이미지에 지원되지 않는 레이어 유형이 포함되어 있어 원근 자르기 도구를 사용할 수 없습니다.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	원근 자르기 도구는 비트맵 이미지에서 작동하지 않으므로 사용할 수 없습니다(편집하려면 이미지를 회색 음영 모드로 변환하십시오).
 	Could not complete the Free Transform command because the layer is locked.	레이어가 잠겨 있어 자유 변형 명령을 완료할 수 없습니다.
 	Could not transform because the layer is locked.	레이어가 잠겨 있어 변형할 수 없습니다.
 	Multiply	곱하기

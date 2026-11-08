@@ -1861,6 +1861,8 @@
 	Mobile	Mobil
 	Move Tool	Verschieben-Werkzeug
 	Could not use the move tool because the layer is locked.	Das Verschieben-Werkzeug konnte nicht verwendet werden, weil die Ebene gesperrt ist.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Das perspektivische Freistellungswerkzeug konnte nicht verwendet werden, weil das Bild nicht unterstützte Ebenentypen enthält.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Das perspektivische Freistellungswerkzeug konnte nicht verwendet werden, weil es nicht mit Bitmap-Bildern funktioniert (wandeln Sie das Bild zum Bearbeiten in den Modus „Graustufen“ um).
 	Could not complete the Free Transform command because the layer is locked.	Der Befehl „Frei transformieren“ konnte nicht ausgeführt werden, weil die Ebene gesperrt ist.
 	Could not transform because the layer is locked.	Transformieren nicht möglich, weil die Ebene gesperrt ist.
 	Multiply	Multiplizieren

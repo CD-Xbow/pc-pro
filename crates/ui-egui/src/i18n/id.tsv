@@ -1850,6 +1850,8 @@
 	Mobile	Seluler
 	Move Tool	Alat Pindah
 	Could not use the move tool because the layer is locked.	Tidak dapat menggunakan alat Pindahkan karena layer terkunci.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Tidak dapat menggunakan alat Crop Perspektif karena gambar berisi jenis layer yang tidak didukung.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Tidak dapat menggunakan alat Crop Perspektif karena alat ini tidak berfungsi dengan gambar Bitmap (konversikan gambar ke mode Grayscale untuk mengedit).
 	Could not complete the Free Transform command because the layer is locked.	Tidak dapat menyelesaikan perintah Transformasi Bebas karena layer terkunci.
 	Could not transform because the layer is locked.	Tidak dapat mentransformasi karena layer terkunci.
 	Multiply	Multiply

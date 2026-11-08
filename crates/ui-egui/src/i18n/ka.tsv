@@ -1661,6 +1661,8 @@
 	Mobile	მობილური
 	Move Tool	გადაადგილების ხელსაწყო
 	Could not use the move tool because the layer is locked.	გადაადგილების ხელსაწყო ვერ გამოიყენება, რადგან შრე ჩაკეტილია.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	პერსპექტიული ჩამოჭრის ხელსაწყო ვერ გამოიყენება, რადგან გამოსახულება შეიცავს შრეების მხარდაუჭერელ ტიპებს.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	პერსპექტიული ჩამოჭრის ხელსაწყო ვერ გამოიყენება, რადგან ის არ მუშაობს ბიტურ გამოსახულებებთან (რედაქტირებისთვის გადაიყვანეთ გამოსახულება ნაცრისფერი ტონების რეჟიმში).
 	Could not complete the Free Transform command because the layer is locked.	თავისუფალი გარდაქმნის ბრძანება ვერ შესრულდა, რადგან შრე ჩაკეტილია.
 	Could not transform because the layer is locked.	გარდაქმნა ვერ მოხერხდა, რადგან შრე ჩაკეტილია.
 	Multiply	გამრავლება

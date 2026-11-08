@@ -1751,6 +1751,8 @@
 	Mobile	موبائل
 	Move Tool	موو ٹول
 	Could not use the move tool because the layer is locked.	موو ٹول استعمال نہیں ہو سکا کیونکہ تہہ مقفل ہے۔
+	Could not use the perspective crop tool because the image contains unsupported layers types.	تناظری کراپ ٹول استعمال نہیں ہو سکا کیونکہ تصویر میں غیر معاون تہہ کی اقسام ہیں۔
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	تناظری کراپ ٹول استعمال نہیں ہو سکا کیونکہ یہ بٹ میپ تصاویر کے ساتھ کام نہیں کرتا (ترمیم کے لیے تصویر کو گرے اسکیل موڈ میں تبدیل کریں)۔
 	Could not complete the Free Transform command because the layer is locked.	آزاد ہیئت تبدیلی کمانڈ مکمل نہیں ہو سکی کیونکہ تہہ مقفل ہے۔
 	Multiply	ملٹیپلائی
 	My Brushes	میرے برشز

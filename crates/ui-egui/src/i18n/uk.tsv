@@ -1718,6 +1718,8 @@
 	{name} Properties	Властивості: {name}
 	Move Tool	Інструмент «Переміщення»
 	Could not use the move tool because the layer is locked.	Не вдалося використати інструмент «Переміщення», бо шар заблоковано.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Не вдалося використати інструмент «Перспективне кадрування», бо зображення містить непідтримувані типи шарів.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Не вдалося використати інструмент «Перспективне кадрування», бо він не працює із зображеннями в режимі бітової карти (для редагування перетворіть зображення в режим «Градації сірого»).
 	Could not complete the Free Transform command because the layer is locked.	Не вдалося виконати команду «Вільна трансформація», бо шар заблоковано.
 	Could not transform because the layer is locked.	Не вдалося трансформувати, бо шар заблоковано.
 	Rectangular Marquee Tool	Інструмент «Прямокутне виділення»

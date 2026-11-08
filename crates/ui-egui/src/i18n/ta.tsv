@@ -1745,6 +1745,8 @@
 	Mobile	மொபைல்
 	Move Tool	நகர்த்தும் கருவி
 	Could not use the move tool because the layer is locked.	அடுக்கு பூட்டப்பட்டிருப்பதால் நகர்த்தும் கருவியைப் பயன்படுத்த முடியவில்லை.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	படத்தில் ஆதரிக்கப்படாத அடுக்கு வகைகள் இருப்பதால் பார்வைக்கோண வெட்டுக் கருவியைப் பயன்படுத்த முடியவில்லை.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	பார்வைக்கோண வெட்டுக் கருவி பிட்மேப் படங்களுடன் வேலை செய்யாததால் அதைப் பயன்படுத்த முடியவில்லை (திருத்த, படத்தைச் சாம்பல் அளவு பயன்முறைக்கு மாற்றவும்).
 	Could not complete the Free Transform command because the layer is locked.	அடுக்கு பூட்டப்பட்டிருப்பதால் தன்னிச்சை உருமாற்றக் கட்டளையை முடிக்க முடியவில்லை.
 	Multiply	பெருக்கு
 	My Brushes	என் தூரிகைகள்

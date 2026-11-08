@@ -692,3 +692,5 @@ cameraRaw	Yellow	पीला
 	Auto-size Canvas	कैनवास का आकार स्वचालित रूप से बदलें
 	Keep Relative Position During Layer Reordering	लेयर्स का क्रम बदलते समय सापेक्ष स्थिति बनाए रखें
 	Shrinkwrap Canvas on Save	सहेजते समय कैनवास को सामग्री के अनुसार छोटा करें
+	Could not use the perspective crop tool because the image contains unsupported layers types.	परस्पेक्टिव क्रॉप टूल का उपयोग नहीं किया जा सका क्योंकि छवि में असमर्थित लेयर प्रकार हैं।
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	परस्पेक्टिव क्रॉप टूल का उपयोग नहीं किया जा सका क्योंकि यह बिटमैप छवियों के साथ काम नहीं करता (संपादित करने के लिए छवि को ग्रेस्केल मोड में बदलें)।

@@ -1793,6 +1793,8 @@
 	Mobile	Mobil
 	Move Tool	Instrument Deplasare
 	Could not use the move tool because the layer is locked.	Nu s-a putut folosi instrumentul Deplasare pentru că stratul este blocat.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Nu s-a putut folosi instrumentul Decupare cu perspectivă pentru că imaginea conține tipuri de straturi neacceptate.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Nu s-a putut folosi instrumentul Decupare cu perspectivă pentru că nu funcționează cu imagini bitmap (convertiți imaginea în modul Tonuri de gri pentru editare).
 	Could not complete the Free Transform command because the layer is locked.	Nu s-a putut finaliza comanda Transformare liberă pentru că stratul este blocat.
 	Multiply	Multiplicare
 	My Brushes	Pensulele mele

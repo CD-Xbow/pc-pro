@@ -1708,6 +1708,8 @@
 	Mobile	Mobilno
 	Move Tool	Alat za pomjeranje
 	Could not use the move tool because the layer is locked.	Nije moguće koristiti alat za pomjeranje jer je sloj zaključan.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Nije moguće koristiti alat za izrezivanje s perspektivom jer slika sadrži nepodržane vrste slojeva.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Nije moguće koristiti alat za izrezivanje s perspektivom jer ne radi s bitmapa slikama (pretvorite sliku u način Nijanse sive za uređivanje).
 	Could not complete the Free Transform command because the layer is locked.	Naredbu Slobodna transformacija nije moguće dovršiti jer je sloj zaključan.
 	Could not transform because the layer is locked.	Transformacija nije moguća jer je sloj zaključan.
 	Multiply	Množenje

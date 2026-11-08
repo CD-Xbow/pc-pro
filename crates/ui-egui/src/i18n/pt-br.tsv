@@ -1833,6 +1833,8 @@
 	Mobile	Dispositivos móveis
 	Move Tool	Ferramenta Mover
 	Could not use the move tool because the layer is locked.	Não foi possível usar a ferramenta Mover porque a camada está bloqueada.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Não foi possível usar a ferramenta Corte demarcado em perspectiva porque a imagem contém tipos de camadas não compatíveis.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Não foi possível usar a ferramenta Corte demarcado em perspectiva porque ela não funciona com imagens em bitmap (converta a imagem para o modo Tons de cinza para editar).
 	Could not complete the Free Transform command because the layer is locked.	Não foi possível concluir o comando Transformação livre porque a camada está bloqueada.
 	Could not transform because the layer is locked.	Não foi possível transformar porque a camada está bloqueada.
 	Multiply	Multiplicação

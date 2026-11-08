@@ -106,7 +106,19 @@ fn error_alert(error: &str) -> Option<&'static str> {
 
 /// Opens the alert: the message and an OK button, as a refused Move does (`move_lock::prompt`).
 fn refuse(app: &mut PhotocraftApp, message: &str) {
-    app.ui.open_dialog(DialogKind::Error, json!({"message": tl!(message)}).as_object().cloned().unwrap_or_default());
+    app.ui.open_dialog(DialogKind::Error, json!({"message": alert_text(message)}).as_object().cloned().unwrap_or_default());
+}
+
+/// The alert in the UI language. Literal keys, so `cargo xtask i18n-coverage` lists both alerts for
+/// the translators; `alert_keys_match_the_engine_texts` keeps them equal to the engine's texts.
+fn alert_text(message: &str) -> &str {
+    match message {
+        UNSUPPORTED_LAYERS_ERROR => tl!("Could not use the perspective crop tool because the image contains unsupported layers types."),
+        BITMAP_MODE_ERROR => {
+            tl!("Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).")
+        }
+        other => tl!(other),
+    }
 }
 
 /// Four points in quad order: clockwise on screen around their centre, starting top-left.
@@ -447,6 +459,17 @@ mod tests {
     }
 
     /// The message of every open error dialog, in the order they were opened.
+    /// #11874: the literal translation keys are the engine's alert texts, so an English UI shows
+    /// exactly what `image.perspectiveCrop` answers and the catalogs translate the right string.
+    #[test]
+    fn alert_keys_match_the_engine_texts() {
+        crate::i18n::with_language(crate::i18n::Lang::EN, || {
+            for text in [UNSUPPORTED_LAYERS_ERROR, BITMAP_MODE_ERROR] {
+                assert_eq!(alert_text(text), text);
+            }
+        });
+    }
+
     fn alerts(app: &PhotocraftApp) -> Vec<&str> {
         app.ui.dialogs.iter().filter(|d| d.kind == DialogKind::Error).filter_map(|d| d.fields.get("message").and_then(|m| m.as_str())).collect()
     }

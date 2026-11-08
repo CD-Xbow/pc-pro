@@ -1523,6 +1523,8 @@
 	{name} Properties	{name} Xüsusiyyətləri
 	Move Tool	Köçürmə aləti
 	Could not use the move tool because the layer is locked.	Qat kilidləndiyi üçün köçürmə alətindən istifadə etmək mümkün olmadı.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Təsvirdə dəstəklənməyən qat növləri olduğu üçün perspektiv kəsmə alətindən istifadə etmək mümkün olmadı.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Perspektiv kəsmə aləti Bitmap təsvirlərlə işləmədiyi üçün ondan istifadə etmək mümkün olmadı (redaktə üçün təsviri Boz rəng rejiminə çevirin).
 	Could not complete the Free Transform command because the layer is locked.	Sərbəst Transformasiya əmrini tamamlamaq mümkün olmadı, çünki qat kilidlidir.
 	Rectangular Marquee Tool	Düzbucaqlı seçim aləti
 	Elliptical Marquee Tool	Elliptik seçim aləti

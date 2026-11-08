@@ -1881,6 +1881,8 @@
 	Mobile	行動裝置
 	Move Tool	移動工具
 	Could not use the move tool because the layer is locked.	無法使用移動工具，因為圖層已鎖定。
+	Could not use the perspective crop tool because the image contains unsupported layers types.	無法使用透視裁切工具，因為影像包含不支援的圖層類型。
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	無法使用透視裁切工具，因為此工具不適用於點陣圖影像（請將影像轉換為灰階模式後再編輯）。
 	Could not complete the Free Transform command because the layer is locked.	無法完成「任意變形」指令，因為圖層已鎖定。
 	Could not transform because the layer is locked.	無法變形，因為圖層已鎖定。
 	Multiply	色彩增值

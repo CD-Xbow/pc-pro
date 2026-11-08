@@ -3480,6 +3480,8 @@ cameraRaw	Yellow	Κίτρινο
 	Magic Wand Tool	Μαγικό ραβδί (Magic Wand Tool)
 	Move Tool	Μετακίνηση (Move Tool)
 	Could not use the move tool because the layer is locked.	Δεν ήταν δυνατή η χρήση του εργαλείου Μετακίνηση, επειδή το επίπεδο είναι κλειδωμένο.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Δεν ήταν δυνατή η χρήση του εργαλείου Περικοπή προοπτικής, επειδή η εικόνα περιέχει μη υποστηριζόμενους τύπους επιπέδων.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Δεν ήταν δυνατή η χρήση του εργαλείου Περικοπή προοπτικής, επειδή δεν λειτουργεί με εικόνες bitmap (μετατρέψτε την εικόνα σε λειτουργία Κλίμακα του γκρι για επεξεργασία).
 	Could not complete the Free Transform command because the layer is locked.	Δεν ήταν δυνατή η ολοκλήρωση της εντολής Ελεύθερος μετασχηματισμός, επειδή το επίπεδο είναι κλειδωμένο.
 	Could not transform because the layer is locked.	Δεν ήταν δυνατός ο μετασχηματισμός, επειδή το επίπεδο είναι κλειδωμένο.
 	Note Tool	Σημείωση (Note Tool)

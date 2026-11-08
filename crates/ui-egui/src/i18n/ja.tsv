@@ -1887,6 +1887,8 @@
 	Mobile	モバイル
 	Move Tool	移動ツール
 	Could not use the move tool because the layer is locked.	レイヤーがロックされているため、移動ツールを使用できません。
+	Could not use the perspective crop tool because the image contains unsupported layers types.	画像にサポートされていない種類のレイヤーが含まれているため、遠近法の切り抜きツールを使用できません。
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	遠近法の切り抜きツールはビットマップ画像では使用できません（編集するには画像をグレースケールモードに変換してください）。
 	Could not complete the Free Transform command because the layer is locked.	レイヤーがロックされているため、自由変形コマンドを完了できません。
 	Could not transform because the layer is locked.	レイヤーがロックされているため、変形できません。
 	Multiply	乗算
