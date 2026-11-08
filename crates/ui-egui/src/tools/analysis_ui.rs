@@ -49,9 +49,18 @@ pub struct AnalysisUi {
     pub log_selected: Vec<u64>,
     /// Notes panel: the note shown (index).
     pub note_selected: Option<usize>,
-    /// Note tool options: author and colour of new notes.
+    /// Note tool options as the bar shows them: the selected note's author and colour while a note
+    /// is selected, else the tool defaults. New notes take these (#11790).
     pub note_author: String,
     pub note_color: [f32; 3],
+    /// The Note tool's own defaults for new notes, which a selected note's values never overwrite
+    /// (#11790).
+    pub note_default_author: String,
+    pub note_default_color: [f32; 3],
+    /// The (document, note) whose author and colour the bar shows. When the active document or
+    /// the selection has moved on, the bar loads the note now selected (#11790).
+    #[serde(skip)]
+    pub note_shown: Option<(u64, usize)>,
     /// Ruler options bar: show values in the measurement scale's units.
     pub use_measurement_scale: bool,
     /// Open dialog: (kind, fields). Kinds: "scale", "dataPoints", "scaleMarker".
@@ -69,6 +78,9 @@ impl Default for AnalysisUi {
             note_selected: None,
             note_author: String::new(),
             note_color: [1.0, 1.0, 0.51],
+            note_default_author: String::new(),
+            note_default_color: [1.0, 1.0, 0.51],
+            note_shown: None,
             use_measurement_scale: false,
             dialog: None,
             drag: None,
@@ -607,8 +619,35 @@ pub fn options_bar(app: &mut PhotocraftApp, ui: &mut egui::Ui, tool: Tool) -> bo
         }
         Tool::Note => {
             let t = Tokens::get(ui.ctx());
+            // A selected note shows its own author and colour, and editing them changes it (#11790);
+            // with none selected the bar shows, and edits, the tool's defaults for new notes.
+            let selected = selected_note(app);
+            match selected {
+                None => {
+                    let a = &mut app.ui.analysis;
+                    a.note_author.clone_from(&a.note_default_author);
+                    a.note_color = a.note_default_color;
+                    a.note_shown = None;
+                }
+                // Another document's note, or a note selected without loading it: show this one.
+                Some(i) if app.ui.analysis.note_shown != app.session.active().map(|d| (d.doc.id.0, i)) => show_note_options(app, i),
+                Some(_) => {}
+            }
             let author_label = ui.label(RichText::new(tl!("Author:")).color(t.text_dim).size(11.0));
-            ui.add(egui::TextEdit::singleline(&mut app.ui.analysis.note_author).desired_width(120.0)).labelled_by(author_label.id);
+            let author = ui.add(egui::TextEdit::singleline(&mut app.ui.analysis.note_author).desired_width(120.0)).labelled_by(author_label.id);
+            match selected {
+                None if author.changed() => app.ui.analysis.note_default_author.clone_from(&app.ui.analysis.note_author),
+                // Enter commits it to the selected note: one "Note Author" step. An unchanged
+                // author runs nothing, so a recorded action gets no step for it.
+                Some(i)
+                    if author.lost_focus()
+                        && ui.input(|inp| inp.key_pressed(egui::Key::Enter))
+                        && app.session.active().and_then(|d| d.doc.notes.get(i)).is_some_and(|n| n.author != app.ui.analysis.note_author) =>
+                {
+                    let _ = app.run("notes.set", json!({"index": i, "author": app.ui.analysis.note_author}));
+                }
+                _ => {}
+            }
             ui.label(RichText::new(tl!("Color:")).color(t.text_dim).size(11.0));
             let rgb = app.ui.analysis.note_color;
             if crate::widgets::color_swatch_button(ui, color32(rgb), tl!("Color")).clicked() {
@@ -794,13 +833,21 @@ pub fn windows(app: &mut PhotocraftApp, ctx: &egui::Context) {
     }
 }
 
+/// The note selected in the Notes panel, if it still exists in the active document.
+pub(crate) fn selected_note(app: &PhotocraftApp) -> Option<usize> {
+    let n = app.session.active().map_or(0, |d| d.doc.notes.len());
+    app.ui.analysis.note_selected.filter(|&i| i < n)
+}
+
 /// Selecting note `i` shows its author and colour in the Note tool's options bar, as Photoshop
-/// does (#7940); a new note then takes them unless they are changed.
+/// does (#7940); a new note then takes them unless they are changed. The tool's defaults stay
+/// as they were (#11790).
 fn show_note_options(app: &mut PhotocraftApp, i: usize) {
     let Some(note) = app.session.active().and_then(|d| d.doc.notes.get(i)) else { return };
     let (author, color) = (note.author.clone(), note.color.to_rgb());
     app.ui.analysis.note_author = author;
     app.ui.analysis.note_color = color;
+    app.ui.analysis.note_shown = app.session.active().map(|d| (d.doc.id.0, i));
 }
 
 fn notes_panel(app: &mut PhotocraftApp, ctx: &egui::Context) {
@@ -1125,3 +1172,7 @@ pub fn note_keys(app: &mut PhotocraftApp, ctx: &egui::Context) -> bool {
 #[cfg(test)]
 #[path = "note_delete_key_tests.rs"]
 mod note_delete_key_tests;
+
+#[cfg(test)]
+#[path = "note_options_edit_tests.rs"]
+mod note_options_edit_tests;
