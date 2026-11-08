@@ -3,7 +3,7 @@
 //! pasteboard (outside the image), a guide and a pending crop.
 
 use egui::Context;
-use photocraft_doc::LayerContent;
+use photocraft_doc::{ColorMode, LayerContent};
 use photocraft_engine::prefs::{self, CanvasColor};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -430,6 +430,9 @@ pub const NO_SELECTION_MENU: &[Row] = &[
     Some(("Load Selection…", "select.loadSelection")),
 ];
 
+/// Right-click with the Content-Aware Move tool inside an active selection (#12194).
+pub const CAM_INSIDE_SELECTION_MENU: &[Row] = &[Some(("Color Range…", "select.colorRange")), Some(("Load Selection…", "select.loadSelection"))];
+
 /// Photoshop's Pen context menu order. Rows whose operation is not applicable to the current
 /// path or layer stay visible and disabled.
 pub const PEN_MENU: &[Row] = &[
@@ -506,6 +509,15 @@ fn sampler_menu(menu: &CanvasToolMenu) -> bool {
     menu.tool == Tool::ColorSampler && !menu.transform && !menu.pasteboard && !menu.guide && menu.crop.is_none() && menu.anchor.is_none()
 }
 
+/// Is `menu` the Content-Aware Move tool's menu opened inside the active selection (#12194)?
+pub fn inside_selection(menu: &CanvasToolMenu) -> bool {
+    menu.tool == Tool::ContentAwareMove && menu.has_selection && menu.sampler.is_some()
+}
+
+fn cam_allowed(app: &PhotocraftApp) -> bool {
+    app.session.active().is_some_and(|s| !matches!(s.doc.mode, ColorMode::Bitmap | ColorMode::Duotone | ColorMode::Multichannel))
+}
+
 /// Tools whose plain canvas right-click opens a menu: the selection tools' actions, the path
 /// menu and the Color Sampler's.
 pub fn applies(tool: Tool) -> bool {
@@ -524,6 +536,7 @@ pub fn applies(tool: Tool) -> bool {
             // selection menu, as in Photoshop (#7268).
             | Tool::QuickSelection
             | Tool::ColorSampler
+            | Tool::ContentAwareMove
     ) || path_menu(tool)
 }
 
@@ -575,6 +588,8 @@ pub fn rows(menu: &CanvasToolMenu) -> &'static [Row] {
         PEN_MENU
     } else if sampler_menu(menu) {
         SAMPLER_MENU
+    } else if inside_selection(menu) {
+        CAM_INSIDE_SELECTION_MENU
     } else {
         selection_rows(menu.has_selection)
     }
@@ -888,6 +903,9 @@ pub fn entry_enabled(app: &PhotocraftApp, menu: &CanvasToolMenu, command: &str) 
     if sampler_menu(menu) {
         return command == SAMPLER_DELETE && menu.sampler.is_some() && sampler_current(app, menu);
     }
+    if inside_selection(menu) && command == "select.loadSelection" {
+        return app.session.active().is_some_and(|st| !st.doc.channels.is_empty()) && crate::menus::is_enabled(app, command);
+    }
     if menu.transform || !path_menu(menu.tool) {
         return crate::menus::is_enabled(app, command);
     }
@@ -942,14 +960,28 @@ pub fn open_at(app: &mut PhotocraftApp, ctx: &Context, tool: Tool, pos: [f32; 2]
     if !(applies(tool) || text || type_layer) {
         return false;
     }
+    if tool == Tool::ContentAwareMove && !cam_allowed(app) {
+        crate::color_hud::release(&mut app.ui);
+        return false;
+    }
     app.ui.brush_picker = None;
     app.ui.layer_menu = None;
     let has_selection = app.session.active().is_some_and(|s| s.doc.selection.is_some());
     let has_path = crate::vector_ui::active_path_name(app).is_some() || app.ui.pen.as_ref().is_some_and(|p| p.knots.len() >= 2);
     let path_name = crate::vector_ui::active_path_name(app);
     let spelling = if text { doc.and_then(|d| spelling_at(app, d)) } else { None };
+    let inside = tool == Tool::ContentAwareMove
+        && doc.is_some_and(|d| {
+            d.iter().all(|v| v.is_finite())
+                && app
+                    .session
+                    .active()
+                    .and_then(|s| s.doc.selection.as_ref())
+                    .is_some_and(|sel| sel.sample_channel(d[0].floor() as i32, d[1].floor() as i32, 0) > 0.0)
+        });
     let sampler = if tool == Tool::ColorSampler { doc.and_then(|d| crate::analysis_ui::sampler_at(app, d)) } else { None };
     let sampler_at = sampler.and_then(|i| Some((app.session.active_index()?, *app.session.active()?.color_samplers.get(i)?)));
+    let sampler = sampler.or_else(|| inside.then_some(0));
     app.ui.canvas_tool_menu = Some(CanvasToolMenu {
         pos,
         tool,
@@ -1315,6 +1347,8 @@ pub fn show(app: &mut PhotocraftApp, ctx: &Context) {
     }
 }
 
+#[cfg(test)]
+mod cam_menu_tests;
 #[cfg(test)]
 mod tests;
 
