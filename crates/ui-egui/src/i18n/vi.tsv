@@ -4114,6 +4114,8 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	A picked document is no longer open.	Một tài liệu đã chọn không còn mở.
 	A picked document is no longer a grayscale document of the same size.	Một tài liệu đã chọn không còn là tài liệu thang xám cùng kích thước.
 	Netscape Gray	Xám Netscape
+	Automation read folder	Thư mục đọc cho tự động hóa
+	Automation write folder	Thư mục ghi cho tự động hóa
 # Move tool options bar (#11381)
 	Align top edges	Căn các cạnh trên
 	Align vertical centers	Căn các tâm dọc

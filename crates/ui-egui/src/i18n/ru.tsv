@@ -4794,6 +4794,8 @@ shape	Appearance	Оформление
 	A picked document is no longer open.	Один из выбранных документов больше не открыт.
 	A picked document is no longer a grayscale document of the same size.	Один из выбранных документов больше не является документом в градациях серого того же размера.
 	Netscape Gray	Серый Netscape
+	Automation read folder	Папка чтения для автоматизации
+	Automation write folder	Папка записи для автоматизации
 # Move tool options bar (#11381)
 	Align top edges	Выровнять верхние края
 	Align vertical centers	Выровнять центры по вертикали
