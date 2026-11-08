@@ -613,7 +613,7 @@ pub(super) fn show(app: &mut PhotocraftApp, ctx: &egui::Context, idx: usize, xf:
         .session
         .documents()
         .get(idx)
-        .map(|st| (st.revision, st.last_damage.map(|r| if r.is_empty() { r } else { r.inflate(effect_reach(&st.doc.layers)) }), st.doc.id, st.doc.size))
+        .map(|st| (st.revision, (st.damage_from(), st.last_damage.map(|r| if r.is_empty() { r } else { r.inflate(effect_reach(&st.doc.layers)) })), st.doc.id, st.doc.size))
     else {
         return false;
     };

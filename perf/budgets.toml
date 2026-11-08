@@ -856,3 +856,11 @@ bench = "flat_open_bench"
 row = "open 36 MP JPEG RGB8: editable"
 budget_ms = 500
 enforce = false  # new; no baseline yet
+
+[[scenario]]
+id = "P89"
+title = "App frame after Paste Into on 24 MP (CPU canvas)"
+issue = 9329
+bench = "perf_scenarios"
+row = "app frame after Paste Into on 24 MP (CPU canvas)"
+enforce = false  # new; no baseline yet
