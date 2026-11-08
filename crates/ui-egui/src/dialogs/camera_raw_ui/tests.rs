@@ -300,7 +300,7 @@ fn distant_sparse_pixels_cannot_trigger_an_unbounded_proxy_scan() {
     let layer = app.session.active().unwrap().active_layer.unwrap();
     let mut source = photocraft_raster::Surface::new(photocraft_color::PixelFormat::RGBA8);
     source.write_region(Rect::new(30_000, 30_000, 30_001, 30_001), &[0.5, 0.5, 0.5, 1.0]);
-    let result = open_pixels(&mut app, &ctx, layer, source, CameraRaw::default(), Coverage::None, Target::NewFilter);
+    let result = open_pixels(&mut app, &ctx, layer, source.into(), CameraRaw::default(), Coverage::None, Target::NewFilter);
     assert!(result.unwrap_err().contains("bounds are too large"));
     assert!(app.camera_raw.is_none());
 }
@@ -431,6 +431,75 @@ fn the_demosaic_method_is_chosen_at_open() {
     let raw = take_queued(&mut app).unwrap();
     use photocraft_io::raw::Demosaic;
     assert_eq!((raw.developed_with, raw.demosaic), (Demosaic::Bilinear, Demosaic::Bilinear));
+}
+
+/// A raw whose default develop clips its highlights (baseline exposure +1.5 EV), large enough
+/// that the preview bins it (1802 px: a factor of 3, with a ragged last column of blocks).
+fn bright_raw() -> Vec<u8> {
+    use photocraft_raw::testgen::{DngSpec, mosaic, scene};
+    let (w, h) = (1802, 1200);
+    let mut spec = DngSpec::cfa(w, h, mosaic(&scene(w, h), w, [0, 1, 1, 2], 0, 60000));
+    spec.as_shot_neutral = Some([0.5, 1.0, 0.7]);
+    spec.baseline_exposure = Some(1.5);
+    spec.build()
+}
+
+/// Mean and largest per-channel difference of two proxies.
+fn proxy_difference(a: &[[f32; 4]], b: &[[f32; 4]]) -> (f32, f32) {
+    let d: Vec<f32> = a.iter().zip(b).flat_map(|(a, b)| (0..3).map(move |c| (a[c] - b[c]).abs())).collect();
+    (d.iter().sum::<f32>() / d.len().max(1) as f32, d.iter().copied().fold(0.0, f32::max))
+}
+
+/// The open-time preview of a raw-stage setting is what Open develops: at Exposure −4 the
+/// preview used to darken the default develop, whose clipped highlights turned flat grey, while Open
+/// re-develops the sensor data and keeps their gradation and colour.
+#[test]
+fn the_preview_of_a_raw_stage_setting_matches_what_open_develops() {
+    let (mut app, _) = raw_app();
+    let ctx = egui::Context::default();
+    let dng = bright_raw();
+    for set in [json!({"exposure": -4.0}), json!({"exposure": -3.0, "highlights": -60, "shadows": 40, "temperature": 25, "contrast": 15})] {
+        app.open_bytes("bright.dng", &dng).unwrap();
+        let raw = take_queued(&mut app).unwrap();
+        open_raw(&mut app, &ctx, raw).unwrap();
+        let d = app.camera_raw.as_ref().unwrap();
+        let clipped = d.proxy.iter().filter(|p| p[0].max(p[1]).max(p[2]) > 0.999).count() as f32 / d.proxy.len() as f32;
+        assert!(clipped > 0.2, "the default develop clips the highlights: {clipped}");
+        menu(&mut app, &ctx, "filter.cameraRaw", &json!({"ui": {"set": set.clone()}})).unwrap().unwrap();
+        let d = app.camera_raw.as_mut().unwrap();
+        d.render(&ctx);
+        let (preview, pw, ph) = (d.processed.clone(), d.pw, d.ph);
+        assert_eq!((pw, ph, d.full_w), (601, 400, 1802), "binned by 3");
+        let r = menu(&mut app, &ctx, "filter.cameraRaw", &json!({"ui": {"commit": true}})).unwrap().unwrap();
+        assert_eq!(r["redeveloped"], true, "{r}");
+        let st = app.session.active().unwrap();
+        let surf = st.doc.layers.iter().find_map(|l| l.surface()).unwrap();
+        let (area, w, h) = super::convert::preview_area(st.doc.bounds(), surf).unwrap();
+        let (open, ow, oh, _) = super::convert::box_proxy(surf, area, w, h);
+        assert_eq!((ow, oh), (pw, ph));
+        let (mean, max) = proxy_difference(&preview, &open);
+        assert!(mean < 0.01 && max < 0.08, "{set}: the preview differs from Open by {mean} on average, {max} at most");
+    }
+}
+
+/// The proxy of a raw too small to bin develops with the demosaic method the raw was opened
+/// with, so the Before view and the settings it was opened with show the document's own pixels.
+#[test]
+fn an_unbinned_proxy_uses_the_demosaic_method_the_raw_was_opened_with() {
+    let (mut app, dng) = raw_app();
+    let ctx = egui::Context::default();
+    app.run("prefs.set", json!({"path": "rawDefaults.demosaic", "value": "bilinear"})).unwrap();
+    app.open_bytes("IMG_0007.dng", &dng).unwrap();
+    let raw = take_queued(&mut app).unwrap();
+    open_raw(&mut app, &ctx, raw).unwrap();
+    let d = app.camera_raw.as_ref().unwrap();
+    assert!(d.raw_proxy, "the proxy is the raw's own develop");
+    let st = app.session.active().unwrap();
+    let surf = st.doc.layers.iter().find_map(|l| l.surface()).unwrap();
+    let (area, w, h) = super::convert::preview_area(st.doc.bounds(), surf).unwrap();
+    let (doc_proxy, ..) = super::convert::box_proxy(surf, area, w, h);
+    let (mean, max) = proxy_difference(&d.proxy, &doc_proxy);
+    assert!(max < 1e-4, "the proxy is the document as developed: {mean} {max}");
 }
 
 #[test]
@@ -1334,4 +1403,44 @@ fn done_keeps_the_raws_open_when_a_sidecar_write_fails() {
     assert_eq!((r["done"].clone(), r["saved"].clone()), (json!(true), json!([])), "{r}");
     assert!(app.camera_raw.is_none() && !app.ui.status_error, "{}", app.ui.status);
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Auto reads the default develop at the preview's size, not the binned sensor proxy, so the
+/// dialog's Auto and Camera Raw Defaults' Auto for a raw Open develops unseen agree.
+#[test]
+fn auto_reads_the_default_develop_when_the_proxy_is_binned() {
+    let (mut app, _) = raw_app();
+    let ctx = egui::Context::default();
+    app.open_bytes("bright.dng", &bright_raw()).unwrap();
+    let raw = take_queued(&mut app).unwrap();
+    open_raw(&mut app, &ctx, raw).unwrap();
+    assert!(app.camera_raw.as_ref().unwrap().raw_proxy);
+    let mut expected = CameraRaw::default();
+    {
+        let (surf, area) = app.camera_raw.as_ref().unwrap().detail.source();
+        let (w, h) = (area.width() as usize, area.height() as usize);
+        photocraft_algo::camera_raw::auto_tone(&super::convert::box_proxy(surf, area, w, h).0, &mut expected);
+    }
+    let r = menu(&mut app, &ctx, "filter.cameraRaw", &json!({"ui": {"auto": true}})).unwrap().unwrap();
+    assert_eq!(r["params"]["exposure"].as_f64().map(|v| v as f32), Some(expected.exposure));
+    assert_eq!(r["params"]["whites"].as_f64().map(|v| v as f32), Some(expected.whites));
+}
+
+/// With Color Settings converting raws to the working space on open, the proxy developed from
+/// the sensor data is converted the same way, so it shows the document's colours.
+#[test]
+fn the_sensor_proxy_takes_the_open_policys_conversion() {
+    let (mut app, dng) = raw_app();
+    let ctx = egui::Context::default();
+    app.run("edit.colorSettings", json!({"policyRgb": "convert", "askOnMismatch": false})).unwrap();
+    app.open_bytes("IMG_0008.dng", &dng).unwrap();
+    let raw = take_queued(&mut app).unwrap();
+    open_raw(&mut app, &ctx, raw).unwrap();
+    let d = app.camera_raw.as_ref().unwrap();
+    assert!(d.raw_proxy && d.raw_source.as_ref().is_some_and(|r| r.to_document.is_some()), "a converted document");
+    let (surf, area) = d.detail.source();
+    let (w, h) = (area.width() as usize, area.height() as usize);
+    let (doc_proxy, ..) = super::convert::box_proxy(surf, area, w, h);
+    let (_, max) = proxy_difference(&d.proxy, &doc_proxy);
+    assert!(max < 2e-3, "the proxy is the converted document: {max}");
 }

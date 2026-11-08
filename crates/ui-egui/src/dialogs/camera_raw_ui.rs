@@ -48,6 +48,7 @@ pub use open::{
     without_develop_note,
 };
 use open::{Target, non_defaults};
+pub(crate) use open::{after_raw_stage, raw_tuning};
 use proxy::{ProxyFrame, ProxyJob};
 pub use sidecar::sidecar_path;
 #[cfg(test)]
@@ -102,6 +103,15 @@ pub struct CameraRawDialog {
     /// The open-time dialog's camera tone curve: Shadows / Highlights act on the raw data there,
     /// in linear light before this curve, and the preview undoes it to show the same.
     raw_curve: Option<std::sync::Arc<Vec<[f32; 2]>>>,
+    /// The open-time dialog's raw file, decoded: the preview develops the raw-stage settings
+    /// from its sensor data, as Open does, and [`Self::proxy`] is its binned frame developed with
+    /// the defaults.
+    raw_source: Option<crate::camera_raw_detail_ui::RawDetail>,
+    /// [`Self::proxy`] is [`Self::raw_source`]'s binned frame, so the proxy develops from it.
+    raw_proxy: bool,
+    /// The default develop at the preview's size, for Auto when the proxy is the binned frame:
+    /// averaged once, on the first Auto.
+    auto_proxy: std::sync::OnceLock<Vec<[f32; 4]>>,
     /// The proxy develop running on a worker ([`Self::request_render`]).
     pending: Option<std::sync::mpsc::Receiver<Result<ProxyFrame, String>>>,
     /// The last worker failure the status bar shows, with the preview revision it failed on.
@@ -168,6 +178,20 @@ impl CameraRawDialog {
         if self.show_before { &self.before_histogram } else { &self.after_histogram }
     }
 
+    /// The pixels Auto reads: the default develop box-averaged to the preview's size, also when the
+    /// proxy is a raw's binned sensor data, so the dialog's Auto and Camera Raw Defaults' Auto for
+    /// a raw never shown read the same pixels.
+    pub(crate) fn auto_pixels(&self) -> std::borrow::Cow<'_, [[f32; 4]]> {
+        if !self.raw_proxy {
+            return std::borrow::Cow::Borrowed(self.proxy.as_slice());
+        }
+        std::borrow::Cow::Borrowed(self.auto_proxy.get_or_init(|| {
+            let (surf, area) = self.detail.source();
+            let (w, h) = (area.width() as usize, area.height() as usize);
+            convert::box_proxy(surf, area, w, h).0
+        }))
+    }
+
     /// Params for the engine: only the settings that differ from the defaults.
     pub fn command_params(&self) -> Value {
         non_defaults(&self.params)
@@ -200,6 +224,7 @@ impl CameraRawDialog {
             proxy: self.proxy.clone(),
             selection: self.selection.clone(),
             raw_curve: self.raw_curve.clone(),
+            raw_source: self.raw_source.clone().filter(|_| self.raw_proxy),
             params: self.params.clone(),
             float: self.float,
             size: (self.pw, self.ph),
