@@ -42,12 +42,13 @@ use convert::open_pixels;
 pub use filmstrip::HeldRaw;
 pub use menu::menu;
 #[cfg(test)]
-use open::{Coverage, commit_open_raw, document_index, finish_redevelop, open_raw, replace_raw_document};
+use open::{Coverage, commit_open_raw, finish_redevelop, open_raw, replace_raw_document};
 pub use open::{
-    REDEVELOP_JOB, RawOpen, Redevelop, on_redevelop_event, open, open_smart_filter, opened_without_dialog, queue_open_dialog, wants_open_dialog,
-    without_develop_note,
+    REDEVELOP_JOB, RawOpen, Redevelop, hold_for_dialog, on_redevelop_event, open, open_smart_filter, opened_without_dialog, queue_open_dialog,
+    queue_open_dialog_in_session, wants_open_dialog, without_develop_note,
 };
 use open::{Target, non_defaults};
+pub(crate) use open::{after_raw_stage, raw_tuning};
 use proxy::{ProxyFrame, ProxyJob};
 pub use sidecar::sidecar_path;
 #[cfg(test)]
@@ -102,6 +103,15 @@ pub struct CameraRawDialog {
     /// The open-time dialog's camera tone curve: Shadows / Highlights act on the raw data there,
     /// in linear light before this curve, and the preview undoes it to show the same.
     raw_curve: Option<std::sync::Arc<Vec<[f32; 2]>>>,
+    /// The open-time dialog's raw file, decoded: the preview develops the raw-stage settings
+    /// from its sensor data, as Open does, and [`Self::proxy`] is its binned frame developed with
+    /// the defaults.
+    raw_source: Option<crate::camera_raw_detail_ui::RawDetail>,
+    /// [`Self::proxy`] is [`Self::raw_source`]'s binned frame, so the proxy develops from it.
+    raw_proxy: bool,
+    /// The default develop at the preview's size, for Auto when the proxy is the binned frame:
+    /// averaged once, on the first Auto.
+    auto_proxy: std::sync::OnceLock<Vec<[f32; 4]>>,
     /// The proxy develop running on a worker ([`Self::request_render`]).
     pending: Option<std::sync::mpsc::Receiver<Result<ProxyFrame, String>>>,
     /// The last worker failure the status bar shows, with the preview revision it failed on.
@@ -118,6 +128,13 @@ pub struct CameraRawDialog {
     redo: Vec<CameraRaw>,
     /// Params at pointer-down. One drag is one undo step.
     edit_origin: Option<CameraRaw>,
+    /// The settings as last applied to the other raws selected in the filmstrip: what differs
+    /// from them is the edit to apply next ([`filmstrip::sync_selected`]).
+    synced: CameraRaw,
+    /// Auto was pressed: the other selected raws get their own Auto, not these values.
+    auto_all: bool,
+    /// The preview revision the shown raw's filmstrip thumbnail was last taken from.
+    thumb_revision: u64,
 }
 
 impl CameraRawDialog {
@@ -168,6 +185,20 @@ impl CameraRawDialog {
         if self.show_before { &self.before_histogram } else { &self.after_histogram }
     }
 
+    /// The pixels Auto reads: the default develop box-averaged to the preview's size, also when the
+    /// proxy is a raw's binned sensor data, so the dialog's Auto and Camera Raw Defaults' Auto for
+    /// a raw never shown read the same pixels.
+    pub(crate) fn auto_pixels(&self) -> std::borrow::Cow<'_, [[f32; 4]]> {
+        if !self.raw_proxy {
+            return std::borrow::Cow::Borrowed(self.proxy.as_slice());
+        }
+        std::borrow::Cow::Borrowed(self.auto_proxy.get_or_init(|| {
+            let (surf, area) = self.detail.source();
+            let (w, h) = (area.width() as usize, area.height() as usize);
+            convert::box_proxy(surf, area, w, h).0
+        }))
+    }
+
     /// Params for the engine: only the settings that differ from the defaults.
     pub fn command_params(&self) -> Value {
         non_defaults(&self.params)
@@ -200,6 +231,7 @@ impl CameraRawDialog {
             proxy: self.proxy.clone(),
             selection: self.selection.clone(),
             raw_curve: self.raw_curve.clone(),
+            raw_source: self.raw_source.clone().filter(|_| self.raw_proxy),
             params: self.params.clone(),
             float: self.float,
             size: (self.pw, self.ph),
@@ -297,6 +329,14 @@ impl CameraRawDialog {
         }
         self.preview_error = None;
     }
+}
+
+/// The open dialog as the control channel describes it ([`CameraRawDialog::describe`]), with the
+/// filmstrip of raws being opened together.
+pub fn describe(app: &PhotocraftApp) -> Option<Value> {
+    let mut v = app.camera_raw.as_ref()?.describe(&app.ui.camera_raw_scope, &app.ui.camera_raw_preview);
+    v["filmstrip"] = filmstrip::describe(app);
+    Some(v)
 }
 
 // The shared Curve editor must never produce a curve `CameraRaw::validate` rejects.
