@@ -880,7 +880,8 @@ pub fn entry_enabled(app: &PhotocraftApp, menu: &CanvasToolMenu, command: &str) 
     if sampler_menu(menu) {
         return command == SAMPLER_DELETE && menu.sampler.is_some() && sampler_current(app, menu);
     }
-    if menu.transform || !path_menu(menu.tool) {
+    // The view menu (Space's Hand over a path tool, #11271) keeps the View commands' own rules.
+    if menu.transform || menu.anchor.is_some() || !path_menu(menu.tool) {
         return crate::menus::is_enabled(app, command);
     }
     let Some(st) = app.session.active() else { return false };
@@ -964,7 +965,8 @@ pub fn open_at(app: &mut PhotocraftApp, ctx: &Context, tool: Tool, pos: [f32; 2]
 }
 
 /// Right-click with the Zoom or Hand tool at screen point `pos`, over document point `doc`: the
-/// view menu.
+/// view menu. The menu belongs to the selected tool, so it closes when that changes: with the
+/// Hand held by Space over another tool, the one underneath (#11271).
 pub fn open_view(app: &mut PhotocraftApp, ctx: &Context, tool: Tool, pos: [f32; 2], doc: [f64; 2]) -> bool {
     if !is_view_tool(tool) || !pos.iter().all(|v| v.is_finite()) || !doc.iter().all(|v| v.is_finite()) {
         return false;
@@ -973,7 +975,7 @@ pub fn open_view(app: &mut PhotocraftApp, ctx: &Context, tool: Tool, pos: [f32; 
     app.ui.layer_menu = None;
     app.ui.canvas_tool_menu = Some(CanvasToolMenu {
         pos,
-        tool,
+        tool: app.ui.tool,
         has_selection: false,
         has_path: false,
         path_name: None,
