@@ -840,6 +840,8 @@ pub fn apply_workspace(app: &mut PhotocraftApp) {
     app.ui.docking_reveal = None;
     app.ui.docking_generation = app.ui.docking_generation.wrapping_add(1);
     app.ui.docking = None;
+    // Essentials adds a column of panel icons beside the dock (`panel_docking::essentials`).
+    app.ui.docking_essentials = app.ui.workspace == "Essentials";
     app.ui.docking_kept = None;
     app.ui.docking_returns.clear();
     app.ui.docking_collapsed.clear();
