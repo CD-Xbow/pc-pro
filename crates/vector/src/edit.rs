@@ -349,17 +349,47 @@ pub fn hit(path: &Path, p: Point, tol: f64, handles: &[([usize; 2], Handle)]) ->
     if let Some(h) = nearest(&mut anchors.into_iter()) {
         return Some(h);
     }
-    // Segments: the nearest of 64 samples, refined once around it (plenty at screen tolerances).
-    const N: usize = 64;
+    // Segments: a segment lies inside its control points' bounds, so one farther than `tol` from
+    // them is skipped unsampled (hover tests run every frame). The rest are sampled finely enough
+    // to find the nearest stretch of a long segment, and the bracket around the nearest sample is
+    // narrowed by golden-section search, so the true nearest point decides at any length or zoom.
     let mut segs = path.subpaths.iter().enumerate().flat_map(|(s, sp)| {
-        sp.segments().into_iter().enumerate().map(move |(k, seg)| {
-            let best = (0..=N).map(|i| i as f64 / N as f64).map(|t| (dist(eval(&seg, t), p), t)).min_by(|a, b| a.0.total_cmp(&b.0)).unwrap_or((f64::MAX, 0.5));
-            let step = 1.0 / N as f64;
-            let fine = (0..=16)
-                .map(|i| (best.1 - step + 2.0 * step * i as f64 / 16.0).clamp(0.0, 1.0))
-                .map(|t| (dist(eval(&seg, t), p), t))
-                .fold(best, |a, b| if b.0 < a.0 { b } else { a });
-            (fine.0, Hit::Segment([s, k], fine.1))
+        sp.segments().into_iter().enumerate().filter_map(move |(k, seg)| {
+            // Nothing can be hit on a segment with an infinite or NaN point; don't sample it.
+            if seg.iter().any(|q| !q.x.is_finite() || !q.y.is_finite()) {
+                return None;
+            }
+            let lo = seg.iter().fold(Point::new(f64::INFINITY, f64::INFINITY), |a, q| Point::new(a.x.min(q.x), a.y.min(q.y)));
+            let hi = seg.iter().fold(Point::new(f64::NEG_INFINITY, f64::NEG_INFINITY), |a, q| Point::new(a.x.max(q.x), a.y.max(q.y)));
+            if p.x < lo.x - tol || p.x > hi.x + tol || p.y < lo.y - tol || p.y > hi.y + tol {
+                return None;
+            }
+            let at = |t: f64| dist(eval(&seg, t), p);
+            let len = dist(seg[0], seg[1]) + dist(seg[1], seg[2]) + dist(seg[2], seg[3]);
+            let n = ((len / tol.max(0.5)).ceil() as usize).clamp(16, 4096);
+            let samples: Vec<(f64, f64)> = (0..=n).map(|i| i as f64 / n as f64).map(|t| (at(t), t)).collect();
+            let step = 1.0 / n as f64;
+            // The curve between two samples is at most `len / n` from both, so every stretch that
+            // comes within `tol` lies beside a sample within `tol + len / n`: refine each of those
+            // (a curve can pass the pointer more than once, and the nearest sample may be on the
+            // farther pass).
+            let reach = tol + len / n as f64;
+            let refine = |&(d, t): &(f64, f64)| {
+                let (mut a, mut b) = ((t - step).max(0.0), (t + step).min(1.0));
+                const G: f64 = 0.618_033_988_749_894_8;
+                for _ in 0..48 {
+                    let (c, e) = (b - G * (b - a), a + G * (b - a));
+                    if at(c) < at(e) {
+                        b = e;
+                    } else {
+                        a = c;
+                    }
+                }
+                let m = 0.5 * (a + b);
+                if at(m) < d { (at(m), m) } else { (d, t) }
+            };
+            let best = samples.iter().filter(|x| x.0 <= reach).map(refine).min_by(|a, b| a.0.total_cmp(&b.0))?;
+            Some((best.0, Hit::Segment([s, k], best.1)))
         })
     });
     nearest(&mut segs)
@@ -523,6 +553,62 @@ mod tests {
         assert_eq!(r, [0, 0]);
         assert!((t - 0.5).abs() < 0.02, "{t}");
         assert_eq!(hit(&tri(), Point::new(50.0, 40.0), 3.0, &[]), None);
+        // A long segment is sampled too coarsely for a fixed count: a click within the grab
+        // radius of its middle, but between the refined samples, used to miss it.
+        let long = Path::new(vec![Subpath::polyline(&[(0.0, 0.0), (2000.0, 0.0)])]);
+        let misses: Vec<f64> = (0..=400)
+            .map(|i| 0.4 + 0.2 * f64::from(i) / 400.0)
+            .filter(|&t| {
+                let on = eval(&long.subpaths[0].segments()[0], t);
+                !matches!(hit(&long, Point::new(on.x, on.y + 3.5), 4.0, &[]), Some(Hit::Segment([0, 0], _)))
+            })
+            .collect();
+        assert!(misses.is_empty(), "missed the segment at t = {misses:?}");
+    }
+
+    /// Whether `hit` finds the only segment of a straight `len`-unit line within `tol` of `p`.
+    fn hits_line(len: f64, p: Point, tol: f64) -> bool {
+        let line = Path::new(vec![Subpath::polyline(&[(0.0, 0.0), (len, 0.0)])]);
+        matches!(hit(&line, p, tol, &[]), Some(Hit::Segment([0, 0], _)))
+    }
+
+    #[test]
+    fn segment_hits_find_the_nearest_point_at_any_length_or_tolerance() {
+        // Just inside the grab radius of a short line, between the samples.
+        assert!(hits_line(50.0, Point::new(25.293, 3.99), 4.0));
+        // A tolerance under half a unit (deep zoom), on the line between the samples.
+        let misses: Vec<f64> = (0..=200).map(|i| 1.0 + 98.0 * f64::from(i) / 200.0).filter(|&x| !hits_line(100.0, Point::new(x, 0.05), 0.1)).collect();
+        assert!(misses.is_empty(), "missed the line at x = {misses:?}");
+        // A line longer than the sample cap covers, clicked on the line.
+        assert!(hits_line(50_000.0, Point::new(25_001.7, 0.0), 1.0));
+        // Still a miss just outside the radius, and far from the line's bounds.
+        assert!(!hits_line(50.0, Point::new(25.0, 4.01), 4.0));
+        assert!(!hits_line(50.0, Point::new(80.0, 0.0), 4.0));
+    }
+
+    #[test]
+    fn a_curve_that_passes_the_pointer_twice_is_hit_on_the_nearer_pass() {
+        // A long self-crossing loop, clicked near the crossing: the pass nearest at a sample is
+        // outside the radius, the other pass runs inside it between two samples.
+        let mut sp = Subpath::polyline(&[(0.0, 0.0), (10_000.0, 0.0)]);
+        sp.knots[0] = Knot::smooth(Point::new(0.0, 0.0), Point::new(0.0, 0.0), Point::new(30_000.0, 20_000.0));
+        sp.knots[1] = Knot::smooth(Point::new(10_000.0, 0.0), Point::new(-20_000.0, 20_000.0), Point::new(10_000.0, 0.0));
+        let path = Path::new(vec![sp]);
+        let seg = path.subpaths[0].segments()[0];
+        let p = Point::new(4_998.446_481_864_52, 3_752.481_342_967_407);
+        let nearest = (0..=10_000).map(|i| dist(eval(&seg, 0.932 + 0.002 * f64::from(i) / 10_000.0), p)).fold(f64::INFINITY, f64::min);
+        assert!(nearest < 0.9, "the far pass runs {nearest} from the pointer");
+        let Some(Hit::Segment([0, 0], t)) = hit(&path, p, 1.0, &[]) else { panic!("missed the pass inside the radius") };
+        assert!(dist(eval(&seg, t), p) <= 1.0, "t={t} is not on the nearer pass");
+    }
+
+    #[test]
+    fn segments_with_non_finite_points_are_skipped() {
+        let mut sp = Subpath::polyline(&[(0.0, 0.0), (100.0, 0.0)]);
+        sp.knots[0] = Knot::smooth(Point::new(0.0, 0.0), Point::new(0.0, 0.0), Point::new(f64::INFINITY, 0.0));
+        let path = Path::new(vec![sp, Subpath::polyline(&[(0.0, 10.0), (f64::NAN, 10.0)])]);
+        assert_eq!(hit(&path, Point::new(50.0, 0.0), 4.0, &[]), None);
+        assert_eq!(hit(&path, Point::new(50.0, 10.0), 4.0, &[]), None);
     }
 
     #[test]
@@ -563,7 +649,10 @@ mod tests {
                 let added = add_anchor(&mut p, knot, hit_t).unwrap();
                 let inserted = at(&p, added[0], added[1]);
                 assert!(dist(inserted.anchor, clicked) < 1e-9, "t={t}: inserted {:?}, clicked {clicked:?}", inserted.anchor);
-                assert_eq!(inserted, Knot::corner(clicked.x, clicked.y), "straight segments retain retracted handles");
+                assert!(
+                    !inserted.smooth && inserted.in_ctrl == inserted.anchor && inserted.out_ctrl == inserted.anchor,
+                    "straight segments retain retracted handles: {inserted:?}"
+                );
             }
         }
     }
