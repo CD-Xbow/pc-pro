@@ -60,3 +60,5 @@ pub mod zoom_tool;
 
 #[cfg(test)]
 mod crop_options_labels_tests;
+
+pub mod type_path_placement;
