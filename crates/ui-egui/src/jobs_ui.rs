@@ -769,6 +769,20 @@ pub(crate) fn after_open(
     bytes: Option<&[u8]>,
 ) -> Result<(), String> {
     let index = app.session.documents().iter().position(|st| st.doc.id == document).ok_or("the opened document is missing")?;
+    // A raw for the open-time Camera Raw dialog is not a document until its Open. Interactive opens
+    // hold it back before it gets here (`open_prompt`); one that did arrive leaves the session,
+    // except one opened as a smart object, which is reviewed as the document it already is.
+    let camera_raw = crate::camera_raw_ui::wants_open_dialog(app, warnings);
+    let smart_object =
+        app.session.documents().get(index).is_some_and(|st| st.doc.layers.iter().any(|l| matches!(l.content, photocraft_doc::LayerContent::Smart(_))));
+    if camera_raw
+        && !smart_object
+        && let Some(st) = app.session.close(index)
+    {
+        let doc = Arc::try_unwrap(st.doc).unwrap_or_else(|d| (*d).clone());
+        app.sync_views();
+        return crate::camera_raw_ui::hold_for_dialog(app, doc, name, path, bytes, warnings);
+    }
     app.session.set_active(index);
     if let Some(p) = path {
         app.opened_from(p);
@@ -780,9 +794,8 @@ pub(crate) fn after_open(
     let opened = crate::i18n::fmt(tl!("Opened {name}"), &[("name", name)]);
     app.ui.status = opened.clone();
     app.ui.status_error = false;
-    // A raw opens in Camera Raw first; the dialog says how it was developed.
-    if crate::camera_raw_ui::wants_open_dialog(app, warnings) {
-        crate::camera_raw_ui::queue_open_dialog(app, document, name, path, bytes, warnings)?;
+    if camera_raw {
+        crate::camera_raw_ui::queue_open_dialog_in_session(app, document, name, path, bytes, warnings)?;
         notices::io_warnings(app, &opened, &crate::camera_raw_ui::without_develop_note(warnings));
     } else {
         notices::io_warnings(app, &opened, warnings);
