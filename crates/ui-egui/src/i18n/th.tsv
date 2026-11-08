@@ -1620,6 +1620,8 @@
 	{name} Properties	{name} Properties
 	Move Tool	เครื่องมือย้าย
 	Could not use the move tool because the layer is locked.	ไม่สามารถใช้เครื่องมือย้ายได้เนื่องจากเลเยอร์ถูกล็อค
+	Could not use the perspective crop tool because the image contains unsupported layers types.	ไม่สามารถใช้เครื่องมือครอบตัดมุมมองได้ เนื่องจากภาพมีประเภทเลเยอร์ที่ไม่รองรับ
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	ไม่สามารถใช้เครื่องมือครอบตัดมุมมองได้ เนื่องจากใช้กับภาพบิตแมปไม่ได้ (แปลงภาพเป็นโหมดโทนสีเทาเพื่อแก้ไข)
 	Could not complete the Free Transform command because the layer is locked.	ไม่สามารถดำเนินการคำสั่ง Free Transform ได้เนื่องจากเลเยอร์ถูกล็อก
 	Rectangular Marquee Tool	เครื่องมือปะรำสี่เหลี่ยม
 	Elliptical Marquee Tool	เครื่องมือปะรำวงรี

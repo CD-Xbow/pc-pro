@@ -2717,6 +2717,8 @@ shape	Appearance	Diện mạo
 	Measurement Scale	Tỉ lệ đo
 	Measurement Scale Marker	Dấu tỉ lệ đo
 	Could not use the move tool because the layer is locked.	Không thể dùng công cụ di chuyển vì lớp đã bị khoá.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Không thể dùng công cụ cắt phối cảnh vì hình ảnh chứa các loại lớp không được hỗ trợ.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Không thể dùng công cụ cắt phối cảnh vì công cụ này không hoạt động với ảnh Bitmap (chuyển ảnh sang chế độ Thang xám để chỉnh sửa).
 	Could not complete the Free Transform command because the layer is locked.	Không thể hoàn tất lệnh Biến đổi tự do vì lớp đã bị khoá.
 	Could not transform because the layer is locked.	Không thể biến đổi vì lớp đã bị khoá.
 	My Brushes	Cọ của tôi

@@ -1831,6 +1831,8 @@
 	Mobile	Móvil
 	Move Tool	Herramienta Mover
 	Could not use the move tool because the layer is locked.	No se pudo usar la herramienta Mover porque la capa está bloqueada.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	No se pudo usar la herramienta Recortar con perspectiva porque la imagen contiene tipos de capas no admitidos.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	No se pudo usar la herramienta Recortar con perspectiva porque no funciona con imágenes de mapa de bits (convierta la imagen al modo Escala de grises para editarla).
 	Could not complete the Free Transform command because the layer is locked.	No se pudo completar el comando Transformación libre porque la capa está bloqueada.
 	Could not transform because the layer is locked.	No se pudo transformar porque la capa está bloqueada.
 	Multiply	Multiplicar

@@ -1751,6 +1751,8 @@
 	Mobile	נייד
 	Move Tool	כלי הזזה
 	Could not use the move tool because the layer is locked.	לא ניתן להשתמש בכלי ההזזה כי השכבה נעולה.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	לא ניתן להשתמש בכלי חיתוך הפרספקטיבה כי התמונה מכילה סוגי שכבות שאינם נתמכים.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	לא ניתן להשתמש בכלי חיתוך הפרספקטיבה כי הוא אינו פועל עם תמונות מפת סיביות (Bitmap) (המירו את התמונה למצב גווני אפור כדי לערוך).
 	Could not complete the Free Transform command because the layer is locked.	לא ניתן היה להשלים את פקודת שינוי הצורה החופשי כי השכבה נעולה.
 	Multiply	הכפלה
 	My Brushes	המברשות שלי

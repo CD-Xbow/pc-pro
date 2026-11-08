@@ -1761,6 +1761,8 @@
 	Mobile	Mobil
 	Move Tool	Taşıma Aracı
 	Could not use the move tool because the layer is locked.	Katman kilitli olduğundan taşıma aracı kullanılamadı.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Görüntü desteklenmeyen katman türleri içerdiğinden Perspektif Kırpma Aracı kullanılamadı.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Perspektif Kırpma Aracı Bit Eşlem görüntülerle çalışmadığından kullanılamadı (düzenlemek için görüntüyü Gri Tonlamalı moda dönüştürün).
 	Could not complete the Free Transform command because the layer is locked.	Katman kilitli olduğundan Serbest Dönüştürme komutu tamamlanamadı.
 	Could not transform because the layer is locked.	Katman kilitli olduğundan dönüştürme yapılamadı.
 	Multiply	Çoğalt

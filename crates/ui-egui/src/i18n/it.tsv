@@ -1876,6 +1876,8 @@
 	Mobile	Mobile
 	Move Tool	Strumento Sposta
 	Could not use the move tool because the layer is locked.	Impossibile usare lo strumento Sposta perché il livello è bloccato.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Impossibile usare lo strumento Taglierina prospettica perché l'immagine contiene tipi di livelli non supportati.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Impossibile usare lo strumento Taglierina prospettica perché non funziona con le immagini bitmap (per modificarla, converti l'immagine in modalità Scala di grigio).
 	Could not complete the Free Transform command because the layer is locked.	Impossibile completare il comando Trasformazione libera perché il livello è bloccato.
 	Could not transform because the layer is locked.	Impossibile trasformare perché il livello è bloccato.
 	Multiply	Moltiplica

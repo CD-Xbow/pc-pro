@@ -1633,6 +1633,8 @@
 	{name} Properties	Egenskaper för {name}
 	Move Tool	Flyttverktyg
 	Could not use the move tool because the layer is locked.	Det gick inte att använda flyttverktyget eftersom lagret är låst.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Det gick inte att använda perspektivbeskärningsverktyget eftersom bilden innehåller lagertyper som inte stöds.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Det gick inte att använda perspektivbeskärningsverktyget eftersom det inte fungerar med bitmappsbilder (konvertera bilden till läget Gråskala för att redigera).
 	Could not complete the Free Transform command because the layer is locked.	Det gick inte att slutföra kommandot Ombilda fritt eftersom lagret är låst.
 	Could not transform because the layer is locked.	Det gick inte att omforma eftersom lagret är låst.
 	Rectangular Marquee Tool	Verktyget Rektangulär markeringsram

@@ -1636,6 +1636,8 @@
 	{name} Properties	{name}: ominaisuudet
 	Move Tool	Siirtotyökalu
 	Could not use the move tool because the layer is locked.	Siirtotyökalua ei voitu käyttää, koska taso on lukittu.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Perspektiivirajaustyökalua ei voitu käyttää, koska kuva sisältää tasotyyppejä, joita ei tueta.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Perspektiivirajaustyökalua ei voitu käyttää, koska se ei toimi bittikarttakuvien kanssa (muunna kuva Harmaasävy-tilaan muokkausta varten).
 	Could not complete the Free Transform command because the layer is locked.	Vapaa muunnos -komentoa ei voitu suorittaa, koska taso on lukittu.
 	Could not transform because the layer is locked.	Muuntaminen ei onnistunut, koska taso on lukittu.
 	Rectangular Marquee Tool	Suorakulmainen valintakehys

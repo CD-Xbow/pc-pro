@@ -1748,6 +1748,8 @@
 	{name} Properties	Свойства: {name}
 	Move Tool	Перемещение
 	Could not use the move tool because the layer is locked.	Не удалось использовать инструмент «Перемещение», потому что слой заблокирован.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Не удалось использовать инструмент «Кадрирование перспективы», потому что изображение содержит неподдерживаемые типы слоев.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Не удалось использовать инструмент «Кадрирование перспективы», потому что он не работает с изображениями в битовом формате (для редактирования преобразуйте изображение в режим «Градации серого»).
 	Could not complete the Free Transform command because the layer is locked.	Не удалось выполнить команду «Свободное трансформирование», потому что слой заблокирован.
 	Could not transform because the layer is locked.	Не удалось выполнить трансформирование, потому что слой заблокирован.
 	Rectangular Marquee Tool	Прямоугольная область

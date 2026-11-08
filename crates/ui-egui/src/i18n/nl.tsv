@@ -1808,6 +1808,8 @@
 	Mobile	Mobiel
 	Move Tool	Verplaatsgereedschap
 	Could not use the move tool because the layer is locked.	Kan het verplaatsgereedschap niet gebruiken omdat de laag is vergrendeld.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	Kan het gereedschap Perspectief bijsnijden niet gebruiken omdat de afbeelding niet-ondersteunde laagtypen bevat.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	Kan het gereedschap Perspectief bijsnijden niet gebruiken omdat het niet werkt met bitmapafbeeldingen (zet de afbeelding om naar de modus Grijswaarden om te bewerken).
 	Could not complete the Free Transform command because the layer is locked.	Kan de opdracht Vrije transformatie niet voltooien omdat de laag is vergrendeld.
 	Could not transform because the layer is locked.	Kan niet transformeren omdat de laag is vergrendeld.
 	Multiply	Vermenigvuldigen

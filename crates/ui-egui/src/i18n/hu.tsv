@@ -1078,6 +1078,8 @@
 	Could not use Puppet Warp: no opaque pixels	A bábtorzítás nem használható: nincsenek átlátszatlan pixelek
 	Could not use Puppet Warp: the layer is empty	A bábtorzítás nem használható: a réteg üres
 	Could not use the move tool because the layer is locked.	A Mozgatás eszköz nem használható, mert a réteg zárolva van.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	A Perspektivikus körbevágás eszköz nem használható, mert a kép nem támogatott rétegtípusokat tartalmaz.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	A Perspektivikus körbevágás eszköz nem használható, mert nem működik bittérképes képekkel (a szerkesztéshez alakítsa a képet Szürkeárnyalatos módba).
 	Count Jitter	Darabszám ingadozása
 	Create a new elliptical frame	Új ellipszis alakú keret létrehozása
 	Create a new rectangular frame	Új téglalap alakú keret létrehozása

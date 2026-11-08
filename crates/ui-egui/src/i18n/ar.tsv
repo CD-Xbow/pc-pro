@@ -1784,6 +1784,8 @@
 	Mobile	الجوال
 	Move Tool	أداة التحريك
 	Could not use the move tool because the layer is locked.	تعذر استخدام أداة التحريك لأن الطبقة مقفلة.
+	Could not use the perspective crop tool because the image contains unsupported layers types.	تعذر استخدام أداة اقتصاص المنظور لأن الصورة تحتوي على أنواع طبقات غير مدعومة.
+	Could not use the perspective crop tool because it does not work with Bitmap images (convert image to Grayscale mode to edit).	تعذر استخدام أداة اقتصاص المنظور لأنها لا تعمل مع الصور النقطية (حوّل الصورة إلى وضع تدرج الرمادي لتحريرها).
 	Could not complete the Free Transform command because the layer is locked.	تعذر إكمال أمر التحويل الحر لأن الطبقة مقفلة.
 	Could not transform because the layer is locked.	تعذر التحويل لأن الطبقة مقفلة.
 	Multiply	ضرب
