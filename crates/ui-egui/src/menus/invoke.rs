@@ -328,6 +328,7 @@ fn invoke_file_commands(app: &mut PhotocraftApp, ctx: &egui::Context, id: &str, 
     result.map(Some)
 }
 
+/// Dispatch a menu command `id` with `params` after modal/workspace guards have been checked.
 pub(crate) fn invoke_unguarded(app: &mut PhotocraftApp, ctx: &egui::Context, id: &str, params: Value) -> Result<Value, String> {
     if let Some(result) = crate::smart_svg_ui::intercept(app, id, &params) {
         return result;
@@ -480,10 +481,31 @@ pub(crate) fn invoke_unguarded(app: &mut PhotocraftApp, ctx: &egui::Context, id:
         "select.transformSelection" if params.as_object().is_none_or(|o| o.is_empty()) => {
             crate::transform_tool::begin_selection(app, ctx).map(|_| json!({"transform": app.ui.transform}))
         }
-        "edit.paste" if params.as_object().is_none_or(|o| o.is_empty()) => {
+        "edit.paste" | "edit.pasteSpecial.pasteInPlace" | "file.newFromClipboard" if params.as_object().is_none_or(|o| o.is_empty()) => {
+            // Only plain `edit.paste` shortcuts (`Cmd+V` / `Shift+Insert`) start an async Wayland
+            // paste inside `egui-winit` on key-down; `Cmd+Shift+V` (`pasteInPlace`) and menu
+            // invocations must request the Wayland clipboard image explicitly.
+            let from_key = id == "edit.paste"
+                && ctx.input(|i| {
+                    i.events.iter().any(|e| {
+                        matches!(e, egui::Event::Key { key: egui::Key::V | egui::Key::Insert, .. } | egui::Event::Paste(_) | egui::Event::PasteImage(_))
+                    })
+                });
+            let had_paste_image = app.pending_paste_image.is_some();
+            app.import_os_clipboard()?;
+            let unreadable = app.services.clipboard_unreadable.as_ref().is_some_and(|u| u()) || app.services.clipboard_get_image.is_none();
+            if !from_key && !had_paste_image && app.services.is_wayland && (app.session.clipboard.is_none() || (app.clip_external && unreadable)) {
+                let doc = app.session.active().map(|d| d.doc.id);
+                app.pending_paste_cmd.push_back((id.to_string(), doc));
+                ctx.send_viewport_cmd(egui::ViewportCommand::RequestPaste);
+                return Ok(json!({"pasted": false}));
+            }
+            if id != "edit.paste" {
+                app.clip_read_for_paste = true;
+                return app.run(id, params);
+            }
             // Photoshop: paste in place when the copied area is visible, else centred in the view;
             // images from other apps are always centred.
-            app.import_os_clipboard()?;
             app.clip_read_for_paste = true;
             let external = app.clip_external;
             let visible = !external
