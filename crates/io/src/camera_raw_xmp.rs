@@ -3,8 +3,8 @@
 //! `x:xmpmeta/rdf:RDF/rdf:Description`, as attributes or as child elements.
 //!
 //! Loading applies only the settings the file holds, over the current ones, as Camera Raw's
-//! Load Settings does; settings PhotoCraft has no control for (lens corrections, geometry,
-//! defringe, …) are ignored and named in the report. The same reader fills the dialog from a
+//! Load Settings does; settings PhotoCraft has no control for (lens corrections, defringe, …)
+//! are ignored and named in the report. Geometry and masks (see `masks`) are read and written. The same reader fills the dialog from a
 //! raw file's sidecar (`IMG_0001.xmp` beside `IMG_0001.CR2`), and the writer keeps it. Saving writes every supported
 //! control, so loading the file in Photoshop reproduces the dialog.
 //!
@@ -14,6 +14,8 @@
 //! counterpart and are ignored.
 
 use photocraft_algo::camera_raw::{CameraRaw, validate_curve};
+
+mod masks;
 
 /// The Camera Raw settings namespace.
 pub const CRS_NS: &str = "http://ns.adobe.com/camera-raw-settings/1.0/";
@@ -78,6 +80,14 @@ const SCALARS: &[(&str, Field, f32, f32)] = &[
     ("ColorGradeMidtoneSat", |p| &mut p.grade_midtones.sat, 0.0, 100.0),
     ("ColorGradeMidtoneLum", |p| &mut p.grade_midtones.lum, -100.0, 100.0),
     ("SplitToningHighlightHue", |p| &mut p.grade_highlights.hue, 0.0, 360.0),
+    // Geometry › Transform.
+    ("PerspectiveVertical", |p| &mut p.perspective_vertical, -100.0, 100.0),
+    ("PerspectiveHorizontal", |p| &mut p.perspective_horizontal, -100.0, 100.0),
+    ("PerspectiveRotate", |p| &mut p.perspective_rotate, -10.0, 10.0),
+    ("PerspectiveAspect", |p| &mut p.perspective_aspect, -100.0, 100.0),
+    ("PerspectiveScale", |p| &mut p.perspective_scale, 50.0, 150.0),
+    ("PerspectiveX", |p| &mut p.perspective_x, -100.0, 100.0),
+    ("PerspectiveY", |p| &mut p.perspective_y, -100.0, 100.0),
     ("SplitToningHighlightSaturation", |p| &mut p.grade_highlights.sat, 0.0, 100.0),
     ("ColorGradeHighlightLum", |p| &mut p.grade_highlights.lum, -100.0, 100.0),
     ("ColorGradeGlobalHue", |p| &mut p.grade_global.hue, 0.0, 360.0),
@@ -149,6 +159,9 @@ const METADATA: &[&str] = &[
     "Description",
 ];
 
+/// `crs:PerspectiveUpright` values (observed on Photoshop 2026) and PhotoCraft's Upright modes.
+const UPRIGHT: &[(u8, &str)] = &[(0, "off"), (1, "auto"), (2, "full"), (3, "level"), (4, "vertical"), (5, "guided")];
+
 /// What [`load`] applied.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct LoadReport {
@@ -206,6 +219,22 @@ fn apply(params: &mut CameraRaw, report: &mut LoadReport, name: &str, value: &st
             }
             None => report.ignored.push(name.to_string()),
         }
+    } else if name == "PerspectiveUpright" {
+        match number(value).filter(|v| v.fract() == 0.0).and_then(|v| UPRIGHT.iter().find(|(n, _)| f32::from(*n) == v)) {
+            Some((_, mode)) => {
+                params.perspective_upright = (*mode).into();
+                report.applied += 1;
+            }
+            None => report.ignored.push(name.to_string()),
+        }
+    } else if name == "CropConstrainToWarp" {
+        match number(value) {
+            Some(v) => {
+                params.constrain_crop = v != 0.0;
+                report.applied += 1;
+            }
+            None => report.ignored.push(name.to_string()),
+        }
     } else if name == "PostCropVignetteStyle" {
         match STYLES.iter().find(|(n, _)| *n == value.trim()) {
             Some((_, style)) => {
@@ -232,7 +261,15 @@ pub fn load(params: &mut CameraRaw, bytes: &[u8]) -> Result<LoadReport, String> 
     let mut next = params.clone();
     let mut report = LoadReport::default();
     let mut found = false;
+    let (mut xmp_masks, mut own_masks) = (Vec::new(), None);
     for desc in doc.descendants().filter(|n| n.is_element() && n.tag_name().namespace() == Some(RDF_NS) && n.tag_name().name() == "Description") {
+        if let Some(json) = desc.attribute((masks::PCRAFT_NS, "CameraRawMasks")) {
+            found = true;
+            match masks::read_own(json) {
+                Some(m) => own_masks = Some(m),
+                None => report.ignored.push("CameraRawMasks".into()),
+            }
+        }
         for a in desc.attributes().filter(|a| a.namespace() == Some(CRS_NS)) {
             found = true;
             apply(&mut next, &mut report, a.name(), a.value());
@@ -248,8 +285,12 @@ pub fn load(params: &mut CameraRaw, bytes: &[u8]) -> Result<LoadReport, String> 
                     }
                     None => report.ignored.push(name.to_string()),
                 }
+            } else if masks::is_corrections(name) {
+                masks::read(c, &mut xmp_masks);
+                report.applied += 1;
             } else if c.children().any(|g| g.is_element()) {
-                // Structured settings (masks, looks, lens profiles…) have no counterpart.
+                // Other structured settings (newer mask groups, looks, lens profiles…) have no
+                // counterpart.
                 if !METADATA.contains(&name) {
                     report.ignored.push(name.to_string());
                 }
@@ -260,6 +301,12 @@ pub fn load(params: &mut CameraRaw, bytes: &[u8]) -> Result<LoadReport, String> 
     }
     if !found {
         return Err("no Camera Raw settings in the file".into());
+    }
+    // PhotoCraft's own copy of the masks is exact; Camera Raw's layout is read otherwise.
+    if let Some(m) = own_masks {
+        next.masks = m;
+    } else if !xmp_masks.is_empty() {
+        next.masks = xmp_masks;
     }
     *params = next;
     Ok(report)
@@ -298,7 +345,7 @@ pub fn save(params: &CameraRaw) -> String {
     let mut p = params.clone();
     let wb = if p.temperature != 0.0 || p.tint != 0.0 { "Custom" } else { "As Shot" };
     let mut out = String::from(
-        "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"PhotoCraft\">\n <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n  <rdf:Description rdf:about=\"\"\n    xmlns:crs=\"http://ns.adobe.com/camera-raw-settings/1.0/\"\n",
+        "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"PhotoCraft\">\n <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n  <rdf:Description rdf:about=\"\"\n    xmlns:crs=\"http://ns.adobe.com/camera-raw-settings/1.0/\"\n    xmlns:pcraft=\"http://ns.photocraft.app/camera-raw/1.0/\"\n",
     );
     out.push_str("   crs:Version=\"18.4\"\n   crs:ProcessVersion=\"15.4\"\n");
     out.push_str(&format!("   crs:WhiteBalance=\"{wb}\"\n"));
@@ -307,14 +354,18 @@ pub fn save(params: &CameraRaw) -> String {
         // Exposure has two decimals in Camera Raw, the sharpening radius one; the rest are levels.
         let text = match *name {
             "Exposure2012" => signed(v, 2),
-            "SharpenRadius" => signed(v, 1),
+            "SharpenRadius" | "PerspectiveRotate" | "PerspectiveX" | "PerspectiveY" => signed(v, 1),
             _ if *lo < 0.0 => signed(v.round(), 0),
             _ => format!("{:.0}", v.round()),
         };
         out.push_str(&format!("   crs:{name}=\"{text}\"\n"));
     }
+    let upright = UPRIGHT.iter().find(|(_, m)| p.perspective_upright.eq_ignore_ascii_case(m)).map_or(0, |(n, _)| *n);
+    out.push_str(&format!("   crs:PerspectiveUpright=\"{upright}\"\n"));
+    out.push_str(&format!("   crs:CropConstrainToWarp=\"{}\"\n", u8::from(p.constrain_crop)));
     let style = STYLES.iter().find(|(_, s)| *s == p.vignette_style).map_or("1", |(n, _)| n);
     out.push_str(&format!("   crs:PostCropVignetteStyle=\"{}\"\n", escape(style)));
+    out.push_str(&masks::own_attribute(&p.masks));
     out.push_str("   crs:ToneCurveName2012=\"Custom\"\n   crs:HasSettings=\"True\">\n");
     for (name, field) in CURVES {
         let points = field(&mut p);
@@ -325,6 +376,7 @@ pub fn save(params: &CameraRaw) -> String {
         }
         out.push_str(&format!("    </rdf:Seq>\n   </crs:{name}>\n"));
     }
+    out.push_str(&masks::write(&p.masks));
     out.push_str("  </rdf:Description>\n </rdf:RDF>\n</x:xmpmeta>\n");
     out
 }
@@ -397,6 +449,31 @@ mod tests {
         let e =
             std::thread::Builder::new().stack_size(512 * 1024).spawn(move || load(&mut CameraRaw::default(), xml.as_bytes()).err()).unwrap().join().unwrap();
         assert!(e.as_deref().is_some_and(|m| m.contains("nested")), "{e:?}");
+    }
+
+    #[test]
+    fn geometry_round_trips_and_reads_camera_raws_numbers() {
+        let p = CameraRaw {
+            perspective_upright: "vertical".into(),
+            perspective_vertical: -25.0,
+            perspective_rotate: 2.5,
+            perspective_scale: 90.0,
+            perspective_x: -3.5,
+            constrain_crop: true,
+            ..CameraRaw::default()
+        };
+        let mut back = CameraRaw::default();
+        load(&mut back, save(&p).as_bytes()).unwrap();
+        assert_eq!(back, p);
+        // Camera Raw's numbers: 2 is Full; 9 isn't a mode and is reported, not applied.
+        let xml = |v: &str| format!("<x:xmpmeta xmlns:x=\"adobe:ns:meta/\"><rdf:RDF xmlns:rdf=\"{RDF_NS}\"><rdf:Description xmlns:crs=\"{CRS_NS}\" crs:PerspectiveUpright=\"{v}\" crs:PerspectiveRotate=\"+40\"/></rdf:RDF></x:xmpmeta>");
+        let mut q = CameraRaw::default();
+        load(&mut q, xml("2").as_bytes()).unwrap();
+        assert_eq!(q.perspective_upright, "full");
+        assert_eq!(q.perspective_rotate, 10.0, "clamped to the slider");
+        let r = load(&mut q, xml("9").as_bytes()).unwrap();
+        assert!(r.ignored.contains(&"PerspectiveUpright".to_string()));
+        assert!(load(&mut q, xml("1.5").as_bytes()).unwrap().ignored.contains(&"PerspectiveUpright".to_string()));
     }
 
     #[test]

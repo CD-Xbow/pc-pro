@@ -152,15 +152,20 @@ fn check(name: &str, sets: &[CameraRaw]) {
 }
 
 #[test]
-fn white_balance_and_exposure() {
+fn exposure() {
     check(
-        "white balance",
+        "exposure",
         &[
-            CameraRaw { temperature: 40.0, tint: -25.0, ..Default::default() },
-            CameraRaw { temperature: -70.0, tint: 60.0, exposure: -1.2, ..Default::default() },
+            CameraRaw { exposure: -1.2, ..Default::default() },
             CameraRaw { exposure: 1.5, ..Default::default() },
+            CameraRaw { exposure: 2.7, encoding_gamma: 1.8, ..Default::default() },
+            CameraRaw { exposure: -3.3, encoding_gamma: 563.0 / 256.0, ..Default::default() },
+            CameraRaw { exposure: 5.0, ..Default::default() },
         ],
     );
+    // Temperature and Tint are per-channel curves the pass does not run: the CPU develops them.
+    assert!(per_pixel(&CameraRaw { temperature: 40.0, ..Default::default() }, 8, 8, false, None).is_none());
+    assert!(per_pixel(&CameraRaw { tint: -25.0, ..Default::default() }, 8, 8, false, None).is_none());
 }
 
 #[test]
@@ -174,7 +179,7 @@ fn whites_and_blacks() {
         "whites/blacks",
         &[
             CameraRaw { whites: 70.0, blacks: -45.0, ..Default::default() },
-            CameraRaw { whites: -60.0, blacks: 50.0, temperature: 20.0, ..Default::default() },
+            CameraRaw { whites: -60.0, blacks: 50.0, exposure: 0.2, ..Default::default() },
             CameraRaw { whites: 30.0, ..Default::default() },
             CameraRaw { blacks: -100.0, exposure: -0.5, ..Default::default() },
             // ProPhoto's power-law encoding.
@@ -292,8 +297,6 @@ fn every_per_pixel_stage_at_once() {
     check(
         "all stages",
         &[CameraRaw {
-            temperature: 25.0,
-            tint: 10.0,
             exposure: 0.3,
             contrast: 25.0,
             whites: 20.0,
@@ -332,10 +335,11 @@ fn identity_leaves_pixels_alone_and_spatial_settings_have_no_pass() {
         CameraRaw { noise_luminance: 10.0, ..Default::default() },
         CameraRaw { noise_color: 10.0, ..Default::default() },
     ] {
-        assert!(spatial.spatial() && per_pixel(&spatial, 64, 32, false, Some((0.0, 1.0))).is_none(), "{spatial:?}");
+        assert!(spatial.spatial() && per_pixel(&spatial, 64, 32, false, Some([[-8.0, -2.0, 0.0, -3.0]; 2])).is_none(), "{spatial:?}");
     }
-    // Whites and Blacks need the image's points.
+    // Contrast and Whites up need the image's points.
     assert!(per_pixel(&CameraRaw { whites: 10.0, ..Default::default() }, 64, 32, false, None).is_none());
+    assert!(per_pixel(&CameraRaw { contrast: 10.0, ..Default::default() }, 64, 32, false, None).is_none());
 }
 
 #[test]

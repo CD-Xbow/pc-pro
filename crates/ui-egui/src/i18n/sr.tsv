@@ -4693,3 +4693,73 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	Automatski promeni veličinu platna
 	Keep Relative Position During Layer Reordering	Zadrži relativni položaj pri promeni redosleda slojeva
 	Shrinkwrap Canvas on Save	Smanji platno na sadržaj pri čuvanju
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Баланс беле
+	As Shot	Као при снимању
+	Adjust	Подеси
+	Reset to Open	Врати на стање при отварању
+	Parametric Curve	Параметарска крива
+	Red Channel	Црвени канал
+	Green Channel	Зелени канал
+	Blue Channel	Плави канал
+	Color Sampler Tool (S)	Алатка за узорковање боје (S)
+	Show or hide this panel's settings	Прикажи или сакриј подешавања овог панела
+	Show the image without these settings	Прикажи слику без ових подешавања
+	3-Way	Три точка
+	Geometry	Геометрија
+	Split	Подели
+	Before/After Views	Прикази пре/после
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Razmera
+cameraRaw	Auto Mask	Automatska maska
+cameraRaw	Clear guides	Obriši vodilje
+cameraRaw	Constrain crop	Ograniči opsecanje
+cameraRaw	Create New Mask	Napravi novu masku
+cameraRaw	Delete component	Obriši komponentu
+cameraRaw	Delete mask	Obriši masku
+cameraRaw	Depth Range	Opseg dubine
+cameraRaw	Double-click to rename	Dvaput kliknite da biste preimenovali
+cameraRaw	Draw guides	Nacrtaj vodilje
+cameraRaw	Duplicate mask	Dupliraj masku
+cameraRaw	Entire person	Cela osoba
+cameraRaw	Erase (Alt)	Briši (Alt)
+cameraRaw	Face	Lice
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Pronašao ga je PhotoCraft detektor lica, a ne Adobe modeli.
+cameraRaw	Guided	Vođeno
+cameraRaw	Guides:	Vodilje:
+cameraRaw	Image on Black	Slika na crnoj
+cameraRaw	Image on White	Slika na beloj
+cameraRaw	Intersect	Presek
+cameraRaw	Invert component	Invertuj komponentu
+cameraRaw	Luminance Range	Opseg luminanse
+cameraRaw	Masking (Shift+W)	Maskiranje (Shift+W)
+cameraRaw	Moiré	Moare
+cameraRaw	Move down	Pomeri nadole
+cameraRaw	Move up	Pomeri nagore
+cameraRaw	Objects	Objekti
+cameraRaw	Offset X	Pomak X
+cameraRaw	Offset Y	Pomak Y
+cameraRaw	People	Ljudi
+cameraRaw	People › Face	Ljudi › Lice
+cameraRaw	People › Skin	Ljudi › Koža
+cameraRaw	Range High	Gornja granica opsega
+cameraRaw	Range Low	Donja granica opsega
+cameraRaw	Samples:	Uzorci:
+cameraRaw	Show / hide this mask	Prikaži / sakrij ovu masku
+cameraRaw	Skin	Koža
+cameraRaw	Upright	Upright
+cameraRaw	copy	kopija
+cameraRaw	Select a mask to edit it.	Izaberite masku da biste je uredili.
+cameraRaw	Create a mask to adjust part of the image.	Napravite masku da biste podesili deo slike.
+cameraRaw	Auto: apply balanced perspective corrections	Automatski: primeni uravnotežene korekcije perspektive
+cameraRaw	Level: apply only level correction	Nivo: primeni samo poravnanje horizonta
+cameraRaw	Vertical: apply level and vertical perspective correction	Vertikalno: primeni poravnanje horizonta i vertikalnu korekciju perspektive
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Potpuna: primeni poravnanje horizonta i horizontalnu i vertikalnu korekciju perspektive
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Vođeno: nacrtajte dve ili više vodilja da biste prilagodili korekcije perspektive
+cameraRaw	Disable Upright	Isključi Upright
+	White Balance Tool (I)	Алатка за баланс беле (I)
+	B&W	Ц/Б
+	B&W Mixer	Ц/Б миксер
+	Convert to black and white	Претвори у црно-бело
+	Optics	Оптика
+	Vignette	Вињета

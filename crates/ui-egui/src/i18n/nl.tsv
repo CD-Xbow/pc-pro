@@ -4381,3 +4381,73 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	Canvasgrootte automatisch aanpassen
 	Keep Relative Position During Layer Reordering	Relatieve positie behouden bij het wijzigen van de laagvolgorde
 	Shrinkwrap Canvas on Save	Canvas bij opslaan verkleinen tot de inhoud
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Witbalans
+	As Shot	Zoals opgenomen
+	Adjust	Aanpassen
+	Reset to Open	Herstellen naar openen
+	Parametric Curve	Parametrische curve
+	Red Channel	Rood kanaal
+	Green Channel	Groen kanaal
+	Blue Channel	Blauw kanaal
+	Color Sampler Tool (S)	Gereedschap Kleurenpipet (S)
+	Show or hide this panel's settings	Instellingen van dit deelvenster tonen of verbergen
+	Show the image without these settings	Afbeelding tonen zonder deze instellingen
+	3-Way	3-weg
+	Geometry	Geometrie
+	Split	Gesplitst
+	Before/After Views	Weergaven Voor/Na
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Hoogte-breedteverhouding
+cameraRaw	Auto Mask	Automatisch maskeren
+cameraRaw	Clear guides	Hulplijnen wissen
+cameraRaw	Constrain crop	Uitsnede beperken
+cameraRaw	Create New Mask	Nieuw masker maken
+cameraRaw	Delete component	Component verwijderen
+cameraRaw	Delete mask	Masker verwijderen
+cameraRaw	Depth Range	Dieptebereik
+cameraRaw	Double-click to rename	Dubbelklik om te hernoemen
+cameraRaw	Draw guides	Hulplijnen tekenen
+cameraRaw	Duplicate mask	Masker dupliceren
+cameraRaw	Entire person	Hele persoon
+cameraRaw	Erase (Alt)	Gummen (Alt)
+cameraRaw	Face	Gezicht
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Gevonden door de gezichtsdetector van PhotoCraft, niet door de modellen van Adobe.
+cameraRaw	Guided	Begeleid
+cameraRaw	Guides:	Hulplijnen:
+cameraRaw	Image on Black	Afbeelding op zwart
+cameraRaw	Image on White	Afbeelding op wit
+cameraRaw	Intersect	Doorsnede
+cameraRaw	Invert component	Component omkeren
+cameraRaw	Luminance Range	Luminantiebereik
+cameraRaw	Masking (Shift+W)	Maskeren (Shift+W)
+cameraRaw	Moiré	Moiré
+cameraRaw	Move down	Omlaag
+cameraRaw	Move up	Omhoog
+cameraRaw	Objects	Objecten
+cameraRaw	Offset X	Verschuiving X
+cameraRaw	Offset Y	Verschuiving Y
+cameraRaw	People	Personen
+cameraRaw	People › Face	Personen › Gezicht
+cameraRaw	People › Skin	Personen › Huid
+cameraRaw	Range High	Bereik hoog
+cameraRaw	Range Low	Bereik laag
+cameraRaw	Samples:	Monsters:
+cameraRaw	Show / hide this mask	Dit masker tonen / verbergen
+cameraRaw	Skin	Huid
+cameraRaw	Upright	Upright
+cameraRaw	copy	kopie
+cameraRaw	Select a mask to edit it.	Selecteer een masker om het te bewerken.
+cameraRaw	Create a mask to adjust part of the image.	Maak een masker om een deel van de afbeelding aan te passen.
+cameraRaw	Auto: apply balanced perspective corrections	Automatisch: gebalanceerde perspectiefcorrecties toepassen
+cameraRaw	Level: apply only level correction	Niveau: alleen niveaucorrectie toepassen
+cameraRaw	Vertical: apply level and vertical perspective correction	Verticaal: niveaucorrectie en verticale perspectiefcorrectie toepassen
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Volledig: niveaucorrectie en horizontale en verticale perspectiefcorrecties toepassen
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Begeleid: teken twee of meer hulplijnen om de perspectiefcorrecties aan te passen
+cameraRaw	Disable Upright	Upright uitschakelen
+	White Balance Tool (I)	Gereedschap Witbalans (I)
+	B&W	Z&W
+	B&W Mixer	Z&W-mixer
+	Convert to black and white	Omzetten naar zwart-wit
+	Optics	Optiek
+	Vignette	Vignettering

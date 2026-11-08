@@ -4368,3 +4368,73 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	Automaticky měnit velikost plátna
 	Keep Relative Position During Layer Reordering	Zachovat relativní polohu při změně pořadí vrstev
 	Shrinkwrap Canvas on Save	Při uložení zmenšit plátno na obsah
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Vyvážení bílé
+	As Shot	Jako při snímání
+	Adjust	Upravit
+	Reset to Open	Obnovit při otevření
+	Parametric Curve	Parametrická křivka
+	Red Channel	Červený kanál
+	Green Channel	Zelený kanál
+	Blue Channel	Modrý kanál
+	Color Sampler Tool (S)	Nástroj Vzorkovač barev (S)
+	Show or hide this panel's settings	Zobrazit nebo skrýt nastavení tohoto panelu
+	Show the image without these settings	Zobrazit obraz bez těchto nastavení
+	3-Way	Tři kola
+	Geometry	Geometrie
+	Split	Rozdělit
+	Before/After Views	Zobrazení Před/Po
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Poměr stran
+cameraRaw	Auto Mask	Automatická maska
+cameraRaw	Clear guides	Vymazat vodítka
+cameraRaw	Constrain crop	Omezit oříznutí
+cameraRaw	Create New Mask	Vytvořit novou masku
+cameraRaw	Delete component	Odstranit součást
+cameraRaw	Delete mask	Odstranit masku
+cameraRaw	Depth Range	Rozsah hloubky
+cameraRaw	Double-click to rename	Poklepáním přejmenujete
+cameraRaw	Draw guides	Nakreslit vodítka
+cameraRaw	Duplicate mask	Duplikovat masku
+cameraRaw	Entire person	Celá osoba
+cameraRaw	Erase (Alt)	Gumovat (Alt)
+cameraRaw	Face	Obličej
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Nalezeno detektorem obličejů aplikace PhotoCraft, nikoli modely společnosti Adobe.
+cameraRaw	Guided	S vodítky
+cameraRaw	Guides:	Vodítka:
+cameraRaw	Image on Black	Obraz na černé
+cameraRaw	Image on White	Obraz na bílé
+cameraRaw	Intersect	Průnik
+cameraRaw	Invert component	Invertovat součást
+cameraRaw	Luminance Range	Rozsah luminance
+cameraRaw	Masking (Shift+W)	Maskování (Shift+W)
+cameraRaw	Moiré	Moaré
+cameraRaw	Move down	Posunout dolů
+cameraRaw	Move up	Posunout nahoru
+cameraRaw	Objects	Objekty
+cameraRaw	Offset X	Posun X
+cameraRaw	Offset Y	Posun Y
+cameraRaw	People	Lidé
+cameraRaw	People › Face	Lidé › Obličej
+cameraRaw	People › Skin	Lidé › Kůže
+cameraRaw	Range High	Horní mez rozsahu
+cameraRaw	Range Low	Dolní mez rozsahu
+cameraRaw	Samples:	Vzorky:
+cameraRaw	Show / hide this mask	Zobrazit / skrýt tuto masku
+cameraRaw	Skin	Kůže
+cameraRaw	Upright	Upright
+cameraRaw	copy	kopie
+cameraRaw	Select a mask to edit it.	Vyberte masku, kterou chcete upravit.
+cameraRaw	Create a mask to adjust part of the image.	Vytvořte masku pro úpravu části obrazu.
+cameraRaw	Auto: apply balanced perspective corrections	Automaticky: použít vyvážené korekce perspektivy
+cameraRaw	Level: apply only level correction	Úroveň: použít pouze vyrovnání
+cameraRaw	Vertical: apply level and vertical perspective correction	Svisle: použít vyrovnání a svislou korekci perspektivy
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Úplná: použít vyrovnání a vodorovnou i svislou korekci perspektivy
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	S vodítky: nakreslete dvě nebo více vodítek pro přizpůsobení korekcí perspektivy
+cameraRaw	Disable Upright	Vypnout Upright
+	White Balance Tool (I)	Nástroj Vyvážení bílé (I)
+	B&W	ČB
+	B&W Mixer	Mixér ČB
+	Convert to black and white	Převést na černobílou
+	Optics	Optika
+	Vignette	Vinětace

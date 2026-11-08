@@ -1,8 +1,8 @@
 //! Camera Raw's per-pixel develop on the GPU, for the dialog's interactive preview (#6916).
 //!
 //! One fragment pass (`camera_raw.wgsl`) runs the stages that read only their own pixel: white
-//! balance and exposure, Contrast without Texture or Clarity, Whites and Blacks, Vibrance and
-//! Saturation, the tone curves, the Color Mixer, Color Grading, the vignette and grain. Their
+//! balance, Exposure, Contrast without Texture or Clarity, Whites and Blacks, Vibrance and
+//! Saturation (with their measured colour correction), the tone curves, the Color Mixer, Color Grading, the vignette and grain. Their
 //! constants and tables come from [`photocraft_algo::camera_raw::per_pixel`], which the CPU
 //! develop builds its own from, so both evaluate the same maths; the curves and the Whites and
 //! Blacks rows are rows of one `R32Float` texture. Settings with a spatial stage (Dehaze, Shadows
@@ -11,7 +11,7 @@
 //! The pipeline is built on demand ([`CameraRawDevelop::new`]), not with the compositor (#6419).
 //! It renders into `Rgba32Float`; [`CameraRawDevelop::supported`] says whether the adapter can.
 
-use photocraft_algo::camera_raw::{CURVE_LUT, PerPixel, VignetteStyle, WB_STEPS};
+use photocraft_algo::camera_raw::{CURVE_LUT, FIX_GRID, MIXER_GRID, MIXER_KINDS, PRESENCE_GRID, PRESENCE_KINDS, PerPixel, RowOn, TONE_STEPS, VignetteStyle};
 
 use crate::Unsupported;
 
@@ -19,11 +19,29 @@ use crate::Unsupported;
 pub const CAMERA_RAW_SHADER: &str = include_str!("camera_raw.wgsl");
 
 const FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Rgba32Float;
-/// `Params` in the shader: 19 rows of 16 bytes.
-const PARAMS_SIZE: u64 = 19 * 16;
-/// Rows of the table texture: parametric, master, red, green, blue curves; Whites, Blacks.
-const LUT_ROWS: u32 = 7;
+/// `Params` in the shader: 18 rows of 16 bytes.
+const PARAMS_SIZE: u64 = 18 * 16;
+/// Rows of the table texture: parametric, master, red, green, blue curves; Whites, Blacks;
+/// Exposure, Contrast; then from [`WHITES_FIX_ROW`] Whites down's correction grid, from
+/// [`MIXER_ROW`] the Color Mixer tables and from [`PRESENCE_ROW`] Saturation's and Vibrance's.
+const LUT_ROWS: u32 = PRESENCE_ROW + PRESENCE_ROWS;
 const LUT_WIDTH: u32 = CURVE_LUT as u32;
+/// Values of Whites down's correction grid (RGB per node) and the rows they take.
+const FIX_VALUES: usize = FIX_GRID * FIX_GRID * FIX_GRID * 3;
+const FIX_ROWS: u32 = FIX_VALUES.div_ceil(CURVE_LUT) as u32;
+/// The first row of Whites down's correction grid (`WHITES_FIX_ROW` in the shader).
+const WHITES_FIX_ROW: u32 = 9;
+/// The first row of the Color Mixer tables (`MIXER_ROW` in the shader), their values (Luminance,
+/// Saturation and Hue tables of hue shift, saturation and log-value change per node) and the
+/// rows they take.
+const MIXER_ROW: u32 = WHITES_FIX_ROW + FIX_ROWS;
+const MIXER_VALUES: usize = MIXER_KINDS * MIXER_GRID[0] * MIXER_GRID[1] * MIXER_GRID[2] * 3;
+const MIXER_ROWS: u32 = MIXER_VALUES.div_ceil(CURVE_LUT) as u32;
+/// The first row of Saturation's and Vibrance's tables (`PRESENCE_ROW` in the shader), their
+/// values and the rows they take.
+const PRESENCE_ROW: u32 = MIXER_ROW + MIXER_ROWS;
+const PRESENCE_VALUES: usize = PRESENCE_KINDS * PRESENCE_GRID[0] * PRESENCE_GRID[1] * PRESENCE_GRID[2] * 3;
+const PRESENCE_ROWS: u32 = PRESENCE_VALUES.div_ceil(CURVE_LUT) as u32;
 const BYTES_PER_PIXEL: u32 = 16;
 
 struct Image {
@@ -332,18 +350,23 @@ fn flags(s: &PerPixel) -> u32 {
         s.contrast.is_some(),
         wb.is_some_and(|w| w.whites.is_some()),
         wb.is_some_and(|w| w.blacks.is_some()),
-        wb.is_some_and(|w| w.per_channel),
-        s.presence.is_some(),
+        wb.is_some_and(|w| w.whites.as_ref().is_some_and(|r| r.1 == RowOn::Channels)),
+        s.presence.as_ref().is_some_and(|t| t.len() * 3 == PRESENCE_VALUES),
         s.parametric.is_some(),
         s.point[0].is_some(),
         s.point[1].is_some(),
         s.point[2].is_some(),
         s.point[3].is_some(),
-        s.hsl.is_some(),
+        s.hsl.as_ref().is_some_and(|t| t.len() * 3 == MIXER_VALUES),
         s.grade.is_some(),
         s.vignette.is_some(),
         s.grain.is_some(),
         s.clamp,
+        s.exposure.is_some(),
+        wb.is_some_and(|w| w.blacks.as_ref().is_some_and(|r| r.1 == RowOn::Channels)),
+        // 18: unused (was Vibrance's and Saturation's correction grid).
+        false,
+        wb.is_some_and(|w| w.whites.is_some() && w.whites_fix.as_ref().is_some_and(|g| g.len() * 3 == FIX_VALUES)),
     ];
     on.iter().enumerate().fold(0, |f, (bit, on)| if *on { f | 1 << bit } else { f })
 }
@@ -351,19 +374,17 @@ fn flags(s: &PerPixel) -> u32 {
 /// The shader's `Params` for a `size` image.
 fn params(size: [u32; 2], s: &PerPixel) -> Vec<u8> {
     let g = s.gains.unwrap_or([1.0; 3]);
-    let presence = s.presence.unwrap_or_default();
-    let hsl = s.hsl.unwrap_or_default();
     let grade = s.grade.as_ref();
     let vig = s.vignette.as_ref();
     let grain = s.grain.as_ref();
     let mut out: Vec<u8> = Vec::with_capacity(PARAMS_SIZE as usize);
     out.extend([size[0], size[1], flags(s)].iter().flat_map(|v| v.to_le_bytes()).chain(s.encoding.to_le_bytes()));
     let mut f = |v: [f32; 4]| out.extend(v.iter().flat_map(|x| x.to_le_bytes()));
-    f([g[0], g[1], g[2], s.contrast.unwrap_or(0.0)]);
-    f([presence[0], presence[1], 0.0, 0.0]);
-    for row in hsl {
-        f([row[0], row[1], row[2], row[3]]);
-        f([row[4], row[5], row[6], row[7]]);
+    f([g[0], g[1], g[2], 0.0]);
+    for m in [s.to_prophoto, s.from_prophoto] {
+        for r in m {
+            f([r[0], r[1], r[2], 0.0]);
+        }
     }
     for k in 0..4 {
         let (t, l) = grade.map_or(([0.0; 3], 0.0), |gr| (gr.tints[k], gr.lums[k]));
@@ -403,16 +424,38 @@ fn tables(s: &PerPixel) -> Vec<f32> {
             put(1 + k, l);
         }
     }
+    if let Some(r) = &s.exposure {
+        put(7, r);
+    }
+    if let Some(r) = &s.contrast {
+        put(8, r);
+    }
     if let Some(wb) = &s.whites_blacks {
-        if let Some(r) = &wb.whites {
+        if let Some((r, _)) = &wb.whites {
             put(5, r);
         }
-        if let Some(r) = &wb.blacks {
+        if let Some((r, _)) = &wb.blacks {
             put(6, r);
+        }
+    }
+    let whites_fix = s.whites_blacks.as_ref().and_then(|w| w.whites_fix.as_ref());
+    let grids = [(WHITES_FIX_ROW, whites_fix, FIX_VALUES), (MIXER_ROW, s.hsl.as_ref(), MIXER_VALUES), (PRESENCE_ROW, s.presence.as_ref(), PRESENCE_VALUES)];
+    for (row, grid, values) in grids {
+        if let Some(g) = grid.filter(|g| g.len() * 3 == values) {
+            let start = row as usize * LUT_WIDTH as usize;
+            if let Some(dst) = t.get_mut(start..start + values) {
+                for (d, v) in dst.iter_mut().zip(g.iter().flatten()) {
+                    *d = *v;
+                }
+            }
         }
     }
     t
 }
 
-// The Whites and Blacks rows fit a table row.
-const _: () = assert!(WB_STEPS <= CURVE_LUT);
+// The Whites and Blacks, Exposure and Contrast rows fit a table row; the shader's grid size is
+// the CPU's.
+const _: () = assert!(TONE_STEPS <= CURVE_LUT);
+const _: () = assert!(FIX_GRID == 17 && WHITES_FIX_ROW == 9);
+const _: () = assert!(MIXER_ROW == 24 && MIXER_GRID[0] == 72 && MIXER_GRID[1] == 9 && MIXER_GRID[2] == 9 && MIXER_KINDS == 3);
+const _: () = assert!(PRESENCE_ROW == 76 && PRESENCE_GRID[0] == 48 && PRESENCE_GRID[1] == 21 && PRESENCE_GRID[2] == 21 && PRESENCE_KINDS == 2);

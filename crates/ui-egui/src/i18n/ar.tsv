@@ -3617,3 +3617,81 @@ curves	Smooth	تنعيم
 	Auto-size Canvas	تحديد حجم مساحة الرسم تلقائيًا
 	Keep Relative Position During Layer Reordering	الإبقاء على الموضع النسبي عند إعادة ترتيب الطبقات
 	Shrinkwrap Canvas on Save	تقليص مساحة الرسم إلى المحتوى عند الحفظ
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	توازن اللون الأبيض
+	As Shot	كما تم التصوير
+	Adjust	ضبط
+	Reset to Open	إعادة التعيين إلى الفتح
+	Parametric Curve	منحنى بارامتري
+	Point Curve	منحنى النقاط
+	Red Channel	القناة الحمراء
+	Green Channel	القناة الخضراء
+	Blue Channel	القناة الزرقاء
+	Color Sampler Tool (S)	أداة أخذ عينات اللون (S)
+	Show or hide this panel's settings	إظهار إعدادات هذه اللوحة أو إخفاؤها
+	Show the image without these settings	إظهار الصورة بدون هذه الإعدادات
+	3-Way	ثلاثي
+	Geometry	الهندسة
+	Split	تقسيم
+	Before/After Views	طرق عرض قبل/بعد
+	Vignette Style	نمط التظليل
+	Before	قبل
+	After	بعد
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	نسبة العرض إلى الارتفاع
+cameraRaw	Auto Mask	قناع تلقائي
+cameraRaw	Clear guides	مسح خطوط التوجيه
+cameraRaw	Constrain crop	تقييد الاقتصاص
+cameraRaw	Create New Mask	إنشاء قناع جديد
+cameraRaw	Delete component	حذف المكوّن
+cameraRaw	Delete mask	حذف القناع
+cameraRaw	Depth Range	نطاق العمق
+cameraRaw	Double-click to rename	انقر نقرًا مزدوجًا لإعادة التسمية
+cameraRaw	Draw guides	رسم خطوط التوجيه
+cameraRaw	Duplicate mask	تكرار القناع
+cameraRaw	Entire person	الشخص بالكامل
+cameraRaw	Erase (Alt)	محو (Alt)
+cameraRaw	Face	الوجه
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	عثر عليه كاشف الوجوه في PhotoCraft، وليس نماذج Adobe.
+cameraRaw	Guided	موجَّه
+cameraRaw	Guides:	خطوط التوجيه:
+cameraRaw	Image on Black	الصورة على الأسود
+cameraRaw	Image on White	الصورة على الأبيض
+cameraRaw	Intersect	تقاطع
+cameraRaw	Invert component	عكس المكوّن
+cameraRaw	Luminance Range	نطاق اللمعان
+cameraRaw	Masking (Shift+W)	التقنيع (Shift+W)
+cameraRaw	Moiré	تموّج مواريه
+cameraRaw	Move down	تحريك لأسفل
+cameraRaw	Move up	تحريك لأعلى
+cameraRaw	Objects	الكائنات
+cameraRaw	Offset X	إزاحة X
+cameraRaw	Offset Y	إزاحة Y
+cameraRaw	People	الأشخاص
+cameraRaw	People › Face	الأشخاص › الوجه
+cameraRaw	People › Skin	الأشخاص › البشرة
+cameraRaw	Range High	الحد الأعلى للنطاق
+cameraRaw	Range Low	الحد الأدنى للنطاق
+cameraRaw	Samples:	العينات:
+cameraRaw	Show / hide this mask	إظهار / إخفاء هذا القناع
+cameraRaw	Skin	البشرة
+cameraRaw	Upright	Upright
+cameraRaw	copy	نسخة
+cameraRaw	Smoothness	النعومة
+cameraRaw	Masks	الأقنعة
+cameraRaw	Defringe	إزالة الحواف الملونة
+cameraRaw	Sharpness	الحدة
+cameraRaw	Select a mask to edit it.	حدد قناعًا لتحريره.
+cameraRaw	Create a mask to adjust part of the image.	أنشئ قناعًا لضبط جزء من الصورة.
+cameraRaw	Auto: apply balanced perspective corrections	تلقائي: تطبيق تصحيحات منظور متوازنة
+cameraRaw	Level: apply only level correction	المستوى: تطبيق تصحيح الاستواء فقط
+cameraRaw	Vertical: apply level and vertical perspective correction	عمودي: تطبيق تصحيح الاستواء والمنظور العمودي
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	كامل: تطبيق تصحيح الاستواء والمنظور الأفقي والعمودي
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	موجَّه: ارسم خطَّي توجيه أو أكثر لتخصيص تصحيحات المنظور
+cameraRaw	Disable Upright	تعطيل Upright
+	White Balance Tool (I)	أداة توازن اللون الأبيض (I)
+	B&W	أبيض وأسود
+	B&W Mixer	خالط الأبيض والأسود
+	Convert to black and white	تحويل إلى أبيض وأسود
+	Optics	البصريات
+	Vignette	التظليل

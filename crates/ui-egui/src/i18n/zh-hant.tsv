@@ -3276,3 +3276,84 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	自動調整版面尺寸
 	Keep Relative Position During Layer Reordering	重新排列圖層時保持相對位置
 	Shrinkwrap Canvas on Save	儲存時將版面縮至內容大小
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	白平衡
+	As Shot	拍攝設定
+	Adjust	調整
+	Reset to Open	重設為開啟時
+	Parametric Curve	參數曲線
+	Point Curve	點曲線
+	Red Channel	紅色色版
+	Green Channel	綠色色版
+	Blue Channel	藍色色版
+	Color Sampler Tool (S)	顏色取樣器工具 (S)
+	Show or hide this panel's settings	顯示或隱藏此面板的設定
+	Show the image without these settings	顯示不含這些設定的影像
+	3-Way	三向
+	Geometry	幾何
+	Split	分割
+	Before/After Views	之前/之後檢視
+	Vignette Style	暈映樣式
+	Before	之前
+	After	之後
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	長寬比
+cameraRaw	Auto Mask	自動遮色片
+cameraRaw	Clear guides	清除參考線
+cameraRaw	Constrain crop	限制裁切
+cameraRaw	Create New Mask	建立新遮色片
+cameraRaw	Delete component	刪除元件
+cameraRaw	Delete mask	刪除遮色片
+cameraRaw	Depth Range	深度範圍
+cameraRaw	Double-click to rename	按兩下以重新命名
+cameraRaw	Draw guides	繪製參考線
+cameraRaw	Duplicate mask	複製遮色片
+cameraRaw	Entire person	整個人物
+cameraRaw	Erase (Alt)	擦除 (Alt)
+cameraRaw	Face	臉部
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	由 PhotoCraft 的臉部偵測器找到，而非 Adobe 的模型。
+cameraRaw	Guided	引導式
+cameraRaw	Guides:	參考線：
+cameraRaw	Image on Black	黑底影像
+cameraRaw	Image on White	白底影像
+cameraRaw	Intersect	交集
+cameraRaw	Invert component	反轉元件
+cameraRaw	Luminance Range	明亮度範圍
+cameraRaw	Masking (Shift+W)	遮色片 (Shift+W)
+cameraRaw	Moiré	摩爾紋
+cameraRaw	Move down	下移
+cameraRaw	Move up	上移
+cameraRaw	Objects	物件
+cameraRaw	Offset X	位移 X
+cameraRaw	Offset Y	位移 Y
+cameraRaw	People	人物
+cameraRaw	People › Face	人物 › 臉部
+cameraRaw	People › Skin	人物 › 皮膚
+cameraRaw	Range High	範圍上限
+cameraRaw	Range Low	範圍下限
+cameraRaw	Samples:	樣本：
+cameraRaw	Show / hide this mask	顯示 / 隱藏此遮色片
+cameraRaw	Skin	皮膚
+cameraRaw	Upright	Upright
+cameraRaw	copy	拷貝
+cameraRaw	Color Range	顏色範圍
+cameraRaw	Smoothness	平滑度
+cameraRaw	Masks	遮色片
+cameraRaw	Mask	遮色片
+cameraRaw	Defringe	去除邊緣
+cameraRaw	Sharpness	銳利度
+cameraRaw	Select a mask to edit it.	選取遮色片以進行編輯。
+cameraRaw	Create a mask to adjust part of the image.	建立遮色片以調整影像的一部分。
+cameraRaw	Auto: apply balanced perspective corrections	自動：套用平衡的透視校正
+cameraRaw	Level: apply only level correction	層級：僅套用水平校正
+cameraRaw	Vertical: apply level and vertical perspective correction	垂直：套用水平校正及垂直透視校正
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	完全：套用水平校正及水平與垂直透視校正
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	引導式：繪製兩條以上參考線以自訂透視校正
+cameraRaw	Disable Upright	停用 Upright
+	White Balance Tool (I)	白平衡工具 (I)
+	B&W	黑白
+	B&W Mixer	黑白混合
+	Convert to black and white	轉換為黑白
+	Optics	光學
+	Vignette	暈映
+	Distortion	扭曲

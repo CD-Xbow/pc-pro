@@ -64,6 +64,14 @@ pub(crate) mod tag {
     pub const CALIBRATION_ILLUMINANT_1: u16 = 50778;
     pub const CALIBRATION_ILLUMINANT_2: u16 = 50779;
     pub const ACTIVE_AREA: u16 = 50829;
+    pub const PROFILE_HUE_SAT_MAP_DIMS: u16 = 50937;
+    pub const PROFILE_HUE_SAT_MAP_DATA_1: u16 = 50938;
+    pub const PROFILE_HUE_SAT_MAP_DATA_2: u16 = 50939;
+    pub const PROFILE_TONE_CURVE: u16 = 50940;
+    pub const PROFILE_LOOK_TABLE_DIMS: u16 = 50981;
+    pub const PROFILE_LOOK_TABLE_DATA: u16 = 50982;
+    pub const PROFILE_HUE_SAT_MAP_ENCODING: u16 = 51107;
+    pub const PROFILE_LOOK_TABLE_ENCODING: u16 = 51108;
     pub const FORWARD_MATRIX_1: u16 = 50964;
     pub const FORWARD_MATRIX_2: u16 = 50965;
     pub const OPCODE_LIST_1: u16 = 51008;

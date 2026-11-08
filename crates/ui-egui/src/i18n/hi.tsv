@@ -691,3 +691,106 @@ cameraRaw	Yellow	पीला
 	Auto-size Canvas	कैनवास का आकार स्वचालित रूप से बदलें
 	Keep Relative Position During Layer Reordering	लेयर्स का क्रम बदलते समय सापेक्ष स्थिति बनाए रखें
 	Shrinkwrap Canvas on Save	सहेजते समय कैनवास को सामग्री के अनुसार छोटा करें
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	व्हाइट बैलेंस
+	As Shot	जैसा खींचा गया
+	Custom	कस्टम
+	Adjust	समायोजित करें
+	Reset to Open	खोलने की स्थिति पर रीसेट करें
+	Reset to Default	डिफ़ॉल्ट पर रीसेट करें
+	Parametric Curve	पैरामीट्रिक कर्व
+	Point Curve	पॉइंट कर्व
+	Red Channel	लाल चैनल
+	Green Channel	हरा चैनल
+	Blue Channel	नीला चैनल
+	Color Sampler Tool (S)	कलर सैंपलर टूल (S)
+	Show or hide this panel's settings	इस पैनल की सेटिंग्स दिखाएँ या छिपाएँ
+	Show the image without these settings	इन सेटिंग्स के बिना छवि दिखाएँ
+	3-Way	3-तरफ़ा
+	Geometry	ज्यामिति
+	Split	विभाजित
+	Before/After Views	पहले/बाद के दृश्य
+	Vignette Style	विग्नेट शैली
+	Before	पहले
+	After	बाद
+	Calibration	कैलिब्रेशन
+	Zoom	ज़ूम
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	पक्षानुपात
+cameraRaw	Auto Mask	ऑटो मास्क
+cameraRaw	Clear guides	गाइड्स साफ़ करें
+cameraRaw	Constrain crop	क्रॉप सीमित करें
+cameraRaw	Create New Mask	नया मास्क बनाएँ
+cameraRaw	Delete component	घटक हटाएँ
+cameraRaw	Delete mask	मास्क हटाएँ
+cameraRaw	Depth Range	डेप्थ रेंज
+cameraRaw	Double-click to rename	नाम बदलने के लिए डबल-क्लिक करें
+cameraRaw	Draw guides	गाइड्स बनाएँ
+cameraRaw	Duplicate mask	मास्क डुप्लिकेट करें
+cameraRaw	Entire person	पूरा व्यक्ति
+cameraRaw	Erase (Alt)	मिटाएँ (Alt)
+cameraRaw	Face	चेहरा
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	PhotoCraft के फ़ेस डिटेक्टर द्वारा पाया गया, Adobe के मॉडल द्वारा नहीं।
+cameraRaw	Guided	गाइडेड
+cameraRaw	Guides:	गाइड्स:
+cameraRaw	Image on Black	काले पर छवि
+cameraRaw	Image on White	सफ़ेद पर छवि
+cameraRaw	Intersect	इंटरसेक्ट
+cameraRaw	Invert component	घटक इन्वर्ट करें
+cameraRaw	Luminance Range	लुमिनेंस रेंज
+cameraRaw	Masking (Shift+W)	मास्किंग (Shift+W)
+cameraRaw	Moiré	मोआरे
+cameraRaw	Move down	नीचे ले जाएँ
+cameraRaw	Move up	ऊपर ले जाएँ
+cameraRaw	Objects	ऑब्जेक्ट्स
+cameraRaw	Offset X	ऑफ़सेट X
+cameraRaw	Offset Y	ऑफ़सेट Y
+cameraRaw	People	लोग
+cameraRaw	People › Face	लोग › चेहरा
+cameraRaw	People › Skin	लोग › त्वचा
+cameraRaw	Range High	रेंज उच्च
+cameraRaw	Range Low	रेंज निम्न
+cameraRaw	Samples:	नमूने:
+cameraRaw	Show / hide this mask	यह मास्क दिखाएँ / छिपाएँ
+cameraRaw	Skin	त्वचा
+cameraRaw	Upright	Upright
+cameraRaw	copy	कॉपी
+cameraRaw	Subject	विषय
+cameraRaw	Sky	आकाश
+cameraRaw	Background	पृष्ठभूमि
+cameraRaw	Brush	ब्रश
+cameraRaw	Linear Gradient	लीनियर ग्रेडिएंट
+cameraRaw	Radial Gradient	रेडियल ग्रेडिएंट
+cameraRaw	Color Range	कलर रेंज
+cameraRaw	Off	बंद
+cameraRaw	Level	लेवल
+cameraRaw	Vertical	वर्टिकल
+cameraRaw	Full	पूर्ण
+cameraRaw	Horizontal	हॉरिज़ॉन्टल
+cameraRaw	Refine	परिष्कृत करें
+cameraRaw	Smoothness	स्मूदनेस
+cameraRaw	Density	घनत्व
+cameraRaw	Add	जोड़ें
+cameraRaw	Subtract	घटाएँ
+cameraRaw	Masks	मास्क
+cameraRaw	Mask	मास्क
+cameraRaw	Color Overlay	कलर ओवरले
+cameraRaw	Show Overlay	ओवरले दिखाएँ
+cameraRaw	Defringe	डीफ़्रिंज
+cameraRaw	Sharpness	शार्पनेस
+cameraRaw	Noise	नॉइज़
+cameraRaw	Select a mask to edit it.	संपादित करने के लिए कोई मास्क चुनें।
+cameraRaw	Create a mask to adjust part of the image.	छवि के किसी भाग को समायोजित करने के लिए मास्क बनाएँ।
+cameraRaw	Auto: apply balanced perspective corrections	स्वचालित: संतुलित परिप्रेक्ष्य सुधार लागू करें
+cameraRaw	Level: apply only level correction	लेवल: केवल लेवल सुधार लागू करें
+cameraRaw	Vertical: apply level and vertical perspective correction	वर्टिकल: लेवल और वर्टिकल परिप्रेक्ष्य सुधार लागू करें
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	पूर्ण: लेवल, हॉरिज़ॉन्टल और वर्टिकल परिप्रेक्ष्य सुधार लागू करें
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	गाइडेड: परिप्रेक्ष्य सुधारों को अनुकूलित करने के लिए दो या अधिक गाइड बनाएँ
+cameraRaw	Disable Upright	Upright अक्षम करें
+	White Balance Tool (I)	व्हाइट बैलेंस टूल (I)
+	B&W	B&W
+	B&W Mixer	B&W मिक्सर
+	Convert to black and white	श्वेत-श्याम में बदलें
+	Optics	ऑप्टिक्स
+	Vignette	विग्नेट
+	Distortion	विरूपण

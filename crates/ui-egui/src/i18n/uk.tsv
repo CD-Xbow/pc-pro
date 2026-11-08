@@ -4338,3 +4338,76 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	Автоматично змінювати розмір полотна
 	Keep Relative Position During Layer Reordering	Зберігати відносне положення під час зміни порядку шарів
 	Shrinkwrap Canvas on Save	Зменшувати полотно до вмісту під час збереження
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Баланс білого
+	As Shot	Як знято
+	Adjust	Налаштувати
+	Reset to Open	Відновити початкове
+	Parametric Curve	Параметрична крива
+	Red Channel	Червоний канал
+	Green Channel	Зелений канал
+	Blue Channel	Синій канал
+	Color Sampler Tool (S)	Інструмент «Колірний еталон» (S)
+	Show or hide this panel's settings	Показати або сховати налаштування цієї панелі
+	Show the image without these settings	Показати зображення без цих налаштувань
+	3-Way	3 кола
+	Geometry	Геометрія
+	Split	Розділення
+	Before/After Views	Види «До/Після»
+	Before	До
+	After	Після
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Пропорції
+cameraRaw	Auto Mask	Автомаска
+cameraRaw	Clear guides	Очистити напрямні
+cameraRaw	Constrain crop	Обмежити кадрування
+cameraRaw	Create New Mask	Створити нову маску
+cameraRaw	Delete component	Видалити компонент
+cameraRaw	Delete mask	Видалити маску
+cameraRaw	Depth Range	Діапазон глибини
+cameraRaw	Double-click to rename	Двічі клацніть, щоб перейменувати
+cameraRaw	Draw guides	Намалювати напрямні
+cameraRaw	Duplicate mask	Дублювати маску
+cameraRaw	Entire person	Уся людина
+cameraRaw	Erase (Alt)	Стерти (Alt)
+cameraRaw	Face	Обличчя
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Знайдено детектором облич PhotoCraft, а не моделями Adobe.
+cameraRaw	Guided	За напрямними
+cameraRaw	Guides:	Напрямні:
+cameraRaw	Image on Black	Зображення на чорному
+cameraRaw	Image on White	Зображення на білому
+cameraRaw	Intersect	Перетин
+cameraRaw	Invert component	Інвертувати компонент
+cameraRaw	Luminance Range	Діапазон яскравості
+cameraRaw	Masking (Shift+W)	Маскування (Shift+W)
+cameraRaw	Moiré	Муар
+cameraRaw	Move down	Перемістити вниз
+cameraRaw	Move up	Перемістити вгору
+cameraRaw	Objects	Об'єкти
+cameraRaw	Offset X	Зсув X
+cameraRaw	Offset Y	Зсув Y
+cameraRaw	People	Люди
+cameraRaw	People › Face	Люди › Обличчя
+cameraRaw	People › Skin	Люди › Шкіра
+cameraRaw	Range High	Верхня межа діапазону
+cameraRaw	Range Low	Нижня межа діапазону
+cameraRaw	Samples:	Зразки:
+cameraRaw	Show / hide this mask	Показати / сховати цю маску
+cameraRaw	Skin	Шкіра
+cameraRaw	Upright	Upright
+cameraRaw	copy	копія
+cameraRaw	Masks	Маски
+cameraRaw	Select a mask to edit it.	Виберіть маску, щоб редагувати її.
+cameraRaw	Create a mask to adjust part of the image.	Створіть маску, щоб налаштувати частину зображення.
+cameraRaw	Auto: apply balanced perspective corrections	Авто: застосувати збалансовану корекцію перспективи
+cameraRaw	Level: apply only level correction	Рівень: застосувати лише вирівнювання горизонту
+cameraRaw	Vertical: apply level and vertical perspective correction	Вертикальна: вирівнювання горизонту та корекція вертикальної перспективи
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Повна: вирівнювання горизонту та корекція горизонтальної й вертикальної перспективи
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	За напрямними: намалюйте дві або більше напрямних, щоб налаштувати корекцію перспективи
+cameraRaw	Disable Upright	Вимкнути Upright
+	White Balance Tool (I)	Інструмент «Баланс білого» (I)
+	B&W	Ч/Б
+	B&W Mixer	Мікшер Ч/Б
+	Convert to black and white	Перетворити на чорно-біле
+	Optics	Оптика
+	Vignette	Віньєтка

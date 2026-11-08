@@ -3650,3 +3650,81 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	Ubah ukuran kanvas otomatis
 	Keep Relative Position During Layer Reordering	Pertahankan posisi relatif saat mengurutkan ulang layer
 	Shrinkwrap Canvas on Save	Kecilkan kanvas sesuai konten saat menyimpan
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Keseimbangan Putih
+	As Shot	Sesuai Bidikan
+	Adjust	Sesuaikan
+	Reset to Open	Atur Ulang ke Saat Dibuka
+	Parametric Curve	Kurva Parametrik
+	Point Curve	Kurva Titik
+	Red Channel	Saluran Merah
+	Green Channel	Saluran Hijau
+	Blue Channel	Saluran Biru
+	Color Sampler Tool (S)	Alat Sampel Warna (S)
+	Show or hide this panel's settings	Tampilkan atau sembunyikan pengaturan panel ini
+	Show the image without these settings	Tampilkan gambar tanpa pengaturan ini
+	3-Way	3 Arah
+	Geometry	Geometri
+	Split	Terbagi
+	Before/After Views	Tampilan Sebelum/Sesudah
+	Vignette Style	Gaya Vinyet
+	Before	Sebelum
+	After	Sesudah
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Aspek
+cameraRaw	Auto Mask	Mask Otomatis
+cameraRaw	Clear guides	Hapus panduan
+cameraRaw	Constrain crop	Batasi crop
+cameraRaw	Create New Mask	Buat Mask Baru
+cameraRaw	Delete component	Hapus komponen
+cameraRaw	Delete mask	Hapus mask
+cameraRaw	Depth Range	Rentang Kedalaman
+cameraRaw	Double-click to rename	Klik dua kali untuk mengganti nama
+cameraRaw	Draw guides	Gambar panduan
+cameraRaw	Duplicate mask	Duplikat mask
+cameraRaw	Entire person	Seluruh orang
+cameraRaw	Erase (Alt)	Hapus (Alt)
+cameraRaw	Face	Wajah
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Ditemukan oleh detektor wajah PhotoCraft, bukan oleh model Adobe.
+cameraRaw	Guided	Terpandu
+cameraRaw	Guides:	Panduan:
+cameraRaw	Image on Black	Gambar di Atas Hitam
+cameraRaw	Image on White	Gambar di Atas Putih
+cameraRaw	Intersect	Irisan
+cameraRaw	Invert component	Balikkan komponen
+cameraRaw	Luminance Range	Rentang Luminansi
+cameraRaw	Masking (Shift+W)	Masking (Shift+W)
+cameraRaw	Moiré	Moiré
+cameraRaw	Move down	Pindah ke bawah
+cameraRaw	Move up	Pindah ke atas
+cameraRaw	Objects	Objek
+cameraRaw	Offset X	Offset X
+cameraRaw	Offset Y	Offset Y
+cameraRaw	People	Orang
+cameraRaw	People › Face	Orang › Wajah
+cameraRaw	People › Skin	Orang › Kulit
+cameraRaw	Range High	Rentang Atas
+cameraRaw	Range Low	Rentang Bawah
+cameraRaw	Samples:	Sampel:
+cameraRaw	Show / hide this mask	Tampilkan / sembunyikan mask ini
+cameraRaw	Skin	Kulit
+cameraRaw	Upright	Upright
+cameraRaw	copy	salinan
+cameraRaw	Smoothness	Kehalusan
+cameraRaw	Masks	Mask
+cameraRaw	Defringe	Hilangkan Fringe
+cameraRaw	Select a mask to edit it.	Pilih mask untuk mengeditnya.
+cameraRaw	Create a mask to adjust part of the image.	Buat mask untuk menyesuaikan sebagian gambar.
+cameraRaw	Auto: apply balanced perspective corrections	Otomatis: terapkan koreksi perspektif yang seimbang
+cameraRaw	Level: apply only level correction	Level: terapkan hanya koreksi kemiringan
+cameraRaw	Vertical: apply level and vertical perspective correction	Vertikal: terapkan koreksi kemiringan dan perspektif vertikal
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Penuh: terapkan koreksi kemiringan serta perspektif horizontal dan vertikal
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Terpandu: gambar dua panduan atau lebih untuk menyesuaikan koreksi perspektif
+cameraRaw	Disable Upright	Nonaktifkan Upright
+	White Balance Tool (I)	Alat Keseimbangan Putih (I)
+	B&W	H&P
+	B&W Mixer	Mixer H&P
+	Convert to black and white	Konversi ke hitam putih
+	Optics	Optik
+	Vignette	Vinyet
+	Distortion	Distorsi

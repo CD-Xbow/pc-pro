@@ -4650,3 +4650,73 @@ shape	Appearance	Apparence
 	Auto-size Canvas	Redimensionner le canevas automatiquement
 	Keep Relative Position During Layer Reordering	Conserver la position relative lors de la réorganisation des calques
 	Shrinkwrap Canvas on Save	Réduire le canevas au contenu à l'enregistrement
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Balance des blancs
+	As Shot	Tel quel
+	Adjust	Réglage
+	Reset to Open	Rétablir à l'ouverture
+	Parametric Curve	Courbe paramétrique
+	Red Channel	Couche rouge
+	Green Channel	Couche verte
+	Blue Channel	Couche bleue
+	Color Sampler Tool (S)	Outil Échantillonnage de couleur (S)
+	Show or hide this panel's settings	Afficher ou masquer les paramètres de ce panneau
+	Show the image without these settings	Afficher l'image sans ces paramètres
+	3-Way	3 voies
+	Geometry	Géométrie
+	Split	Fractionner
+	Before/After Views	Vues Avant/Après
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Proportions
+cameraRaw	Auto Mask	Masquage automatique
+cameraRaw	Clear guides	Effacer les repères
+cameraRaw	Constrain crop	Limiter le recadrage
+cameraRaw	Create New Mask	Créer un masque
+cameraRaw	Delete component	Supprimer le composant
+cameraRaw	Delete mask	Supprimer le masque
+cameraRaw	Depth Range	Plage de profondeur
+cameraRaw	Double-click to rename	Double-cliquez pour renommer
+cameraRaw	Draw guides	Tracer des repères
+cameraRaw	Duplicate mask	Dupliquer le masque
+cameraRaw	Entire person	Personne entière
+cameraRaw	Erase (Alt)	Effacer (Alt)
+cameraRaw	Face	Visage
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Détecté par le détecteur de visages de PhotoCraft, et non par les modèles d’Adobe.
+cameraRaw	Guided	Guidée
+cameraRaw	Guides:	Repères :
+cameraRaw	Image on Black	Image sur noir
+cameraRaw	Image on White	Image sur blanc
+cameraRaw	Intersect	Intersection
+cameraRaw	Invert component	Inverser le composant
+cameraRaw	Luminance Range	Plage de luminance
+cameraRaw	Masking (Shift+W)	Masquage (Shift+W)
+cameraRaw	Moiré	Moiré
+cameraRaw	Move down	Descendre
+cameraRaw	Move up	Monter
+cameraRaw	Objects	Objets
+cameraRaw	Offset X	Décalage X
+cameraRaw	Offset Y	Décalage Y
+cameraRaw	People	Personnes
+cameraRaw	People › Face	Personnes › Visage
+cameraRaw	People › Skin	Personnes › Peau
+cameraRaw	Range High	Plage haute
+cameraRaw	Range Low	Plage basse
+cameraRaw	Samples:	Échantillons :
+cameraRaw	Show / hide this mask	Afficher / masquer ce masque
+cameraRaw	Skin	Peau
+cameraRaw	Upright	Upright
+cameraRaw	copy	copie
+cameraRaw	Select a mask to edit it.	Sélectionnez un masque pour le modifier.
+cameraRaw	Create a mask to adjust part of the image.	Créez un masque pour régler une partie de l’image.
+cameraRaw	Auto: apply balanced perspective corrections	Auto : appliquer des corrections de perspective équilibrées
+cameraRaw	Level: apply only level correction	Niveau : appliquer uniquement la correction de niveau
+cameraRaw	Vertical: apply level and vertical perspective correction	Vertical : appliquer la correction de niveau et de perspective verticale
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Totale : appliquer les corrections de niveau et de perspective horizontale et verticale
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Guidée : tracer au moins deux repères pour personnaliser les corrections de perspective
+cameraRaw	Disable Upright	Désactiver Upright
+	White Balance Tool (I)	Outil Balance des blancs (I)
+	B&W	N&B
+	B&W Mixer	Mélangeur N&B
+	Convert to black and white	Convertir en noir et blanc
+	Optics	Optique
+	Vignette	Vignetage

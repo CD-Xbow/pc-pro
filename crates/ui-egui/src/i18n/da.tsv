@@ -4829,3 +4829,73 @@ cameraRaw	White Balance: As Shot	Hvidbalance: Som fotograferet
 	Auto-size Canvas	Tilpas lærredsstørrelse automatisk
 	Keep Relative Position During Layer Reordering	Bevar relativ placering ved omorganisering af lag
 	Shrinkwrap Canvas on Save	Beskær lærredet til indholdet ved lagring
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Hvidbalance
+	As Shot	Som optaget
+	Adjust	Juster
+	Reset to Open	Nulstil til åbning
+	Parametric Curve	Parametrisk kurve
+	Red Channel	Rød kanal
+	Green Channel	Grøn kanal
+	Blue Channel	Blå kanal
+	Color Sampler Tool (S)	Farveprøveværktøj (S)
+	Show or hide this panel's settings	Vis eller skjul panelets indstillinger
+	Show the image without these settings	Vis billedet uden disse indstillinger
+	3-Way	3-vejs
+	Geometry	Geometri
+	Split	Delt
+	Before/After Views	Før/efter-visninger
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Billedformat
+cameraRaw	Auto Mask	Automatisk maske
+cameraRaw	Clear guides	Ryd hjælpelinjer
+cameraRaw	Constrain crop	Begræns beskæring
+cameraRaw	Create New Mask	Opret ny maske
+cameraRaw	Delete component	Slet komponent
+cameraRaw	Delete mask	Slet maske
+cameraRaw	Depth Range	Dybdeområde
+cameraRaw	Double-click to rename	Dobbeltklik for at omdøbe
+cameraRaw	Draw guides	Tegn hjælpelinjer
+cameraRaw	Duplicate mask	Duplikér maske
+cameraRaw	Entire person	Hele personen
+cameraRaw	Erase (Alt)	Visk ud (Alt)
+cameraRaw	Face	Ansigt
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Fundet af PhotoCrafts ansigtsgenkendelse, ikke af Adobes modeller.
+cameraRaw	Guided	Styret
+cameraRaw	Guides:	Hjælpelinjer:
+cameraRaw	Image on Black	Billede på sort
+cameraRaw	Image on White	Billede på hvid
+cameraRaw	Intersect	Fællesmængde
+cameraRaw	Invert component	Invertér komponent
+cameraRaw	Luminance Range	Luminansområde
+cameraRaw	Masking (Shift+W)	Maskering (Shift+W)
+cameraRaw	Moiré	Moiré
+cameraRaw	Move down	Flyt ned
+cameraRaw	Move up	Flyt op
+cameraRaw	Objects	Objekter
+cameraRaw	Offset X	Forskydning X
+cameraRaw	Offset Y	Forskydning Y
+cameraRaw	People	Personer
+cameraRaw	People › Face	Personer › Ansigt
+cameraRaw	People › Skin	Personer › Hud
+cameraRaw	Range High	Område høj
+cameraRaw	Range Low	Område lav
+cameraRaw	Samples:	Prøver:
+cameraRaw	Show / hide this mask	Vis / skjul denne maske
+cameraRaw	Skin	Hud
+cameraRaw	Upright	Upright
+cameraRaw	copy	kopi
+cameraRaw	Select a mask to edit it.	Vælg en maske for at redigere den.
+cameraRaw	Create a mask to adjust part of the image.	Opret en maske for at justere en del af billedet.
+cameraRaw	Auto: apply balanced perspective corrections	Auto: anvend afbalancerede perspektivkorrektioner
+cameraRaw	Level: apply only level correction	Niveau: anvend kun niveaukorrektion
+cameraRaw	Vertical: apply level and vertical perspective correction	Lodret: anvend niveaukorrektion og lodret perspektivkorrektion
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Fuld: anvend niveaukorrektion samt vandret og lodret perspektivkorrektion
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Styret: tegn to eller flere hjælpelinjer for at tilpasse perspektivkorrektionerne
+cameraRaw	Disable Upright	Deaktiver Upright
+	White Balance Tool (I)	Hvidbalanceværktøj (I)
+	B&W	S/H
+	B&W Mixer	S/H-mixer
+	Convert to black and white	Konverter til sort-hvid
+	Optics	Optik
+	Vignette	Vignettering

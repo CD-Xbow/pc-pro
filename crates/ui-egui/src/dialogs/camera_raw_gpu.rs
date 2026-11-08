@@ -96,7 +96,7 @@ pub(crate) fn source_key() -> u64 {
 /// The source key and the settings the black and white points depend on.
 type PointsKey = (u64, [u32; 5]);
 /// The last [`PointsKey`] and its points.
-type Points = Option<(PointsKey, Option<(f32, f32)>)>;
+type Points = Option<(PointsKey, Option<photocraft_algo::camera_raw::TonePoints>)>;
 
 /// One dialog's handle on the pass (cheap to clone into each proxy job).
 #[derive(Clone)]
@@ -108,7 +108,7 @@ pub(crate) struct CameraRawGpu {
     pass: Slot,
     /// Set after a develop failed: the dialog stays on the CPU.
     failed: Arc<AtomicBool>,
-    /// Whites and Blacks adapt to the image; its points change only with these settings.
+    /// Contrast and Whites up adapt to the image; its tones change only with these settings.
     points: Arc<Mutex<Points>>,
 }
 
@@ -149,8 +149,8 @@ impl CameraRawGpu {
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    fn points(&self, px: &[[f32; 4]], key: Option<u64>, w: usize, h: usize, p: &CameraRaw) -> Option<(f32, f32)> {
-        if p.whites == 0.0 && p.blacks == 0.0 {
+    fn points(&self, px: &[[f32; 4]], key: Option<u64>, w: usize, h: usize, p: &CameraRaw) -> Option<photocraft_algo::camera_raw::TonePoints> {
+        if p.whites <= 0.0 && p.contrast == 0.0 {
             return None;
         }
         let Some(key) = key else { return photocraft_algo::camera_raw::white_black_points(px, w, h, p) };
@@ -236,8 +236,8 @@ mod tests {
                 eprintln!("skipping: the device can't run the Camera Raw pass");
                 return;
             }
+            // (Temperature and Tint are per-channel curves the CPU develops.)
             let per_pixel = CameraRaw {
-                temperature: 20.0,
                 exposure: 0.4,
                 contrast: 30.0,
                 whites: 25.0,

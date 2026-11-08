@@ -1,9 +1,10 @@
 //! Digital Negative (Adobe DNG Specification 1.7): raw IFD selection, CFA
 //! description, linearization, black/white levels, active area, default
-//! crop, colour calibration and white balance.
+//! crop, colour calibration, the camera profile's rendering tags and white balance.
 
 use crate::color::{self, Calibration, ColorInfo, IDENTITY};
 use crate::error::{RawError, Result};
+use crate::profile::{self, HsvMap, Profile};
 use crate::sensor::{BlackLevels, Cfa, JpegLayout, Rect, Sensor, read_plane};
 use crate::tiff::{Ifd, Tiff, tag};
 use crate::{Limits, RawFormat, opcodes};
@@ -67,7 +68,30 @@ pub(crate) fn color_info(t: &Tiff, ifd0: &Ifd) -> ColorInfo {
         analog_balance: triple(t, ifd0, tag::ANALOG_BALANCE),
         as_shot_neutral: triple(t, ifd0, tag::AS_SHOT_NEUTRAL),
         as_shot_white_xy: white_xy,
+        profile: profile(t, ifd0),
     }
+}
+
+/// The profile's hue / saturation maps (one per calibration illuminant) and look table.
+fn profile(t: &Tiff, ifd0: &Ifd) -> Profile {
+    let mut hue_sat = Vec::new();
+    let dims = t.tag_uints(ifd0, tag::PROFILE_HUE_SAT_MAP_DIMS);
+    let encoding = t.tag_uint(ifd0, tag::PROFILE_HUE_SAT_MAP_ENCODING).unwrap_or(0);
+    for (data, ill, default_t) in
+        [(tag::PROFILE_HUE_SAT_MAP_DATA_1, tag::CALIBRATION_ILLUMINANT_1, 2856.0), (tag::PROFILE_HUE_SAT_MAP_DATA_2, tag::CALIBRATION_ILLUMINANT_2, 6504.0)]
+    {
+        if let Some(map) = HsvMap::new(&dims, &t.tag_floats(ifd0, data), encoding) {
+            let temperature = t.tag_uint(ifd0, ill).and_then(color::illuminant_temperature).unwrap_or(default_t);
+            hue_sat.push((temperature, map));
+        }
+    }
+    hue_sat.sort_by(|a, b| a.0.total_cmp(&b.0));
+    let look_table = HsvMap::new(
+        &t.tag_uints(ifd0, tag::PROFILE_LOOK_TABLE_DIMS),
+        &t.tag_floats(ifd0, tag::PROFILE_LOOK_TABLE_DATA),
+        t.tag_uint(ifd0, tag::PROFILE_LOOK_TABLE_ENCODING).unwrap_or(0),
+    );
+    Profile { hue_sat, look_table }
 }
 
 /// CFA pattern of a DNG raw IFD, anchored at the active area origin.
@@ -275,6 +299,13 @@ pub(crate) fn decode(t: &Tiff, limits: &Limits) -> Result<Sensor> {
     let baseline_exposure = t.tag_floats(&ifd0, tag::BASELINE_EXPOSURE).first().copied().unwrap_or(0.0)
         + t.tag_floats(&raw, tag::BASELINE_EXPOSURE_OFFSET).first().copied().unwrap_or(0.0);
     let model = t.tag_ascii(&ifd0, tag::UNIQUE_CAMERA_MODEL).or_else(|| t.tag_ascii(&ifd0, tag::MODEL));
+    let tone_curve = match ifd0.get(tag::PROFILE_TONE_CURVE) {
+        None => Vec::new(),
+        Some(e) => profile::tone_curve(&t.floats(e)).unwrap_or_else(|| {
+            warnings.push("malformed DNG ProfileToneCurve; not applied".to_string());
+            Vec::new()
+        }),
+    };
     Ok(Sensor {
         format: RawFormat::Dng,
         make: t.tag_ascii(&ifd0, tag::MAKE),
@@ -294,7 +325,7 @@ pub(crate) fn decode(t: &Tiff, limits: &Limits) -> Result<Sensor> {
         orientation: crate::tiff::orientation(t.tag_uint(&ifd0, tag::ORIENTATION)),
         baseline_exposure: if baseline_exposure.is_finite() { baseline_exposure.clamp(-10.0, 10.0) } else { 0.0 },
         gain_maps,
-        tone_curve: Vec::new(),
+        tone_curve,
         black_point: 0.0,
         warnings,
     })

@@ -4245,3 +4245,76 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	Automatycznie zmieniaj rozmiar płótna
 	Keep Relative Position During Layer Reordering	Zachowaj położenie względne przy zmianie kolejności warstw
 	Shrinkwrap Canvas on Save	Przytnij płótno do zawartości przy zapisie
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Balans bieli
+	As Shot	Jak wykonano
+	Adjust	Dopasuj
+	Reset to Open	Przywróć stan otwarcia
+	Parametric Curve	Krzywa parametryczna
+	Red Channel	Kanał czerwony
+	Green Channel	Kanał zielony
+	Blue Channel	Kanał niebieski
+	Color Sampler Tool (S)	Narzędzie Próbkowanie kolorów (S)
+	Show or hide this panel's settings	Pokaż lub ukryj ustawienia tego panelu
+	Show the image without these settings	Pokaż obraz bez tych ustawień
+	3-Way	3 koła
+	Geometry	Geometria
+	Split	Podział
+	Before/After Views	Widoki Przed/Po
+	Before	Przed
+	After	Po
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Proporcje
+cameraRaw	Auto Mask	Automatyczna maska
+cameraRaw	Clear guides	Wyczyść prowadnice
+cameraRaw	Constrain crop	Ogranicz kadrowanie
+cameraRaw	Create New Mask	Utwórz nową maskę
+cameraRaw	Delete component	Usuń składnik
+cameraRaw	Delete mask	Usuń maskę
+cameraRaw	Depth Range	Zakres głębi
+cameraRaw	Double-click to rename	Kliknij dwukrotnie, aby zmienić nazwę
+cameraRaw	Draw guides	Rysuj prowadnice
+cameraRaw	Duplicate mask	Duplikuj maskę
+cameraRaw	Entire person	Cała osoba
+cameraRaw	Erase (Alt)	Wymaż (Alt)
+cameraRaw	Face	Twarz
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Wykryte przez detektor twarzy PhotoCraft, a nie przez modele Adobe.
+cameraRaw	Guided	Z prowadnicami
+cameraRaw	Guides:	Prowadnice:
+cameraRaw	Image on Black	Obraz na czarnym
+cameraRaw	Image on White	Obraz na białym
+cameraRaw	Intersect	Część wspólna
+cameraRaw	Invert component	Odwróć składnik
+cameraRaw	Luminance Range	Zakres luminancji
+cameraRaw	Masking (Shift+W)	Maskowanie (Shift+W)
+cameraRaw	Moiré	Mora
+cameraRaw	Move down	Przesuń w dół
+cameraRaw	Move up	Przesuń w górę
+cameraRaw	Objects	Obiekty
+cameraRaw	Offset X	Przesunięcie X
+cameraRaw	Offset Y	Przesunięcie Y
+cameraRaw	People	Osoby
+cameraRaw	People › Face	Osoby › Twarz
+cameraRaw	People › Skin	Osoby › Skóra
+cameraRaw	Range High	Górna granica zakresu
+cameraRaw	Range Low	Dolna granica zakresu
+cameraRaw	Samples:	Próbki:
+cameraRaw	Show / hide this mask	Pokaż / ukryj tę maskę
+cameraRaw	Skin	Skóra
+cameraRaw	Upright	Upright
+cameraRaw	copy	kopia
+cameraRaw	Masks	Maski
+cameraRaw	Select a mask to edit it.	Wybierz maskę, aby ją edytować.
+cameraRaw	Create a mask to adjust part of the image.	Utwórz maskę, aby dostosować część obrazu.
+cameraRaw	Auto: apply balanced perspective corrections	Automatycznie: zastosuj zrównoważone korekty perspektywy
+cameraRaw	Level: apply only level correction	Poziom: zastosuj tylko wyrównanie poziomu
+cameraRaw	Vertical: apply level and vertical perspective correction	Pionowo: zastosuj wyrównanie poziomu i pionową korektę perspektywy
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Pełna: zastosuj wyrównanie poziomu oraz poziomą i pionową korektę perspektywy
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Z prowadnicami: narysuj co najmniej dwie prowadnice, aby dostosować korekty perspektywy
+cameraRaw	Disable Upright	Wyłącz Upright
+	White Balance Tool (I)	Narzędzie Balans bieli (I)
+	B&W	Cz-b
+	B&W Mixer	Mikser cz-b
+	Convert to black and white	Konwertuj na czarno-biały
+	Optics	Optyka
+	Vignette	Winieta

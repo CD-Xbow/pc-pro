@@ -4534,3 +4534,73 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	Vászonméret automatikus módosítása
 	Keep Relative Position During Layer Reordering	Relatív pozíció megtartása a rétegek átrendezésekor
 	Shrinkwrap Canvas on Save	Vászon összehúzása a tartalomra mentéskor
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Fehéregyensúly
+	As Shot	Felvétel szerint
+	Adjust	Módosítás
+	Reset to Open	Visszaállítás megnyitáskorira
+	Parametric Curve	Parametrikus görbe
+	Red Channel	Vörös csatorna
+	Green Channel	Zöld csatorna
+	Blue Channel	Kék csatorna
+	Color Sampler Tool (S)	Színmintavevő eszköz (S)
+	Show or hide this panel's settings	A panel beállításainak megjelenítése vagy elrejtése
+	Show the image without these settings	A kép megjelenítése e beállítások nélkül
+	3-Way	Háromutas
+	Geometry	Geometria
+	Split	Osztott
+	Before/After Views	Előtte/utána nézetek
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Képarány
+cameraRaw	Auto Mask	Automatikus maszk
+cameraRaw	Clear guides	Segédvonalak törlése
+cameraRaw	Constrain crop	Körbevágás korlátozása
+cameraRaw	Create New Mask	Új maszk létrehozása
+cameraRaw	Delete component	Összetevő törlése
+cameraRaw	Delete mask	Maszk törlése
+cameraRaw	Depth Range	Mélységtartomány
+cameraRaw	Double-click to rename	Kattintson duplán az átnevezéshez
+cameraRaw	Draw guides	Segédvonalak rajzolása
+cameraRaw	Duplicate mask	Maszk kettőzése
+cameraRaw	Entire person	Teljes személy
+cameraRaw	Erase (Alt)	Radírozás (Alt)
+cameraRaw	Face	Arc
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	A PhotoCraft arcfelismerője találta, nem az Adobe modelljei.
+cameraRaw	Guided	Irányított
+cameraRaw	Guides:	Segédvonalak:
+cameraRaw	Image on Black	Kép feketén
+cameraRaw	Image on White	Kép fehéren
+cameraRaw	Intersect	Metszet
+cameraRaw	Invert component	Összetevő invertálása
+cameraRaw	Luminance Range	Luminanciatartomány
+cameraRaw	Masking (Shift+W)	Maszkolás (Shift+W)
+cameraRaw	Moiré	Moaré
+cameraRaw	Move down	Mozgatás le
+cameraRaw	Move up	Mozgatás fel
+cameraRaw	Objects	Objektumok
+cameraRaw	Offset X	Eltolás X
+cameraRaw	Offset Y	Eltolás Y
+cameraRaw	People	Személyek
+cameraRaw	People › Face	Személyek › Arc
+cameraRaw	People › Skin	Személyek › Bőr
+cameraRaw	Range High	Tartomány felső
+cameraRaw	Range Low	Tartomány alsó
+cameraRaw	Samples:	Minták:
+cameraRaw	Show / hide this mask	Maszk megjelenítése / elrejtése
+cameraRaw	Skin	Bőr
+cameraRaw	Upright	Upright
+cameraRaw	copy	másolat
+cameraRaw	Select a mask to edit it.	Válasszon ki egy maszkot a szerkesztéshez.
+cameraRaw	Create a mask to adjust part of the image.	Hozzon létre egy maszkot a kép egy részének módosításához.
+cameraRaw	Auto: apply balanced perspective corrections	Automatikus: kiegyensúlyozott perspektívakorrekciók alkalmazása
+cameraRaw	Level: apply only level correction	Szint: csak vízszintbe állítás alkalmazása
+cameraRaw	Vertical: apply level and vertical perspective correction	Függőleges: vízszintbe állítás és függőleges perspektívakorrekció alkalmazása
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Teljes: vízszintbe állítás, valamint vízszintes és függőleges perspektívakorrekció alkalmazása
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Irányított: rajzoljon legalább két segédvonalat a perspektívakorrekciók testreszabásához
+cameraRaw	Disable Upright	Upright kikapcsolása
+	White Balance Tool (I)	Fehéregyensúly eszköz (I)
+	B&W	FF
+	B&W Mixer	FF keverő
+	Convert to black and white	Átalakítás fekete-fehérré
+	Optics	Optika
+	Vignette	Vignettálás

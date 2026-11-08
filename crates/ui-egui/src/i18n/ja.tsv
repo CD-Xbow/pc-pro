@@ -4298,3 +4298,79 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	カンバスサイズを自動調整
 	Keep Relative Position During Layer Reordering	レイヤーの並べ替え中も相対位置を保持
 	Shrinkwrap Canvas on Save	保存時にカンバスを内容に合わせて縮小
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	ホワイトバランス
+	As Shot	撮影時の設定
+	Adjust	調整
+	Reset to Open	開いた時の状態にリセット
+	Parametric Curve	パラメトリックカーブ
+	Red Channel	レッドチャンネル
+	Green Channel	グリーンチャンネル
+	Blue Channel	ブルーチャンネル
+	Color Sampler Tool (S)	カラーサンプラーツール (S)
+	Show or hide this panel's settings	このパネルの設定を表示または非表示
+	Show the image without these settings	これらの設定なしで画像を表示
+	3-Way	3 ウェイ
+	Geometry	ジオメトリ
+	Split	分割
+	Before/After Views	補正前/補正後の表示
+	Before	補正前
+	After	補正後
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	縦横比
+cameraRaw	Auto Mask	自動マスク
+cameraRaw	Clear guides	ガイドを消去
+cameraRaw	Constrain crop	切り抜きを制限
+cameraRaw	Create New Mask	新規マスクを作成
+cameraRaw	Delete component	コンポーネントを削除
+cameraRaw	Delete mask	マスクを削除
+cameraRaw	Depth Range	深度範囲
+cameraRaw	Double-click to rename	ダブルクリックして名前を変更
+cameraRaw	Draw guides	ガイドを描画
+cameraRaw	Duplicate mask	マスクを複製
+cameraRaw	Entire person	人物全体
+cameraRaw	Erase (Alt)	消去 (Alt)
+cameraRaw	Face	顔
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Adobe のモデルではなく、PhotoCraft の顔検出機能で検出されました。
+cameraRaw	Guided	ガイド付き
+cameraRaw	Guides:	ガイド:
+cameraRaw	Image on Black	黒地に画像
+cameraRaw	Image on White	白地に画像
+cameraRaw	Intersect	交差
+cameraRaw	Invert component	コンポーネントを反転
+cameraRaw	Luminance Range	輝度範囲
+cameraRaw	Masking (Shift+W)	マスク (Shift+W)
+cameraRaw	Moiré	モアレ
+cameraRaw	Move down	下へ移動
+cameraRaw	Move up	上へ移動
+cameraRaw	Objects	オブジェクト
+cameraRaw	Offset X	オフセット X
+cameraRaw	Offset Y	オフセット Y
+cameraRaw	People	人物
+cameraRaw	People › Face	人物 › 顔
+cameraRaw	People › Skin	人物 › 肌
+cameraRaw	Range High	範囲の上限
+cameraRaw	Range Low	範囲の下限
+cameraRaw	Samples:	サンプル:
+cameraRaw	Show / hide this mask	このマスクの表示 / 非表示
+cameraRaw	Skin	肌
+cameraRaw	Upright	Upright
+cameraRaw	copy	コピー
+cameraRaw	Masks	マスク
+cameraRaw	Select a mask to edit it.	編集するマスクを選択してください。
+cameraRaw	Create a mask to adjust part of the image.	マスクを作成して画像の一部を調整します。
+cameraRaw	Auto: apply balanced perspective corrections	自動: バランスの取れた遠近補正を適用
+cameraRaw	Level: apply only level correction	レベル: 水平補正のみを適用
+cameraRaw	Vertical: apply level and vertical perspective correction	垂直方向: 水平補正と垂直方向の遠近補正を適用
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	フル: 水平補正と水平方向・垂直方向の遠近補正を適用
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	ガイド付き: 2 本以上のガイドを描画して遠近補正をカスタマイズ
+cameraRaw	Disable Upright	Upright を無効化
+cameraRaw	Vertical	垂直方向
+cameraRaw	Horizontal	水平方向
+cameraRaw	Level	レベル
+	White Balance Tool (I)	ホワイトバランスツール (I)
+	B&W	白黒
+	B&W Mixer	白黒ミックス
+	Convert to black and white	白黒に変換
+	Optics	光学
+	Vignette	周辺光量

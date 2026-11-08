@@ -4358,3 +4358,73 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	Tuvali Otomatik Boyutlandır
 	Keep Relative Position During Layer Reordering	Katmanları Yeniden Sıralarken Göreli Konumu Koru
 	Shrinkwrap Canvas on Save	Kaydederken Tuvali İçeriğe Göre Küçült
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Beyaz Dengesi
+	As Shot	Çekildiği Gibi
+	Adjust	Ayarla
+	Reset to Open	Açılıştaki Haline Sıfırla
+	Parametric Curve	Parametrik Eğri
+	Red Channel	Kırmızı Kanal
+	Green Channel	Yeşil Kanal
+	Blue Channel	Mavi Kanal
+	Color Sampler Tool (S)	Renk Örnekleyici Aracı (S)
+	Show or hide this panel's settings	Bu panelin ayarlarını göster veya gizle
+	Show the image without these settings	Görüntüyü bu ayarlar olmadan göster
+	3-Way	3 Yönlü
+	Geometry	Geometri
+	Split	Bölünmüş
+	Before/After Views	Önce/Sonra Görünümleri
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	En-boy oranı
+cameraRaw	Auto Mask	Otomatik Maske
+cameraRaw	Clear guides	Kılavuzları temizle
+cameraRaw	Constrain crop	Kırpmayı sınırla
+cameraRaw	Create New Mask	Yeni Maske Oluştur
+cameraRaw	Delete component	Bileşeni sil
+cameraRaw	Delete mask	Maskeyi sil
+cameraRaw	Depth Range	Derinlik Aralığı
+cameraRaw	Double-click to rename	Yeniden adlandırmak için çift tıklayın
+cameraRaw	Draw guides	Kılavuz çiz
+cameraRaw	Duplicate mask	Maskeyi çoğalt
+cameraRaw	Entire person	Kişinin tamamı
+cameraRaw	Erase (Alt)	Sil (Alt)
+cameraRaw	Face	Yüz
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Adobe'nin modelleri tarafından değil, PhotoCraft'ın yüz algılayıcısı tarafından bulundu.
+cameraRaw	Guided	Kılavuzlu
+cameraRaw	Guides:	Kılavuzlar:
+cameraRaw	Image on Black	Siyah Üzerinde Görüntü
+cameraRaw	Image on White	Beyaz Üzerinde Görüntü
+cameraRaw	Intersect	Kesiştir
+cameraRaw	Invert component	Bileşeni tersine çevir
+cameraRaw	Luminance Range	Lüminans Aralığı
+cameraRaw	Masking (Shift+W)	Maskeleme (Shift+W)
+cameraRaw	Moiré	Moire
+cameraRaw	Move down	Aşağı taşı
+cameraRaw	Move up	Yukarı taşı
+cameraRaw	Objects	Nesneler
+cameraRaw	Offset X	Kaydırma X
+cameraRaw	Offset Y	Kaydırma Y
+cameraRaw	People	Kişiler
+cameraRaw	People › Face	Kişiler › Yüz
+cameraRaw	People › Skin	Kişiler › Cilt
+cameraRaw	Range High	Aralık Üst
+cameraRaw	Range Low	Aralık Alt
+cameraRaw	Samples:	Örnekler:
+cameraRaw	Show / hide this mask	Bu maskeyi göster / gizle
+cameraRaw	Skin	Cilt
+cameraRaw	Upright	Upright
+cameraRaw	copy	kopya
+cameraRaw	Select a mask to edit it.	Düzenlemek için bir maske seçin.
+cameraRaw	Create a mask to adjust part of the image.	Görüntünün bir bölümünü ayarlamak için bir maske oluşturun.
+cameraRaw	Auto: apply balanced perspective corrections	Otomatik: dengeli perspektif düzeltmeleri uygula
+cameraRaw	Level: apply only level correction	Düzey: yalnızca düzeyleme düzeltmesi uygula
+cameraRaw	Vertical: apply level and vertical perspective correction	Dikey: düzeyleme ve dikey perspektif düzeltmesi uygula
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Tam: düzeyleme ile yatay ve dikey perspektif düzeltmeleri uygula
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Kılavuzlu: perspektif düzeltmelerini özelleştirmek için iki veya daha fazla kılavuz çizin
+cameraRaw	Disable Upright	Upright'ı devre dışı bırak
+	White Balance Tool (I)	Beyaz Dengesi Aracı (I)
+	B&W	S/B
+	B&W Mixer	S/B Karıştırıcı
+	Convert to black and white	Siyah beyaza dönüştür
+	Optics	Optik
+	Vignette	Vinyet

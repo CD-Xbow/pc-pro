@@ -4327,3 +4327,73 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	Αυτόματη αλλαγή μεγέθους καμβά
 	Keep Relative Position During Layer Reordering	Διατήρηση σχετικής θέσης κατά την αναδιάταξη επιπέδων
 	Shrinkwrap Canvas on Save	Σμίκρυνση καμβά στο περιεχόμενο κατά την αποθήκευση
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Ισορροπία λευκού
+	As Shot	Όπως λήφθηκε
+	Adjust	Ρύθμιση
+	Reset to Open	Επαναφορά στο άνοιγμα
+	Parametric Curve	Παραμετρική καμπύλη
+	Red Channel	Κόκκινο κανάλι
+	Green Channel	Πράσινο κανάλι
+	Blue Channel	Μπλε κανάλι
+	Color Sampler Tool (S)	Εργαλείο δειγματολήπτη χρώματος (S)
+	Show or hide this panel's settings	Εμφάνιση ή απόκρυψη ρυθμίσεων αυτού του πάνελ
+	Show the image without these settings	Εμφάνιση της εικόνας χωρίς αυτές τις ρυθμίσεις
+	3-Way	3 τροχοί
+	Geometry	Γεωμετρία
+	Split	Διαίρεση
+	Before/After Views	Προβολές Πριν/Μετά
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Αναλογία
+cameraRaw	Auto Mask	Αυτόματη μάσκα
+cameraRaw	Clear guides	Απαλοιφή οδηγών
+cameraRaw	Constrain crop	Περιορισμός περικοπής
+cameraRaw	Create New Mask	Δημιουργία νέας μάσκας
+cameraRaw	Delete component	Διαγραφή στοιχείου
+cameraRaw	Delete mask	Διαγραφή μάσκας
+cameraRaw	Depth Range	Εύρος βάθους
+cameraRaw	Double-click to rename	Κάντε διπλό κλικ για μετονομασία
+cameraRaw	Draw guides	Σχεδίαση οδηγών
+cameraRaw	Duplicate mask	Δημιουργία αντιγράφου μάσκας
+cameraRaw	Entire person	Ολόκληρο το άτομο
+cameraRaw	Erase (Alt)	Διαγραφή (Alt)
+cameraRaw	Face	Πρόσωπο
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Εντοπίστηκε από τον ανιχνευτή προσώπων του PhotoCraft, όχι από τα μοντέλα της Adobe.
+cameraRaw	Guided	Καθοδηγούμενη
+cameraRaw	Guides:	Οδηγοί:
+cameraRaw	Image on Black	Εικόνα σε μαύρο
+cameraRaw	Image on White	Εικόνα σε λευκό
+cameraRaw	Intersect	Τομή
+cameraRaw	Invert component	Αντιστροφή στοιχείου
+cameraRaw	Luminance Range	Εύρος φωτεινότητας
+cameraRaw	Masking (Shift+W)	Μάσκες (Shift+W)
+cameraRaw	Moiré	Μουαρέ
+cameraRaw	Move down	Μετακίνηση κάτω
+cameraRaw	Move up	Μετακίνηση πάνω
+cameraRaw	Objects	Αντικείμενα
+cameraRaw	Offset X	Μετατόπιση X
+cameraRaw	Offset Y	Μετατόπιση Y
+cameraRaw	People	Άτομα
+cameraRaw	People › Face	Άτομα › Πρόσωπο
+cameraRaw	People › Skin	Άτομα › Δέρμα
+cameraRaw	Range High	Άνω όριο εύρους
+cameraRaw	Range Low	Κάτω όριο εύρους
+cameraRaw	Samples:	Δείγματα:
+cameraRaw	Show / hide this mask	Εμφάνιση / απόκρυψη αυτής της μάσκας
+cameraRaw	Skin	Δέρμα
+cameraRaw	Upright	Upright
+cameraRaw	copy	αντίγραφο
+cameraRaw	Select a mask to edit it.	Επιλέξτε μια μάσκα για να την επεξεργαστείτε.
+cameraRaw	Create a mask to adjust part of the image.	Δημιουργήστε μια μάσκα για να προσαρμόσετε μέρος της εικόνας.
+cameraRaw	Auto: apply balanced perspective corrections	Αυτόματα: εφαρμογή ισορροπημένων διορθώσεων προοπτικής
+cameraRaw	Level: apply only level correction	Επίπεδο: εφαρμογή μόνο οριζοντίωσης
+cameraRaw	Vertical: apply level and vertical perspective correction	Κατακόρυφα: εφαρμογή οριζοντίωσης και κατακόρυφης διόρθωσης προοπτικής
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Πλήρης: εφαρμογή οριζοντίωσης και οριζόντιας και κατακόρυφης διόρθωσης προοπτικής
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Καθοδηγούμενη: σχεδιάστε δύο ή περισσότερους οδηγούς για να προσαρμόσετε τις διορθώσεις προοπτικής
+cameraRaw	Disable Upright	Απενεργοποίηση Upright
+	White Balance Tool (I)	Εργαλείο ισορροπίας λευκού (I)
+	B&W	Α/Μ
+	B&W Mixer	Μίκτης Α/Μ
+	Convert to black and white	Μετατροπή σε ασπρόμαυρο
+	Optics	Οπτική
+	Vignette	Βινιέτα

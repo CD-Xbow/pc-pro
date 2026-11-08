@@ -4200,3 +4200,76 @@ shape	Appearance	화면 모양
 	Auto-size Canvas	캔버스 크기 자동 조정
 	Keep Relative Position During Layer Reordering	레이어 순서 변경 시 상대 위치 유지
 	Shrinkwrap Canvas on Save	저장 시 캔버스를 내용에 맞게 축소
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	화이트 밸런스
+	As Shot	촬영 당시 설정
+	Adjust	조정
+	Reset to Open	열 때 상태로 재설정
+	Parametric Curve	파라메트릭 곡선
+	Red Channel	빨강 채널
+	Green Channel	녹색 채널
+	Blue Channel	파랑 채널
+	Color Sampler Tool (S)	색상 샘플러 도구 (S)
+	Show or hide this panel's settings	이 패널의 설정 표시 또는 숨기기
+	Show the image without these settings	이 설정 없이 이미지 표시
+	3-Way	3방향
+	Geometry	기하학
+	Split	분할
+	Before/After Views	이전/이후 보기
+	After	이후
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	종횡비
+cameraRaw	Auto Mask	자동 마스크
+cameraRaw	Clear guides	안내선 지우기
+cameraRaw	Constrain crop	자르기 제한
+cameraRaw	Create New Mask	새 마스크 만들기
+cameraRaw	Delete component	구성 요소 삭제
+cameraRaw	Delete mask	마스크 삭제
+cameraRaw	Depth Range	깊이 범위
+cameraRaw	Double-click to rename	두 번 클릭하여 이름 바꾸기
+cameraRaw	Draw guides	안내선 그리기
+cameraRaw	Duplicate mask	마스크 복제
+cameraRaw	Entire person	사람 전체
+cameraRaw	Erase (Alt)	지우기 (Alt)
+cameraRaw	Face	얼굴
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Adobe 모델이 아닌 PhotoCraft 얼굴 감지기로 찾았습니다.
+cameraRaw	Guided	안내선 사용
+cameraRaw	Guides:	안내선:
+cameraRaw	Image on Black	검정 위 이미지
+cameraRaw	Image on White	흰색 위 이미지
+cameraRaw	Intersect	교차
+cameraRaw	Invert component	구성 요소 반전
+cameraRaw	Luminance Range	휘도 범위
+cameraRaw	Masking (Shift+W)	마스킹 (Shift+W)
+cameraRaw	Moiré	모아레
+cameraRaw	Move down	아래로 이동
+cameraRaw	Move up	위로 이동
+cameraRaw	Objects	개체
+cameraRaw	Offset X	오프셋 X
+cameraRaw	Offset Y	오프셋 Y
+cameraRaw	People	사람
+cameraRaw	People › Face	사람 › 얼굴
+cameraRaw	People › Skin	사람 › 피부
+cameraRaw	Range High	범위 상한
+cameraRaw	Range Low	범위 하한
+cameraRaw	Samples:	샘플:
+cameraRaw	Show / hide this mask	이 마스크 표시 / 숨기기
+cameraRaw	Skin	피부
+cameraRaw	Upright	Upright
+cameraRaw	copy	복사본
+cameraRaw	Masks	마스크
+cameraRaw	Mask	마스크
+cameraRaw	Select a mask to edit it.	편집할 마스크를 선택하세요.
+cameraRaw	Create a mask to adjust part of the image.	마스크를 만들어 이미지의 일부를 조정하세요.
+cameraRaw	Auto: apply balanced perspective corrections	자동: 균형 잡힌 원근 보정 적용
+cameraRaw	Level: apply only level correction	레벨: 수평 보정만 적용
+cameraRaw	Vertical: apply level and vertical perspective correction	세로: 수평 보정 및 세로 원근 보정 적용
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	전체: 수평 보정과 가로 및 세로 원근 보정 적용
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	안내선 사용: 안내선을 두 개 이상 그려 원근 보정을 사용자 정의
+cameraRaw	Disable Upright	Upright 비활성화
+	White Balance Tool (I)	화이트 밸런스 도구 (I)
+	B&W	흑백
+	B&W Mixer	흑백 혼합
+	Convert to black and white	흑백으로 변환
+	Optics	광학
+	Vignette	비네팅

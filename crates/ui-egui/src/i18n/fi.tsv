@@ -4830,3 +4830,73 @@ cameraRaw	White Balance: As Shot	Valkotasapaino: kuvauksen mukainen
 	Auto-size Canvas	Muuta kankaan kokoa automaattisesti
 	Keep Relative Position During Layer Reordering	Säilytä suhteellinen sijainti tasojen järjestystä muutettaessa
 	Shrinkwrap Canvas on Save	Pienennä kangas sisältöön tallennettaessa
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Valkotasapaino
+	As Shot	Kuvatessa
+	Adjust	Säädä
+	Reset to Open	Palauta avattaessa
+	Parametric Curve	Parametrinen käyrä
+	Red Channel	Punainen kanava
+	Green Channel	Vihreä kanava
+	Blue Channel	Sininen kanava
+	Color Sampler Tool (S)	Värinäytteenottotyökalu (S)
+	Show or hide this panel's settings	Näytä tai piilota tämän paneelin asetukset
+	Show the image without these settings	Näytä kuva ilman näitä asetuksia
+	3-Way	3-suuntainen
+	Geometry	Geometria
+	Split	Jaettu
+	Before/After Views	Ennen/jälkeen-näkymät
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Kuvasuhde
+cameraRaw	Auto Mask	Automaattinen maski
+cameraRaw	Clear guides	Tyhjennä apuviivat
+cameraRaw	Constrain crop	Rajoita rajausta
+cameraRaw	Create New Mask	Luo uusi maski
+cameraRaw	Delete component	Poista osa
+cameraRaw	Delete mask	Poista maski
+cameraRaw	Depth Range	Syvyysalue
+cameraRaw	Double-click to rename	Nimeä uudelleen kaksoisnapsauttamalla
+cameraRaw	Draw guides	Piirrä apuviivat
+cameraRaw	Duplicate mask	Monista maski
+cameraRaw	Entire person	Koko henkilö
+cameraRaw	Erase (Alt)	Pyyhi (Alt)
+cameraRaw	Face	Kasvot
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	PhotoCraftin kasvojentunnistimen löytämä, ei Adoben mallien.
+cameraRaw	Guided	Ohjattu
+cameraRaw	Guides:	Apuviivat:
+cameraRaw	Image on Black	Kuva mustalla
+cameraRaw	Image on White	Kuva valkoisella
+cameraRaw	Intersect	Leikkaus
+cameraRaw	Invert component	Invertoi osa
+cameraRaw	Luminance Range	Luminanssialue
+cameraRaw	Masking (Shift+W)	Maskaus (Shift+W)
+cameraRaw	Moiré	Moiré
+cameraRaw	Move down	Siirrä alas
+cameraRaw	Move up	Siirrä ylös
+cameraRaw	Objects	Objektit
+cameraRaw	Offset X	Siirtymä X
+cameraRaw	Offset Y	Siirtymä Y
+cameraRaw	People	Ihmiset
+cameraRaw	People › Face	Ihmiset › Kasvot
+cameraRaw	People › Skin	Ihmiset › Iho
+cameraRaw	Range High	Alueen yläraja
+cameraRaw	Range Low	Alueen alaraja
+cameraRaw	Samples:	Näytteet:
+cameraRaw	Show / hide this mask	Näytä / piilota tämä maski
+cameraRaw	Skin	Iho
+cameraRaw	Upright	Upright
+cameraRaw	copy	kopio
+cameraRaw	Select a mask to edit it.	Valitse maski muokataksesi sitä.
+cameraRaw	Create a mask to adjust part of the image.	Luo maski säätääksesi osaa kuvasta.
+cameraRaw	Auto: apply balanced perspective corrections	Auto: käytä tasapainoisia perspektiivikorjauksia
+cameraRaw	Level: apply only level correction	Vaaita: käytä vain vaaituskorjausta
+cameraRaw	Vertical: apply level and vertical perspective correction	Pystysuuntainen: käytä vaaitusta ja pystysuuntaista perspektiivikorjausta
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Täysi: käytä vaaitusta sekä vaaka- ja pystysuuntaisia perspektiivikorjauksia
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Ohjattu: piirrä kaksi tai useampia apuviivoja perspektiivikorjausten mukauttamiseksi
+cameraRaw	Disable Upright	Poista Upright käytöstä
+	White Balance Tool (I)	Valkotasapainotyökalu (I)
+	B&W	MV
+	B&W Mixer	MV-sekoitin
+	Convert to black and white	Muunna mustavalkoiseksi
+	Optics	Optiikka
+	Vignette	Vinjetti

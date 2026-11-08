@@ -3663,3 +3663,82 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	Zeichenflächengröße automatisch anpassen
 	Keep Relative Position During Layer Reordering	Relative Position beim Neuanordnen von Ebenen beibehalten
 	Shrinkwrap Canvas on Save	Zeichenfläche beim Speichern auf den Inhalt verkleinern
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Weißabgleich
+	As Shot	Wie Aufnahme
+	Adjust	Anpassen
+	Reset to Open	Auf Öffnen zurücksetzen
+	Parametric Curve	Parametrische Kurve
+	Point Curve	Punktkurve
+	Red Channel	Rot-Kanal
+	Green Channel	Grün-Kanal
+	Blue Channel	Blau-Kanal
+	Color Sampler Tool (S)	Farbaufnahme-Werkzeug (S)
+	Show or hide this panel's settings	Einstellungen dieses Bedienfelds ein- oder ausblenden
+	Show the image without these settings	Bild ohne diese Einstellungen anzeigen
+	3-Way	3-fach
+	Geometry	Geometrie
+	Split	Geteilt
+	Before/After Views	Vorher/Nachher-Ansichten
+	Vignette Style	Vignettierungsstil
+	Before	Vorher
+	After	Nachher
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Seitenverhältnis
+cameraRaw	Auto Mask	Automatisch maskieren
+cameraRaw	Clear guides	Hilfslinien löschen
+cameraRaw	Constrain crop	Freistellung begrenzen
+cameraRaw	Create New Mask	Neue Maske erstellen
+cameraRaw	Delete component	Komponente löschen
+cameraRaw	Delete mask	Maske löschen
+cameraRaw	Depth Range	Tiefenbereich
+cameraRaw	Double-click to rename	Zum Umbenennen doppelklicken
+cameraRaw	Draw guides	Hilfslinien zeichnen
+cameraRaw	Duplicate mask	Maske duplizieren
+cameraRaw	Entire person	Gesamte Person
+cameraRaw	Erase (Alt)	Radieren (Alt)
+cameraRaw	Face	Gesicht
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Von der Gesichtserkennung von PhotoCraft gefunden, nicht von Adobes Modellen.
+cameraRaw	Guided	Geführt
+cameraRaw	Guides:	Hilfslinien:
+cameraRaw	Image on Black	Bild auf Schwarz
+cameraRaw	Image on White	Bild auf Weiß
+cameraRaw	Intersect	Schnittmenge bilden
+cameraRaw	Invert component	Komponente invertieren
+cameraRaw	Luminance Range	Luminanzbereich
+cameraRaw	Masking (Shift+W)	Maskieren (Shift+W)
+cameraRaw	Moiré	Moiré
+cameraRaw	Move down	Nach unten verschieben
+cameraRaw	Move up	Nach oben verschieben
+cameraRaw	Objects	Objekte
+cameraRaw	Offset X	Versatz X
+cameraRaw	Offset Y	Versatz Y
+cameraRaw	People	Personen
+cameraRaw	People › Face	Personen › Gesicht
+cameraRaw	People › Skin	Personen › Haut
+cameraRaw	Range High	Bereich oben
+cameraRaw	Range Low	Bereich unten
+cameraRaw	Samples:	Proben:
+cameraRaw	Show / hide this mask	Diese Maske ein-/ausblenden
+cameraRaw	Skin	Haut
+cameraRaw	Upright	Upright
+cameraRaw	copy	Kopie
+cameraRaw	Smoothness	Glättung
+cameraRaw	Masks	Masken
+cameraRaw	Defringe	Rand entfernen
+cameraRaw	Sharpness	Schärfe
+cameraRaw	Select a mask to edit it.	Wählen Sie eine Maske aus, um sie zu bearbeiten.
+cameraRaw	Create a mask to adjust part of the image.	Erstellen Sie eine Maske, um einen Teil des Bildes anzupassen.
+cameraRaw	Auto: apply balanced perspective corrections	Automatisch: ausgewogene Perspektivkorrekturen anwenden
+cameraRaw	Level: apply only level correction	Stufe: nur die Ausrichtung korrigieren
+cameraRaw	Vertical: apply level and vertical perspective correction	Vertikal: Ausrichtung und vertikale Perspektive korrigieren
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Voll: Ausrichtung sowie horizontale und vertikale Perspektive korrigieren
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Geführt: zwei oder mehr Hilfslinien zeichnen, um die Perspektivkorrekturen anzupassen
+cameraRaw	Disable Upright	Upright deaktivieren
+cameraRaw	Level	Ebene
+	White Balance Tool (I)	Weißabgleich-Werkzeug (I)
+	B&W	S/W
+	B&W Mixer	S/W-Mischung
+	Convert to black and white	In Schwarzweiß umwandeln
+	Optics	Optik
+	Vignette	Vignettierung

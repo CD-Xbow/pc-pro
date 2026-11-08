@@ -4132,3 +4132,76 @@ smartSvg	AI/PDF/EPS contents will be edited as SVG. Saving replaces the embedded
 	Auto-size Canvas	Tự động đổi kích thước vùng vẽ
 	Keep Relative Position During Layer Reordering	Giữ vị trí tương đối khi sắp xếp lại lớp
 	Shrinkwrap Canvas on Save	Thu nhỏ vùng vẽ theo nội dung khi lưu
+# Camera Raw dialog layout (Edit header, panel eye buttons, Curve channels, Color Grading views, Before/After views)
+	White Balance	Cân bằng trắng
+	As Shot	Như khi chụp
+	Adjust	Điều chỉnh
+	Reset to Open	Đặt lại như khi mở
+	Parametric Curve	Đường cong tham số
+	Red Channel	Kênh đỏ
+	Green Channel	Kênh lục
+	Blue Channel	Kênh lam
+	Color Sampler Tool (S)	Công cụ lấy mẫu màu (S)
+	Show or hide this panel's settings	Hiện hoặc ẩn cài đặt của bảng này
+	Show the image without these settings	Hiện ảnh không có các cài đặt này
+	3-Way	3 chiều
+	Geometry	Hình học
+	Split	Chia đôi
+	Before/After Views	Chế độ xem Trước/Sau
+	Before	Trước
+	After	Sau
+# Camera Raw Geometry and Masking (2026-11-07)
+cameraRaw	Aspect	Tỷ lệ khung hình
+cameraRaw	Auto Mask	Mặt nạ tự động
+cameraRaw	Clear guides	Xóa đường căn
+cameraRaw	Constrain crop	Giới hạn vùng cắt
+cameraRaw	Create New Mask	Tạo mặt nạ mới
+cameraRaw	Delete component	Xóa thành phần
+cameraRaw	Delete mask	Xóa mặt nạ
+cameraRaw	Depth Range	Dải độ sâu
+cameraRaw	Double-click to rename	Nhấp đúp để đổi tên
+cameraRaw	Draw guides	Vẽ đường căn
+cameraRaw	Duplicate mask	Nhân bản mặt nạ
+cameraRaw	Entire person	Toàn bộ người
+cameraRaw	Erase (Alt)	Tẩy (Alt)
+cameraRaw	Face	Khuôn mặt
+cameraRaw	Found by PhotoCraft's face detector, not Adobe's models.	Được tìm thấy bởi bộ phát hiện khuôn mặt của PhotoCraft, không phải các mô hình của Adobe.
+cameraRaw	Guided	Có hướng dẫn
+cameraRaw	Guides:	Đường căn:
+cameraRaw	Image on Black	Ảnh trên nền đen
+cameraRaw	Image on White	Ảnh trên nền trắng
+cameraRaw	Intersect	Giao
+cameraRaw	Invert component	Đảo thành phần
+cameraRaw	Luminance Range	Dải độ sáng
+cameraRaw	Masking (Shift+W)	Tạo mặt nạ (Shift+W)
+cameraRaw	Moiré	Moiré
+cameraRaw	Move down	Di chuyển xuống
+cameraRaw	Move up	Di chuyển lên
+cameraRaw	Objects	Đối tượng
+cameraRaw	Offset X	Dịch lệch X
+cameraRaw	Offset Y	Dịch lệch Y
+cameraRaw	People	Người
+cameraRaw	People › Face	Người › Khuôn mặt
+cameraRaw	People › Skin	Người › Da
+cameraRaw	Range High	Giới hạn trên
+cameraRaw	Range Low	Giới hạn dưới
+cameraRaw	Samples:	Mẫu:
+cameraRaw	Show / hide this mask	Hiện / ẩn mặt nạ này
+cameraRaw	Skin	Da
+cameraRaw	Upright	Upright
+cameraRaw	copy	bản sao
+cameraRaw	Masks	Mặt nạ
+cameraRaw	Select a mask to edit it.	Chọn một mặt nạ để chỉnh sửa.
+cameraRaw	Create a mask to adjust part of the image.	Tạo mặt nạ để điều chỉnh một phần của ảnh.
+cameraRaw	Auto: apply balanced perspective corrections	Tự động: áp dụng hiệu chỉnh phối cảnh cân bằng
+cameraRaw	Level: apply only level correction	Cân ngang: chỉ áp dụng hiệu chỉnh cân ngang
+cameraRaw	Vertical: apply level and vertical perspective correction	Dọc: áp dụng cân ngang và hiệu chỉnh phối cảnh dọc
+cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Toàn phần: áp dụng cân ngang cùng hiệu chỉnh phối cảnh ngang và dọc
+cameraRaw	Guided: draw two or more guides to customize perspective corrections	Có hướng dẫn: vẽ hai đường căn trở lên để tùy chỉnh hiệu chỉnh phối cảnh
+cameraRaw	Disable Upright	Tắt Upright
+	White Balance Tool (I)	Công cụ cân bằng trắng (I)
+	B&W	Đen trắng
+	B&W Mixer	Bộ trộn đen trắng
+	Convert to black and white	Chuyển sang đen trắng
+	Optics	Quang học
+	Vignette	Làm tối góc
