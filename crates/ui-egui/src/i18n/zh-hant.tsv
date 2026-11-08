@@ -3350,3 +3350,10 @@ cameraRaw	Vertical: apply level and vertical perspective correction	垂直：套
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	完全：套用水平校正及水平與垂直透視校正
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	引導式：繪製兩條以上參考線以自訂透視校正
 cameraRaw	Disable Upright	停用 Upright
+	White Balance Tool (I)	白平衡工具 (I)
+	B&W	黑白
+	B&W Mixer	黑白混合
+	Convert to black and white	轉換為黑白
+	Optics	光學
+	Vignette	暈映
+	Distortion	扭曲

@@ -3721,3 +3721,10 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Vertikal: te
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Penuh: terapkan koreksi kemiringan serta perspektif horizontal dan vertikal
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Terpandu: gambar dua panduan atau lebih untuk menyesuaikan koreksi perspektif
 cameraRaw	Disable Upright	Nonaktifkan Upright
+	White Balance Tool (I)	Alat Keseimbangan Putih (I)
+	B&W	H&P
+	B&W Mixer	Mixer H&P
+	Convert to black and white	Konversi ke hitam putih
+	Optics	Optik
+	Vignette	Vinyet
+	Distortion	Distorsi

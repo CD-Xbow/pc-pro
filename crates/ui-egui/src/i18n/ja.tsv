@@ -4368,3 +4368,9 @@ cameraRaw	Disable Upright	Upright を無効化
 cameraRaw	Vertical	垂直方向
 cameraRaw	Horizontal	水平方向
 cameraRaw	Level	レベル
+	White Balance Tool (I)	ホワイトバランスツール (I)
+	B&W	白黒
+	B&W Mixer	白黒ミックス
+	Convert to black and white	白黒に変換
+	Optics	光学
+	Vignette	周辺光量

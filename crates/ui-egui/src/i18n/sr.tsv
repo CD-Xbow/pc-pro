@@ -4757,3 +4757,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Vertikalno: 
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Potpuna: primeni poravnanje horizonta i horizontalnu i vertikalnu korekciju perspektive
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Vođeno: nacrtajte dve ili više vodilja da biste prilagodili korekcije perspektive
 cameraRaw	Disable Upright	Isključi Upright
+	White Balance Tool (I)	Алатка за баланс беле (I)
+	B&W	Ц/Б
+	B&W Mixer	Ц/Б миксер
+	Convert to black and white	Претвори у црно-бело
+	Optics	Оптика
+	Vignette	Вињета

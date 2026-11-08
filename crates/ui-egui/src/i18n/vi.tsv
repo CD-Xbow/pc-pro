@@ -4199,3 +4199,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Dọc: áp d
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Toàn phần: áp dụng cân ngang cùng hiệu chỉnh phối cảnh ngang và dọc
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Có hướng dẫn: vẽ hai đường căn trở lên để tùy chỉnh hiệu chỉnh phối cảnh
 cameraRaw	Disable Upright	Tắt Upright
+	White Balance Tool (I)	Công cụ cân bằng trắng (I)
+	B&W	Đen trắng
+	B&W Mixer	Bộ trộn đen trắng
+	Convert to black and white	Chuyển sang đen trắng
+	Optics	Quang học
+	Vignette	Làm tối góc

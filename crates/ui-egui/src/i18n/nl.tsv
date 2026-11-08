@@ -4445,3 +4445,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Verticaal: n
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Volledig: niveaucorrectie en horizontale en verticale perspectiefcorrecties toepassen
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Begeleid: teken twee of meer hulplijnen om de perspectiefcorrecties aan te passen
 cameraRaw	Disable Upright	Upright uitschakelen
+	White Balance Tool (I)	Gereedschap Witbalans (I)
+	B&W	Z&W
+	B&W Mixer	Z&W-mixer
+	Convert to black and white	Omzetten naar zwart-wit
+	Optics	Optiek
+	Vignette	Vignettering

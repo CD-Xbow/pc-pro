@@ -4267,3 +4267,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	세로: 수�
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	전체: 수평 보정과 가로 및 세로 원근 보정 적용
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	안내선 사용: 안내선을 두 개 이상 그려 원근 보정을 사용자 정의
 cameraRaw	Disable Upright	Upright 비활성화
+	White Balance Tool (I)	화이트 밸런스 도구 (I)
+	B&W	흑백
+	B&W Mixer	흑백 혼합
+	Convert to black and white	흑백으로 변환
+	Optics	광학
+	Vignette	비네팅

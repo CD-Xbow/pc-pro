@@ -4591,3 +4591,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Vertical: ap
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Completa: aplicar las correcciones de nivel y de perspectiva horizontal y vertical
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Guiado: dibuje dos o más guías para personalizar las correcciones de perspectiva
 cameraRaw	Disable Upright	Desactivar Upright
+	White Balance Tool (I)	Herramienta Balance de blancos (I)
+	B&W	B/N
+	B&W Mixer	Mezcla B/N
+	Convert to black and white	Convertir a blanco y negro
+	Optics	Óptica
+	Vignette	Viñeta

@@ -1304,3 +1304,13 @@ fn done_keeps_the_raws_open_when_a_sidecar_write_fails() {
     assert!(app.camera_raw.is_none() && !app.ui.status_error, "{}", app.ui.status);
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// The White Balance menu reads As Shot at zero, Auto while Auto's values stand, Custom otherwise.
+#[test]
+fn white_balance_menu_follows_the_settings() {
+    use super::edit_panel::{WbMode, wb_mode};
+    assert_eq!(wb_mode(0.0, 0.0, None), WbMode::AsShot);
+    assert_eq!(wb_mode(-12.0, 3.0, Some((-12.0, 3.0))), WbMode::Auto);
+    assert_eq!(wb_mode(-11.0, 3.0, Some((-12.0, 3.0))), WbMode::Custom);
+    assert_eq!(wb_mode(0.0, 0.0, Some((0.0, 0.0))), WbMode::AsShot, "an Auto that changed nothing is As Shot");
+}

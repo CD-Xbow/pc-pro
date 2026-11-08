@@ -4432,3 +4432,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Svisle: pou�
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Úplná: použít vyrovnání a vodorovnou i svislou korekci perspektivy
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	S vodítky: nakreslete dvě nebo více vodítek pro přizpůsobení korekcí perspektivy
 cameraRaw	Disable Upright	Vypnout Upright
+	White Balance Tool (I)	Nástroj Vyvážení bílé (I)
+	B&W	ČB
+	B&W Mixer	Mixér ČB
+	Convert to black and white	Převést na černobílou
+	Optics	Optika
+	Vignette	Vinětace

@@ -4598,3 +4598,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Függőleges
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Teljes: vízszintbe állítás, valamint vízszintes és függőleges perspektívakorrekció alkalmazása
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Irányított: rajzoljon legalább két segédvonalat a perspektívakorrekciók testreszabásához
 cameraRaw	Disable Upright	Upright kikapcsolása
+	White Balance Tool (I)	Fehéregyensúly eszköz (I)
+	B&W	FF
+	B&W Mixer	FF keverő
+	Convert to black and white	Átalakítás fekete-fehérré
+	Optics	Optika
+	Vignette	Vignettálás

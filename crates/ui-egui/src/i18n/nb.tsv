@@ -4893,3 +4893,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Loddrett: br
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Full: bruk nivåkorreksjon og vannrett og loddrett perspektivkorreksjon
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Veiledet: tegn to eller flere hjelpelinjer for å tilpasse perspektivkorreksjonene
 cameraRaw	Disable Upright	Deaktiver Upright
+	White Balance Tool (I)	Hvitbalanseverktøy (I)
+	B&W	S/H
+	B&W Mixer	S/H-mikser
+	Convert to black and white	Konverter til svart-hvitt
+	Optics	Optikk
+	Vignette	Vignettering

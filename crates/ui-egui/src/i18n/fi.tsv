@@ -4894,3 +4894,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Pystysuuntai
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Täysi: käytä vaaitusta sekä vaaka- ja pystysuuntaisia perspektiivikorjauksia
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Ohjattu: piirrä kaksi tai useampia apuviivoja perspektiivikorjausten mukauttamiseksi
 cameraRaw	Disable Upright	Poista Upright käytöstä
+	White Balance Tool (I)	Valkotasapainotyökalu (I)
+	B&W	MV
+	B&W Mixer	MV-sekoitin
+	Convert to black and white	Muunna mustavalkoiseksi
+	Optics	Optiikka
+	Vignette	Vinjetti

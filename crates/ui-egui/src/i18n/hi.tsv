@@ -787,3 +787,10 @@ cameraRaw	Vertical: apply level and vertical perspective correction	वर्ट
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	पूर्ण: लेवल, हॉरिज़ॉन्टल और वर्टिकल परिप्रेक्ष्य सुधार लागू करें
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	गाइडेड: परिप्रेक्ष्य सुधारों को अनुकूलित करने के लिए दो या अधिक गाइड बनाएँ
 cameraRaw	Disable Upright	Upright अक्षम करें
+	White Balance Tool (I)	व्हाइट बैलेंस टूल (I)
+	B&W	B&W
+	B&W Mixer	B&W मिक्सर
+	Convert to black and white	श्वेत-श्याम में बदलें
+	Optics	ऑप्टिक्स
+	Vignette	विग्नेट
+	Distortion	विरूपण

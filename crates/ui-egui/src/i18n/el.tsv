@@ -4391,3 +4391,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Κατακό
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Πλήρης: εφαρμογή οριζοντίωσης και οριζόντιας και κατακόρυφης διόρθωσης προοπτικής
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Καθοδηγούμενη: σχεδιάστε δύο ή περισσότερους οδηγούς για να προσαρμόσετε τις διορθώσεις προοπτικής
 cameraRaw	Disable Upright	Απενεργοποίηση Upright
+	White Balance Tool (I)	Εργαλείο ισορροπίας λευκού (I)
+	B&W	Α/Μ
+	B&W Mixer	Μίκτης Α/Μ
+	Convert to black and white	Μετατροπή σε ασπρόμαυρο
+	Optics	Οπτική
+	Vignette	Βινιέτα

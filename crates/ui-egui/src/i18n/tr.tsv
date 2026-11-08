@@ -4422,3 +4422,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Dikey: düze
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Tam: düzeyleme ile yatay ve dikey perspektif düzeltmeleri uygula
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Kılavuzlu: perspektif düzeltmelerini özelleştirmek için iki veya daha fazla kılavuz çizin
 cameraRaw	Disable Upright	Upright'ı devre dışı bırak
+	White Balance Tool (I)	Beyaz Dengesi Aracı (I)
+	B&W	S/B
+	B&W Mixer	S/B Karıştırıcı
+	Convert to black and white	Siyah beyaza dönüştür
+	Optics	Optik
+	Vignette	Vinyet

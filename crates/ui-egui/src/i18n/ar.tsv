@@ -3689,3 +3689,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	عمودي: 
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	كامل: تطبيق تصحيح الاستواء والمنظور الأفقي والعمودي
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	موجَّه: ارسم خطَّي توجيه أو أكثر لتخصيص تصحيحات المنظور
 cameraRaw	Disable Upright	تعطيل Upright
+	White Balance Tool (I)	أداة توازن اللون الأبيض (I)
+	B&W	أبيض وأسود
+	B&W Mixer	خالط الأبيض والأسود
+	Convert to black and white	تحويل إلى أبيض وأسود
+	Optics	البصريات
+	Vignette	التظليل

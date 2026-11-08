@@ -3736,3 +3736,9 @@ cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Vol
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Geführt: zwei oder mehr Hilfslinien zeichnen, um die Perspektivkorrekturen anzupassen
 cameraRaw	Disable Upright	Upright deaktivieren
 cameraRaw	Level	Ebene
+	White Balance Tool (I)	Weißabgleich-Werkzeug (I)
+	B&W	S/W
+	B&W Mixer	S/W-Mischung
+	Convert to black and white	In Schwarzweiß umwandeln
+	Optics	Optik
+	Vignette	Vignettierung

@@ -4312,3 +4312,9 @@ cameraRaw	Vertical: apply level and vertical perspective correction	Pionowo: zas
 cameraRaw	Full: apply level, horizontal and vertical perspective corrections	Pełna: zastosuj wyrównanie poziomu oraz poziomą i pionową korektę perspektywy
 cameraRaw	Guided: draw two or more guides to customize perspective corrections	Z prowadnicami: narysuj co najmniej dwie prowadnice, aby dostosować korekty perspektywy
 cameraRaw	Disable Upright	Wyłącz Upright
+	White Balance Tool (I)	Narzędzie Balans bieli (I)
+	B&W	Cz-b
+	B&W Mixer	Mikser cz-b
+	Convert to black and white	Konwertuj na czarno-biały
+	Optics	Optyka
+	Vignette	Winieta
