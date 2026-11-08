@@ -257,11 +257,12 @@ fn changing_live_gradient_opacity_updates_selected_fill_layer() {
     let st = app.session.active().unwrap();
     assert!((st.doc.layers.last().unwrap().opacity - 0.4).abs() < 1e-6);
     assert_eq!(st.history.past_len(), past + 1, "one undo step, none for an unchanged value");
-    // Classic mode paints pixels: the options bar leaves the layer alone.
+    // A gradient fill layer is edited live even with Classic gradient chosen: the bar then reads
+    // "Gradient", so its Opacity still applies (#12008).
     app.ui.tool_options.gradient_classic = true;
     app.ui.tool_options.fill_opacity = 80.0;
     opacity_changed(&mut app, None);
-    assert!((app.session.active().unwrap().doc.layers.last().unwrap().opacity - 0.4).abs() < 1e-6);
+    assert!((app.session.active().unwrap().doc.layers.last().unwrap().opacity - 0.8).abs() < 1e-6);
 }
 
 #[test]
