@@ -1404,9 +1404,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "craft-doc"
+version = "0.1.0"
+source = "git+https://github.com/storytold/craft-libs?rev=6ae033e6c18bde9cd6f18e505c0556667ba2226a#6ae033e6c18bde9cd6f18e505c0556667ba2226a"
+dependencies = [
+ "craft-ecproj-format",
+ "craft-pcraft-format",
+ "craft-vectorcraft-format",
+ "flate2",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "craft-docpath"
 version = "0.1.0"
 source = "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+
+[[package]]
+name = "craft-ecproj-format"
+version = "0.1.0"
+source = "git+https://github.com/storytold/craft-libs?rev=6ae033e6c18bde9cd6f18e505c0556667ba2226a#6ae033e6c18bde9cd6f18e505c0556667ba2226a"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+]
 
 [[package]]
 name = "craft-fonts-build"
@@ -1447,7 +1471,7 @@ dependencies = [
 [[package]]
 name = "craft-pcraft-format"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=b8f7d93b00dfb8f172938f3d2d796ae62dcfe123#b8f7d93b00dfb8f172938f3d2d796ae62dcfe123"
+source = "git+https://github.com/storytold/craft-libs?rev=6ae033e6c18bde9cd6f18e505c0556667ba2226a#6ae033e6c18bde9cd6f18e505c0556667ba2226a"
 dependencies = [
  "serde",
  "serde_json",
@@ -1457,7 +1481,7 @@ dependencies = [
 [[package]]
 name = "craft-pdf"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+source = "git+https://github.com/storytold/craft-libs?rev=fa1a657476650d870bd5982fa6a0ea83fa69ecba#fa1a657476650d870bd5982fa6a0ea83fa69ecba"
 dependencies = [
  "bytemuck",
  "hayro",
@@ -1525,6 +1549,17 @@ dependencies = [
  "winreg",
  "winsafe",
  "zip",
+]
+
+[[package]]
+name = "craft-vectorcraft-format"
+version = "0.1.0"
+source = "git+https://github.com/storytold/craft-libs?rev=6ae033e6c18bde9cd6f18e505c0556667ba2226a#6ae033e6c18bde9cd6f18e505c0556667ba2226a"
+dependencies = [
+ "flate2",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -2964,7 +2999,7 @@ dependencies = [
 [[package]]
 name = "hayro"
 version = "0.7.1"
-source = "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+source = "git+https://github.com/storytold/craft-libs?rev=fa1a657476650d870bd5982fa6a0ea83fa69ecba#fa1a657476650d870bd5982fa6a0ea83fa69ecba"
 dependencies = [
  "bytemuck",
  "hayro-interpret",
@@ -2983,9 +3018,8 @@ checksum = "9f4d0e94ddd48749f06bbe4e5389fb9799a0c45bcaf00495042076ef05e3241a"
 
 [[package]]
 name = "hayro-cmap"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a14afde3344be69225fec4f6f44f6a219a3a492f9d8301eb25ef608fe4b7014c"
+version = "0.1.0"
+source = "git+https://github.com/storytold/craft-libs?rev=fa1a657476650d870bd5982fa6a0ea83fa69ecba#fa1a657476650d870bd5982fa6a0ea83fa69ecba"
 dependencies = [
  "brotli",
  "hayro-postscript",
@@ -2994,7 +3028,7 @@ dependencies = [
 [[package]]
 name = "hayro-interpret"
 version = "0.7.0"
-source = "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+source = "git+https://github.com/storytold/craft-libs?rev=fa1a657476650d870bd5982fa6a0ea83fa69ecba#fa1a657476650d870bd5982fa6a0ea83fa69ecba"
 dependencies = [
  "bitflags 2.13.2",
  "hayro-cmap",
@@ -3012,7 +3046,7 @@ dependencies = [
 [[package]]
 name = "hayro-jbig2"
 version = "0.3.0"
-source = "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+source = "git+https://github.com/storytold/craft-libs?rev=fa1a657476650d870bd5982fa6a0ea83fa69ecba#fa1a657476650d870bd5982fa6a0ea83fa69ecba"
 dependencies = [
  "fearless_simd",
  "hayro-ccitt",
@@ -3029,14 +3063,13 @@ dependencies = [
 
 [[package]]
 name = "hayro-postscript"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc2d80da85f31c3fdc0366431f44cfd645a9da1e242ed1f4a61f213d9765660f"
+version = "0.1.0"
+source = "git+https://github.com/storytold/craft-libs?rev=fa1a657476650d870bd5982fa6a0ea83fa69ecba#fa1a657476650d870bd5982fa6a0ea83fa69ecba"
 
 [[package]]
 name = "hayro-syntax"
 version = "0.7.2"
-source = "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+source = "git+https://github.com/storytold/craft-libs?rev=fa1a657476650d870bd5982fa6a0ea83fa69ecba#fa1a657476650d870bd5982fa6a0ea83fa69ecba"
 dependencies = [
  "flate2",
  "hayro-ccitt",
@@ -5613,6 +5646,7 @@ name = "photocraft-io"
 version = "0.20.1"
 dependencies = [
  "blake3",
+ "craft-doc",
  "craft-docpath",
  "craft-pdf",
  "crc32fast",
