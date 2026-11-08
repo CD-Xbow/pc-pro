@@ -1002,6 +1002,8 @@ mod polygon_lasso_tests;
 mod window_frame_tests;
 
 #[cfg(test)]
+mod adjustment_icon_tests;
+#[cfg(test)]
 mod browse_field_tests;
 #[cfg(test)]
 mod export_quality_tests;
