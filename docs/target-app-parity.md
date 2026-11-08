@@ -1,6 +1,6 @@
 # PhotoCraft vs Adobe Photoshop: target-app parity
 
-> **Last reviewed:** 2026-10-12 · **Last updated:** 2026-11-02 · **Change:** minor (RGB and CMYK documents preview their spot inks as an overprint, FILE-215-17 narrows to PDF Separation, #10249; tile-sparse Select and Mask outputs and preview coverage, #8822; classical Select › Sky can seed substantial high-confidence components beneath an obstructed top band; learned segmentation remains open; Art History Brush Opacity on the options bar, #10263; no estimate changed; Automation Batch Esc Continue/Stop and read-only input previews now follow the measured cancellation flow; full live tabs remain partial, AUTO-219-5, #4579; Automation recording folds Move-tool nudge runs, records keyboard document switches by opening-order offset and scales point text placement; paragraph boxes remain open, #4514; Automation Batch output naming and UTF-16 logs now follow measured Photoshop behavior; progress and cancel prompt remain partial, AUTO-219-5, #4579; 11 of 183 preferences do nothing: startup reads Graphics Adapter through the typed Performance section, so the scorecard audit sees it; selected colour sets edit drawing, tone and supported filters; geometry remains open; Smooth and Feather command masks cropped to selection bounds plus blur reach; Equalize with a selection asks Selected Area Only or Entire Image Based On Selected Area; cropped selection morphology and command mask conversion performance evidence added; the Camera Raw row names per-camera colour for non-DNG cameras as missing, not the Calibration panel, which landed 2026-10-13; Content-Aware Scale measurements added, #5236; Help › Check for Updates and an opt-out check once per launch, DIST-220-1 partial, #5485; area type, TYPE-218-10 partial, Type scorecard 5 / 5 / 0; compound layer properties export as separate Photoshop Set events, #8304; JPEG Options dialog landed, FILE-215-19 partial; Print › Functions › Bleed through `file.print`; Content-Aware Move live preview for every selection size, TOOL-213-4 done, #6680; retouching evidence: Pattern Stamp and Background Eraser draw live, only the Mixer Brush is left of TOOL-213-7; fill and adjustment layers copy and paste whole, UI-217-23 partial, #2344; shape layers take Density and Feather, TOOL-214-12 done, #5846; on-canvas corner radius widgets, TOOL-214-12; `.atn` import maps 112 events; Free Transform H/V skew fields; stale rows corrected against `main` and the scorecard, estimates unchanged; Photoshop Actions `.atn` load and save; 2026-10-10: Tilt-Shift measurements added; earlier the same day: major, full re-measure against Photoshop 2026 27.11.0; merged `parity-estimate.md` and the roadmap's honest assessment; stale missing-tool rows corrected: Color Replacement and Red Eye are live toolbar tools, Frame landed; percentages unchanged; PSD spot plates in Photoshop's polarity, #7415 split; TIFF spot plates, FILE-215-17's TIFF part, #7415) · **Target:** Adobe Photoshop 2026; Print: Japanese paper sizes — はがき, 往復はがき, JIS B5/B4, A6, L判, 2L判, KG判, 六切, 四切;
+> **Last reviewed:** 2026-10-12 · **Last updated:** 2026-11-08 · **Change:** minor (historical effort calibration dated; estimates unchanged; RGB and CMYK documents preview their spot inks as an overprint, FILE-215-17 narrows to PDF Separation, #10249; tile-sparse Select and Mask outputs and preview coverage, #8822; classical Select › Sky can seed substantial high-confidence components beneath an obstructed top band; learned segmentation remains open; Art History Brush Opacity on the options bar, #10263; no estimate changed; Automation Batch Esc Continue/Stop and read-only input previews now follow the measured cancellation flow; full live tabs remain partial, AUTO-219-5, #4579; Automation recording folds Move-tool nudge runs, records keyboard document switches by opening-order offset and scales point text placement; paragraph boxes remain open, #4514; Automation Batch output naming and UTF-16 logs now follow measured Photoshop behavior; progress and cancel prompt remain partial, AUTO-219-5, #4579; 11 of 183 preferences do nothing: startup reads Graphics Adapter through the typed Performance section, so the scorecard audit sees it; selected colour sets edit drawing, tone and supported filters; geometry remains open; Smooth and Feather command masks cropped to selection bounds plus blur reach; Equalize with a selection asks Selected Area Only or Entire Image Based On Selected Area; cropped selection morphology and command mask conversion performance evidence added; the Camera Raw row names per-camera colour for non-DNG cameras as missing, not the Calibration panel, which landed 2026-10-13; Content-Aware Scale measurements added, #5236; Help › Check for Updates and an opt-out check once per launch, DIST-220-1 partial, #5485; area type, TYPE-218-10 partial, Type scorecard 5 / 5 / 0; compound layer properties export as separate Photoshop Set events, #8304; JPEG Options dialog landed, FILE-215-19 partial; Print › Functions › Bleed through `file.print`; Content-Aware Move live preview for every selection size, TOOL-213-4 done, #6680; retouching evidence: Pattern Stamp and Background Eraser draw live, only the Mixer Brush is left of TOOL-213-7; fill and adjustment layers copy and paste whole, UI-217-23 partial, #2344; shape layers take Density and Feather, TOOL-214-12 done, #5846; on-canvas corner radius widgets, TOOL-214-12; `.atn` import maps 112 events; Free Transform H/V skew fields; stale rows corrected against `main` and the scorecard, estimates unchanged; Photoshop Actions `.atn` load and save; 2026-10-10: Tilt-Shift measurements added; earlier the same day: major, full re-measure against Photoshop 2026 27.11.0; merged `parity-estimate.md` and the roadmap's honest assessment; stale missing-tool rows corrected: Color Replacement and Red Eye are live toolbar tools, Frame landed; percentages unchanged; PSD spot plates in Photoshop's polarity, #7415 split; TIFF spot plates, FILE-215-17's TIFF part, #7415) · **Target:** Adobe Photoshop 2026; Print: Japanese paper sizes — はがき, 往復はがき, JIS B5/B4, A6, L判, 2L判, KG判, 六切, 四切;
 
 The authoritative answer to "how close is PhotoCraft to Photoshop, and how much work is left". The
 one-page summary is [`ROADMAP.md`](../ROADMAP.md); the ranked work list is [`gaps.md`](gaps.md);
@@ -37,7 +37,7 @@ ready for real work 25–35%) was closer; ~700 merged PRs since then moved both 
 | Mainstream practitioner | ~43% | 1,700–2,800 | Depth in the 11 weekly areas (1,180–2,000), performance budgets, stability on real machines, PSD exchange with Photoshop |
 | Essentials user | ~61% | 400–700 | Startup and GPU robustness, brush and transform responsiveness, Type tool, discoverability (flyouts, commit buttons), AVIF/PDF open |
 
-Hours calibrated as in [Remaining effort](#remaining-effort-and-calibration) (2–9 h per checklist
+Hours use the [2026-10-10 calibration](#remaining-effort-and-calibration) (2–9 h per checklist
 item, 8–20 h per format or subsystem, from the repo's 1,004 merged PRs); each tier is a subset of
 the one above. About 80% parallelizes (independent crates and command modules); performance
 architecture and the PSD writer are the serial parts.
@@ -73,6 +73,7 @@ architecture and the PSD writer are the serial parts.
 ## Ready for real work: ~45% (weighted)
 
 Weights reflect what a working Photoshop user depends on (photographers, retouchers, designers).
+Remaining hours use the [2026-10-10 calibration](#remaining-effort-and-calibration).
 
 | Dimension | Weight | % ready | Remaining (agent-h) | Evidence | Detail |
 |---|---:|---:|---:|---|---|
@@ -163,7 +164,8 @@ people send ×0.95 (JPEG, PNG, HEIC, WebP, PSD open; AVIF and PDF don't, #463, #
 ## Feature areas
 
 Percent is ready-for-real-work for that area (depth and fidelity, not presence). Hours are to full
-parity for the area and are already contained in the dimension rows above.
+parity for the area and are already contained in the dimension rows above, using the
+[2026-10-10 calibration](#remaining-effort-and-calibration).
 
 | Area | % | Hours | Notes |
 |---|---:|---:|---|
@@ -192,9 +194,13 @@ those inputs remain different. AUTO-219-5 is partial (#4579).
 
 ## Remaining effort and calibration
 
-**Calibration.** The repository's history from the first commit (2026-09-30) to 2026-10-10: 1,152
+**Calibration snapshot: 2026-10-10.** The effort and parallelism estimates retain this historical
+snapshot; they have not been recalibrated using subsequent merged PRs.
+
+The repository's history from the first commit (2026-09-30) to 2026-10-10: 1,152
 commits on `main` and 1,004 merged PRs in 10.5 days. Median PR open-to-merge time is 3.4 h
-(p75 6.4 h, p90 14.3 h; that includes CI and review queueing). Comparable features:
+(p75 6.4 h, p90 14.3 h; that includes CI and review queueing). These elapsed times are not direct
+measurements of agent computation. Comparable features:
 
 | Feature | PRs | Lines added | PR hours |
 |---|---|---:|---:|
@@ -208,13 +214,13 @@ commits on `main` and 1,004 merged PRs in 10.5 days. Median PR open-to-merge tim
 | Korean catalog and live switching | #582, #604 | ~3,800 | 13.0 |
 
 So one checklist item of tool or UI depth costs about 2–9 agent-hours including tests, and a new
-format or subsystem 8–20. With roughly 2–4 agent-hours per merged PR, the ~1,000 PRs so far
+format or subsystem 8–20. With roughly 2–4 agent-hours per merged PR, the ~1,000 PRs in that snapshot
 represent about **2,000–4,000 agent-hours**, which took ready-for-real-work from 0 to ~45%. The
 remaining points are harder per point (fidelity against Photoshop's unpublished maths, feel,
 performance on large documents, user-reported long tail), so the remaining estimate is not lower
 than the work already done.
 
-**Totals.**
+**Totals (2026-10-10 calibration).**
 
 | Milestone | Scope | Opus 5.5 agent-hours |
 |---|---|---:|
@@ -590,6 +596,7 @@ See [method, raw measurements and reproduction](five-algorithm-performance.md).
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-11-08 | minor | Marked the effort calibration as a historical snapshot and dated table references on current main; numerical estimates unchanged |
 | 2026-11-02 | minor | Automation Batch: Esc Continue/Stop preserves one file plan and error log; a read-only input preview replaces the progress bar; full live tabs remain open, AUTO-219-5 partial (#4579); percentages and estimates unchanged |
 | 2026-11-02 | minor | AUTO-219-1: action recording folds Move-tool nudges, records relative document switches and scales point text placement to the playback canvas; duplicate names and paragraph box placement remain open; Automation parity estimate unchanged |
 | 2026-11-01 | minor | AUTO-219-1: action recording uses implicit or uniquely named layers and folds Type keystrokes into whole-text steps; duplicate names remain ambiguous; Automation parity estimate unchanged |
