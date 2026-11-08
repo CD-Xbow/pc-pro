@@ -27,6 +27,7 @@ contextual, command-ID and plural translations; missing entries fall back to Eng
 | Nederlands | `nl` | one / other |
 | Magyar | `hu` | one form |
 | Tiếng Việt | `vi` | one form |
+| Türkçe | `tr` | one form |
 | ไทย | `th` | one form |
 | தமிழ் | `ta` | one / other |
 | Srpski | `sr` | one / few / many (teens use many) |
@@ -36,6 +37,7 @@ contextual, command-ID and plural translations; missing entries fall back to Eng
 | Suomi | `fi` | one / other (partitive after every count but 1) |
 | Dansk | `da` | one / other |
 | Norsk bokmål | `nb` | one / other |
+| العربية | `ar` | zero / one / two / few / many / other |
 | ქართული | `ka` | one form (count-neutral: `შრე: {n}`) |
 | עברית | `he` | one / other |
 | اردو | `ur` | one / other |
