@@ -46,6 +46,11 @@ pub struct CanvasToolMenu {
     /// had when it opened.
     #[serde(default)]
     pub crop: Option<Vec<String>>,
+    /// Opened by Space's Hand over this selected tool (#11271; the view menu, or the pasteboard
+    /// menu outside the image): it stays while that tool is selected, Space held or not. None when
+    /// the menu is the selected tool's own.
+    #[serde(default)]
+    pub over: Option<Tool>,
     /// The Color Sampler menu's sampler: the one under the pointer when it opened (its index),
     /// `None` off a sampler, where every row is greyed.
     #[serde(default)]
@@ -312,6 +317,7 @@ pub fn open_crop(app: &mut PhotocraftApp, ctx: &Context, tool: Tool, pos: [f32; 
         guide: false,
         spelling: None,
         crop: Some(users),
+        over: None,
         sampler: None,
         sampler_at: None,
     });
@@ -714,6 +720,7 @@ pub fn open_transform(app: &mut PhotocraftApp, ctx: &Context, pos: [f32; 2]) -> 
         guide: false,
         spelling: None,
         crop: None,
+        over: None,
         sampler: None,
         sampler_at: None,
     });
@@ -797,6 +804,9 @@ pub fn open_pasteboard(app: &mut PhotocraftApp, ctx: &Context, tool: Tool, pos: 
         guide: false,
         spelling: None,
         crop: None,
+        // Space's Hand keeps the menu over the selected tool (#11271); a held zoom key's goes with
+        // the key, as before.
+        over: (tool == Tool::Hand && tool != app.ui.tool).then_some(app.ui.tool),
         sampler: None,
         sampler_at: None,
     });
@@ -830,6 +840,7 @@ pub fn open_guide(app: &mut PhotocraftApp, ctx: &Context, tool: Tool, mods: egui
         guide: true,
         spelling: None,
         crop: None,
+        over: None,
         sampler: None,
         sampler_at: None,
     });
@@ -964,6 +975,7 @@ pub fn open_at(app: &mut PhotocraftApp, ctx: &Context, tool: Tool, pos: [f32; 2]
         guide: false,
         spelling,
         crop: None,
+        over: None,
         sampler,
         sampler_at,
     });
@@ -993,6 +1005,7 @@ pub fn open_view(app: &mut PhotocraftApp, ctx: &Context, tool: Tool, pos: [f32; 
         guide: false,
         spelling: None,
         crop: None,
+        over: (tool != app.ui.tool).then_some(app.ui.tool),
         sampler: None,
         sampler_at: None,
     });
@@ -1237,8 +1250,10 @@ fn menu_id() -> egui::Id {
 
 pub fn show(app: &mut PhotocraftApp, ctx: &Context) {
     let Some(menu) = app.ui.canvas_tool_menu.clone() else { return };
+    // A menu goes with the tool it was opened for; one Space's Hand opened, with the tool it was
+    // opened over (#11271).
     if ctx.input(|i| i.key_pressed(egui::Key::Escape))
-        || app.ui.tool != menu.tool
+        || app.ui.tool != menu.over.unwrap_or(menu.tool)
         || (menu.transform && app.ui.transform.is_none())
         || (menu.text && app.ui.text_edit.is_none())
         || (menu.type_layer && app.ui.text_edit.is_some())
