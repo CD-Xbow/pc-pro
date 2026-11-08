@@ -141,6 +141,141 @@ fn tent_kernel_is_two_boxes() {
     assert_eq!(tent_kernel(f32::NAN), (0, vec![1.0]));
 }
 
+/// #11949: a Softer outer glow's kernel is Photoshop's whole-width tent, `(n − |i|) / n²` for
+/// `|i| < n`. At odd and fractional widths that is the shared kernel, unchanged; at even widths
+/// the shared kernel has two more taps and is that tent convolved with `[¼, ½, ¼]`.
+#[test]
+fn glow_tent_kernel_is_photoshops_whole_width_tent() {
+    for n in 1..=24u32 {
+        let (r, k) = glow_tent_kernel(n as f32);
+        let nf = n as f32;
+        assert_eq!(r, n as i32 - 1, "width {n}");
+        assert_eq!(k.len(), 2 * n as usize - 1, "width {n}");
+        for (j, w) in k.iter().enumerate() {
+            let i = j as f32 - r as f32;
+            assert!((w - (nf - i.abs()) / (nf * nf)).abs() < 1e-6, "width {n}, tap {i}: {w}");
+        }
+        let (sr, sk) = tent_kernel(nf);
+        if n % 2 == 1 {
+            // Odd widths: the shared kernel, bit for bit (they already matched Photoshop).
+            assert_eq!((r, k), (sr, sk), "width {n}");
+        } else {
+            assert_eq!(sr, r + 1, "width {n}: the shared kernel's half-weight end taps");
+            for (j, s) in sk.iter().enumerate() {
+                let at = |i: i64| usize::try_from(i).ok().and_then(|i| k.get(i)).copied().unwrap_or(0.0);
+                let j = j as i64 - 1;
+                let want = 0.25 * at(j - 1) + 0.5 * at(j) + 0.25 * at(j + 1);
+                assert!((s - want).abs() < 1e-6, "width {n}, shared tap {j}: {s} vs {want}");
+            }
+        }
+    }
+    // Fractional widths (a spread leaves one) keep the shared kernel: unmeasured.
+    for w in [2.5f32, 3.75, 4.001, 7.2, 9.99] {
+        assert_eq!(glow_tent_kernel(w), tent_kernel(w), "{w}");
+    }
+    // Hostile widths are capped as the shared kernel's are (#1543): MAX_REACH is even.
+    for w in [1e30, f32::INFINITY, f32::MAX] {
+        assert_eq!(glow_tent_kernel(w), glow_tent_kernel(MAX_REACH), "{w}");
+    }
+    assert_eq!(glow_tent_kernel(MAX_REACH).0, MAX_REACH as i32 - 1);
+    for w in [f32::NAN, 0.0, -4.0, f32::NEG_INFINITY] {
+        assert_eq!(glow_tent_kernel(w), (0, vec![1.0]), "{w}");
+    }
+}
+
+/// #11949: the outer glow's running-sum blur is exactly the convolution with its kernel, at even
+/// widths (Photoshop's whole-width tent) and at odd and fractional ones (the shared blur); and it
+/// leaves no cancellation residue where the kernel reaches nothing (#5638, which noise would turn
+/// into speckle).
+#[test]
+fn glow_blur_matches_its_kernel() {
+    let (w, h) = (37usize, 23usize);
+    let src: Vec<f32> = (0..w * h).map(|i| ((i * 7919) % 101) as f32 / 100.0).collect();
+    for width in [1.0f32, 2.0, 3.0, 3.5, 4.0, 6.0, 8.25, 10.0, 16.0, 41.0, 64.0] {
+        let mut m = Map { w, h, v: src.clone() };
+        glow_blur(&mut m, width);
+        let mut want = Map { w, h, v: src.clone() };
+        convolve_direct(&mut want, glow_tent_kernel(width));
+        for (a, b) in m.v.iter().zip(&want.v) {
+            assert!((a - b).abs() < 1e-5, "width {width}: {a} vs {b}");
+        }
+    }
+    for size in [4.0f32, 6.0, 10.0, 14.0] {
+        let mut shape = Map::new(96, 64, 0.0);
+        for y in 8..48 {
+            for x in 8..48 {
+                shape.v[y * shape.w + x] = ((x as f32 - y as f32 * 0.7) * 0.3).clamp(0.0, 1.0);
+            }
+        }
+        let mut direct = shape.clone();
+        convolve_direct(&mut direct, glow_tent_kernel(size));
+        let mut actual = shape;
+        glow_blur(&mut actual, size);
+        noise(&mut actual, 0.26, 0, 0);
+        let stray = direct.v.iter().zip(&actual.v).filter(|(reference, noisy)| **reference == 0.0 && **noisy > 1e-5).count();
+        assert_eq!(stray, 0, "noise created {stray} visible pixels outside a size-{size} glow blur");
+    }
+    // Hostile widths neither panic nor blur past the cap; an empty map stays empty.
+    for width in [f32::NAN, f32::INFINITY, -3.0, 0.0, 1e9] {
+        let mut m = Map { w, h, v: src.clone() };
+        glow_blur(&mut m, width);
+        assert!(m.v.iter().all(|v| v.is_finite()), "width {width}");
+    }
+    let mut empty = Map::new(0, 0, 0.0);
+    glow_blur(&mut empty, 4.0);
+    assert!(empty.v.is_empty());
+}
+
+/// #11949's fence: only Softer *outer* glows take Photoshop's whole-width tent. Shadows (and the
+/// satin and bevel blurs, which call the same kernel) and inner glows keep the shared blur at even
+/// sizes: they are fitted to it and unmeasured against the even-width difference.
+#[test]
+fn even_width_tent_is_outer_glow_only() {
+    let shape = square_20_40();
+    let n = 60;
+    let linear = |size: f32| Glow { contour: Contour::Linear, range: 1.0, ..contour_glow(GlowTechnique::Softer, size, &FLAT) };
+    for size in [4.0f32, 10.0] {
+        let mut shared = shape.clone();
+        blur(&mut shared, size);
+        let mut ps = shape.clone();
+        convolve_direct(&mut ps, glow_tent_kernel(size));
+        // Outer: Photoshop's tent (Range 100 %, Linear: the coverage itself).
+        let outer = glow_map(&shape, &linear(size), false, (0, 0));
+        for (a, b) in outer.v.iter().zip(&ps.v) {
+            assert!((a - b).abs() < 1e-5, "outer glow size {size}: {a} vs {b}");
+        }
+        // The two differ: the shared tent lights a pixel `size` px out, Photoshop's does not.
+        let x = 20 - size as usize;
+        assert!(shared.v[30 * n + x] > 0.0 && outer.v[30 * n + x] == 0.0, "size {size}");
+        // Inner: the shared blur of the inverted shape, times the shape.
+        let inner = glow_map(&shape, &linear(size), true, (0, 0));
+        let mut inv = shape.clone().map(|a| 1.0 - a);
+        blur(&mut inv, size);
+        for (i, (a, b)) in inner.v.iter().zip(&inv.v).enumerate() {
+            let want = b * shape.v[i];
+            assert!((a - want).abs() < 1e-5, "inner glow size {size} at {i}: {a} vs {want}");
+        }
+        // Shadows: the shared blur.
+        let s = Shadow {
+            common: photocraft_doc::FxCommon::new(BlendMode::Multiply, 1.0),
+            color: photocraft_color::Color::BLACK,
+            angle: 0.0,
+            use_global_light: false,
+            distance: 0.0,
+            spread: 0.0,
+            size,
+            contour: Contour::Linear,
+            anti_alias: false,
+            noise: 0.0,
+            knocks_out: true,
+        };
+        let sm = shadow_map(&shape, &s, &GlobalLight::default(), false, (0, 0));
+        for (a, b) in sm.v.iter().zip(&shared.v) {
+            assert!((a - b).abs() < 1e-6, "drop shadow size {size}: {a} vs {b}");
+        }
+    }
+}
+
 fn no_tex() -> TextureCtx<'static> {
     TextureCtx { rect: Rect::new(0, 0, 1, 1), patterns: &[], anchor: (0.0, 0.0) }
 }
@@ -854,6 +989,335 @@ fn glows_match_photoshop() {
         let c = glow_map(&shape, &glow(t, 6.0, 0.0, GlowSource::Center), true, (0, 0));
         for x in 20..40 {
             assert!((at(&c, x) - (1.0 - at(&e, x))).abs() < 1e-5, "{t:?} at {x}");
+        }
+    }
+}
+
+/// An outer glow with a custom contour (#11361), Range 50 %, on the 60 px map with the
+/// 20..40 square of `glows_match_photoshop`.
+fn contour_glow(technique: GlowTechnique, size: f32, points: &[(f32, f32)]) -> Glow {
+    Glow {
+        common: photocraft_doc::FxCommon::new(BlendMode::Normal, 1.0),
+        paint: FxPaint::Color(photocraft_color::Color::BLACK),
+        technique,
+        spread: 0.0,
+        size,
+        contour: Contour::Custom {
+            name: "custom".into(),
+            points: points.iter().map(|&(input, output)| photocraft_doc::adjust::CurvePoint { input, output }).collect(),
+            corners: vec![],
+        },
+        anti_alias: false,
+        range: 0.5,
+        jitter: 0.0,
+        noise: 0.0,
+        source: GlowSource::Edge,
+    }
+}
+
+const FLAT: [(f32, f32); 2] = [(0.0, 1.0), (1.0, 1.0)];
+
+fn square_20_40() -> Map {
+    let n = 60;
+    let mut shape = Map::new(n, n, 0.0);
+    for y in 20..40 {
+        for x in 20..40 {
+            shape.v[y * n + x] = 1.0;
+        }
+    }
+    shape
+}
+
+/// Centre-to-centre (dx, dy) from pixel `(x, y)` to the nearest pixel of the 20..40 square.
+fn off_square(x: usize, y: usize) -> (f32, f32) {
+    let d = |v: usize| if v < 20 { 20 - v } else { v.saturating_sub(39) };
+    (d(x) as f32, d(y) as f32)
+}
+
+/// #11361: a contour above 0 at its start (the flat "always 100 %" one, and one starting at
+/// 50 %) used to light every pixel the glow never reaches, out to the effect's rectangle. Nothing
+/// beyond the reach may paint, for either technique: Precise reaches `size + 1` px (centre to
+/// centre, Euclidean), Softer's two-box tent reaches `size` px along each axis.
+#[test]
+fn high_contour_outer_glow_stays_within_its_reach() {
+    let shape = square_20_40();
+    for points in [&FLAT[..], &[(0.0, 0.5), (1.0, 1.0)][..]] {
+        for (t, size) in [(GlowTechnique::Precise, 4.0f32), (GlowTechnique::Precise, 10.0), (GlowTechnique::Softer, 4.0), (GlowTechnique::Softer, 10.0)] {
+            let m = glow_map(&shape, &contour_glow(t, size, points), false, (0, 0));
+            let mut lit = 0;
+            for y in 0..60 {
+                for x in 0..60 {
+                    let (dx, dy) = off_square(x, y);
+                    let beyond = match t {
+                        // Strictly past it: at exactly `size + 1` rounding can leave a 1e-7 residue.
+                        GlowTechnique::Precise => dx.hypot(dy) > size + 1.0 + 1e-3,
+                        GlowTechnique::Softer => dx.max(dy) > size,
+                    };
+                    let v = m.v[y * 60 + x];
+                    if beyond {
+                        assert_eq!(v, 0.0, "{t:?} size {size} {points:?}: ({x}, {y}) is beyond the reach but paints {v}");
+                    }
+                    lit += usize::from(v > 0.0 && (dx, dy) != (0.0, 0.0));
+                }
+            }
+            // The band, not the rectangle: 3200 pixels lay outside the square before the fix.
+            let band = ((20.0 + 2.0 * (size + 1.0)).powi(2) - 400.0) as usize;
+            assert!(lit > 0 && lit <= band, "{t:?} size {size} {points:?}: {lit} glow pixels, the band holds at most {band}");
+        }
+    }
+}
+
+/// #11361: a flat contour paints a Precise glow as a solid band up to the shape, ending in one soft
+/// pixel set by how far its centre lies inside the reach (Photoshop's 4 px flat Precise ellipse
+/// reads background, one soft step, then solid glow up to the shape). Softer fades instead
+/// (#11651, `softer_flat_contour_glow_matches_photoshop`).
+#[test]
+fn precise_flat_contour_outer_glow_is_a_solid_band_with_one_soft_pixel() {
+    let n = 60;
+    let at = |m: &Map, x: usize| m.v[30 * n + x];
+    // Precise, with the square's left column half covered: its edge sits mid-pixel, so the
+    // pixels out from it are 1.5, 2.5, 3.5, 4.5, 5.5 px (centre to centre) from the shape, and
+    // the reach (size + 1 = 5) ends half-way across the 4.5 px one.
+    let mut shape = square_20_40();
+    for y in 20..40 {
+        shape.v[y * n + 19] = 0.5;
+    }
+    let m = glow_map(&shape, &contour_glow(GlowTechnique::Precise, 4.0, &FLAT), false, (0, 0));
+    for x in 16..=19 {
+        assert!(at(&m, x) > 0.999, "precise, solid band at x {x}: {}", at(&m, x));
+    }
+    assert!((at(&m, 15) - 0.5).abs() < 0.05, "precise, the soft outer pixel: {}", at(&m, 15));
+    assert!(at(&m, 14) == 0.0 && at(&m, 0) == 0.0, "precise, beyond the reach: {} {}", at(&m, 14), at(&m, 0));
+    // Precise, pixel-aligned edge: the pixels out from it are 1..5 px (centre to centre) from the
+    // shape and the reach ends at the 5 px one's centre, so the band is solid through Size (x 16,
+    // 4 px out, 1.0) and the next pixel (x 15) is beyond it. Point-sampled, as the measured Linear
+    // falloff is: an area-averaged falloff would leave x 15 half covered (the reach ends 4.5 px
+    // past the shape's edge, half-way across it), not 0.84.
+    let shape = square_20_40();
+    let m = glow_map(&shape, &contour_glow(GlowTechnique::Precise, 4.0, &FLAT), false, (0, 0));
+    for x in 16..20 {
+        assert!(at(&m, x) > 0.999, "precise aligned, solid band at x {x}: {}", at(&m, x));
+    }
+    assert!(at(&m, 15) == 0.0, "precise aligned, beyond the reach: {}", at(&m, 15));
+}
+
+/// #11651, measured in Photoshop 2021 by the reporter: Outer Glow, Softer, red on black, Range
+/// 50 %, spread 0, the red channel along one row from the outside in, `d` px (centre to centre)
+/// out from a 30 px white square's edge and from a 1 px dot. 255 = full glow. `(size, d, level)`.
+const PS_SOFTER_FLAT_SQUARE: [(u32, u32, f32); 21] = [
+    (2, 1, 255.0),
+    (3, 2, 236.0),
+    (3, 1, 255.0),
+    (4, 3, 133.0),
+    (4, 2, 255.0),
+    (4, 1, 255.0),
+    (6, 5, 59.0),
+    (6, 4, 177.0),
+    (6, 3, 255.0),
+    (6, 2, 255.0),
+    (6, 1, 255.0),
+    (10, 9, 21.0),
+    (10, 8, 64.0),
+    (10, 7, 127.0),
+    (10, 6, 213.0),
+    (10, 5, 255.0),
+    (10, 4, 255.0),
+    (10, 3, 255.0),
+    (10, 2, 255.0),
+    (10, 1, 255.0),
+    // Nothing at `size` px out (the row has `size − 1` glow pixels).
+    (10, 10, 0.0),
+];
+/// The same, out from the 1 px dot (size 10's middle values were not reported: 2, 4, 6 … 19).
+const PS_SOFTER_FLAT_DOT: [(u32, u32, f32); 17] = [
+    (3, 2, 79.0),
+    (3, 1, 157.0),
+    (4, 3, 33.0),
+    (4, 2, 66.0),
+    (4, 1, 100.0),
+    (6, 5, 10.0),
+    (6, 4, 20.0),
+    (6, 3, 29.0),
+    (6, 2, 39.0),
+    (6, 1, 49.0),
+    (10, 9, 2.0),
+    (10, 8, 4.0),
+    (10, 7, 6.0),
+    (10, 1, 19.0),
+    // Nothing at `size` px out.
+    (3, 3, 0.0),
+    (4, 4, 0.0),
+    (10, 10, 0.0),
+];
+
+/// The coverage Photoshop's Softer tent gives a pixel `d` px out from a straight edge (`dot`
+/// false) or a single opaque pixel (`dot` true): two integer boxes of width `w`, taps
+/// `(w − |i|) / w²` for `|i| < w`, so `(w − d)(w − d + 1) / (2w²)` past an edge and
+/// `(w − d) / w³` (row tap × centre tap) out from a pixel. The Linear control row of #11651 is
+/// exactly `2v` of it (Range 50 %): 5, 15, 30, 51, 76 … 229 at size 10, and 1 … 5 off the dot.
+fn ps_softer_coverage(w: u32, d: u32, dot: bool) -> f32 {
+    let (w, d) = (w as f32, d as f32);
+    let left = (w - d).max(0.0);
+    if dot { left / (w * w * w) } else { left * (left + 1.0) / (2.0 * w * w) }
+}
+
+/// #11651: the transfer table alone, fed Photoshop's own coverage, paints every measured pixel of
+/// the flat-contour Softer rows within one level (`min(1, v / 0.12)`), and the Linear contour's
+/// table paints the control rows, which pins the coverage model the oracle is read through.
+#[test]
+fn softer_flat_contour_glow_table_matches_photoshop() {
+    for (rows, dot) in [(&PS_SOFTER_FLAT_SQUARE[..], false), (&PS_SOFTER_FLAT_DOT[..], true)] {
+        for &(size, d, ps) in rows {
+            let Some(f) = glow_paint_lut(&contour_glow(GlowTechnique::Softer, size as f32, &FLAT), false) else { panic!("a flat contour has a table") };
+            let got = 255.0 * lut_at(&f, ps_softer_coverage(size, d, dot));
+            assert!((got - ps).abs() <= 1.0, "size {size}, {d} px out (dot {dot}): {got} vs Photoshop 2021's {ps}");
+        }
+    }
+    let linear = Glow { contour: Contour::Linear, ..contour_glow(GlowTechnique::Softer, 10.0, &FLAT) };
+    let Some(l) = glow_paint_lut(&linear, false) else { panic!("Range 50 % has a table") };
+    for (d, dot, ps) in
+        [(9, false, 5.0f32), (8, false, 15.0), (7, false, 30.0), (6, false, 51.0), (5, false, 76.0), (1, false, 229.0), (9, true, 1.0), (1, true, 5.0)]
+    {
+        let got = 255.0 * lut_at(&l, ps_softer_coverage(10, d, dot));
+        assert!((got - ps).abs() <= 1.0, "linear control, {d} px out (dot {dot}): {got} vs Photoshop 2021's {ps}");
+    }
+    // The reporter's "4× the Linear glow, clipped" is close but low: 4·2v gives 227 for size 3's
+    // 236 and 204 for size 10's 213; the knee sits at 25/6 ≈ 4.17×.
+    let four_x = 255.0 * (8.0 * ps_softer_coverage(10, 6, false)).min(1.0);
+    assert!((four_x - 213.0).abs() > 5.0, "{four_x}");
+}
+
+/// #11651 end to end: the Softer flat-contour glow fades over its outer pixels and a single pixel's
+/// glow is faint (it used to be a solid band up to the reach with one soft pixel, and a single
+/// pixel's glow solid through its reach). Every measured pixel matches within a level, at odd and
+/// even sizes alike, and so does the Linear control row (size 10, even).
+///
+/// #11949: the outer glow used the shared blur, whose half-weight end taps at even widths added
+/// `1 / (4w²)` to the coverage past an edge: size 4's soft pixel read 166 for Photoshop's 133,
+/// size 6's 74 and 192 for 59 and 177, size 10's 27 … 218 for 21 … 213, with a faint extra pixel at
+/// `w` (5 levels at size 10, where Photoshop's is 0); a single pixel's glow read `1 − 1 / (2w)` of
+/// Photoshop's (87 for 100 at size 4) plus a faint pixel at `w` (7 at size 4, Photoshop 0); and the
+/// Linear row read 1.3 levels high (6.4 for 5). It now uses `glow_tent_kernel`.
+#[test]
+fn softer_flat_contour_glow_matches_photoshop() {
+    let n = 80;
+    // The reporter's 30 px square, sampled along its middle row, and a 1 px dot.
+    let mut square = Map::new(n, n, 0.0);
+    for y in 25..55 {
+        for x in 25..55 {
+            square.v[y * n + x] = 1.0;
+        }
+    }
+    let mut dot = Map::new(n, n, 0.0);
+    dot.v[40 * n + 40] = 1.0;
+    for (rows, shape, is_dot) in [(&PS_SOFTER_FLAT_SQUARE[..], &square, false), (&PS_SOFTER_FLAT_DOT[..], &dot, true)] {
+        for &(size, d, ps) in rows {
+            let m = glow_map(shape, &contour_glow(GlowTechnique::Softer, size as f32, &FLAT), false, (0, 0));
+            let x = if is_dot { 40 + d as usize } else { 25 - d as usize };
+            let got = 255.0 * m.v[40 * n + x];
+            assert!((got - ps).abs() <= 1.0, "size {size}, {d} px out (dot {is_dot}): {got} vs Photoshop 2021's {ps}");
+        }
+        // Nothing at `size` px out (Photoshop's rows hold `size − 1` glow pixels: 0 at size 10's
+        // square and at sizes 3, 4 and 10's dot), nor beyond (#11361), at either parity.
+        for size in 2u32..=16 {
+            let m = glow_map(shape, &contour_glow(GlowTechnique::Softer, size as f32, &FLAT), false, (0, 0));
+            for d in [size, size + 1] {
+                let x = if is_dot { 40 + d as usize } else { 25 - d as usize };
+                assert_eq!(m.v[40 * n + x], 0.0, "size {size}, {d} px out (dot {is_dot}): beyond the reach");
+            }
+            // And the pixel inside it is lit, so the band is not a pixel short either.
+            let x = if is_dot { 40 + size as usize - 1 } else { 26 - size as usize };
+            assert!(m.v[40 * n + x] > 0.0, "size {size} (dot {is_dot}): {} px out is dark", size - 1);
+        }
+    }
+    // The Linear control row (#11651, size 10, even): Photoshop's tent at Range 50 %.
+    let linear = Glow { contour: Contour::Linear, ..contour_glow(GlowTechnique::Softer, 10.0, &FLAT) };
+    let (lm, ldot) = (glow_map(&square, &linear, false, (0, 0)), glow_map(&dot, &linear, false, (0, 0)));
+    for (d, is_dot, ps) in
+        [(9u32, false, 5.0f32), (8, false, 15.0), (7, false, 30.0), (6, false, 51.0), (5, false, 76.0), (1, false, 229.0), (9, true, 1.0), (1, true, 5.0)]
+    {
+        let (m, x) = if is_dot { (&ldot, 40 + d as usize) } else { (&lm, 25 - d as usize) };
+        let got = 255.0 * m.v[40 * n + x];
+        assert!((got - ps).abs() <= 1.0, "linear control, {d} px out (dot {is_dot}): {got} vs Photoshop 2021's {ps}");
+    }
+    // The fade itself, monotone from the outside in, with no solid pixel before Photoshop's.
+    let m = glow_map(&square, &contour_glow(GlowTechnique::Softer, 10.0, &FLAT), false, (0, 0));
+    let row: Vec<f32> = (15..25).map(|x| m.v[40 * n + x]).collect();
+    assert!(row.windows(2).all(|p| p[0] <= p[1]), "{row:?}");
+    assert!(row[..5].iter().all(|&v| v < 0.9) && row[5..].iter().all(|&v| v > 0.999), "{row:?}");
+}
+
+/// #11361 review: the table is linear from entry 0 up to a knee on a table entry, so the GPU's and
+/// CPU's linear interpolation paint the model's value at any coverage, the first step
+/// `(0, 1/4095]` included (a large Softer glow's outermost pixel has coverage there).
+#[test]
+fn flat_contour_glow_table_is_linear_up_to_a_knee_on_an_entry() {
+    for t in [GlowTechnique::Precise, GlowTechnique::Softer] {
+        for size in [1.0f32, 2.0, 4.0, 7.5, 10.0, 60.0, 512.0] {
+            let Some(f) = glow_paint_lut(&contour_glow(t, size, &FLAT), false) else { panic!("a flat contour has a table") };
+            assert_eq!(f[0], 0.0);
+            let steps = 1.0 / f[1];
+            assert!(steps >= 1.0 && (steps - steps.round()).abs() < 1e-3, "{t:?} size {size}: the knee at {steps} steps");
+            for (k, v) in f.iter().enumerate() {
+                let want = (k as f32 / steps.round()).min(1.0);
+                assert!((v - want).abs() < 1e-5, "{t:?} size {size}: entry {k} is {v}, not {want}");
+            }
+            // Between entries (here inside the first step) the interpolation is the model.
+            for frac in [0.1f32, 0.5, 0.9] {
+                let v = frac / 4095.0;
+                let want = (frac / steps.round()).min(1.0);
+                assert!((lut_at(&f, v) - want).abs() < 1e-5, "{t:?} size {size}: coverage {v}");
+            }
+        }
+    }
+}
+
+#[test]
+fn precise_flat_contour_slope_depends_on_size_and_spread() {
+    for size in [4.0f32, 10.0] {
+        for spread in [0.0f32, 0.5] {
+            let g = Glow { spread, ..contour_glow(GlowTechnique::Precise, size, &FLAT) };
+            let Some(f) = glow_paint_lut(&g, false) else { panic!("a flat contour has a table") };
+            let want = 2.0 * (size + 1.0 - size * spread) / 4095.0;
+            assert!((f[1] - want).abs() < want * 0.005, "size {size} spread {spread}: {} vs {want}", f[1]);
+        }
+    }
+}
+
+/// #11361's regression guard: the reach cap never paints below what the Linear contour does, so
+/// Linear glows (None, or a custom straight line as PSDs store it) and inner glows keep their
+/// transfer.
+///
+/// The inner half is measured now, not assumed (#11636): in Photoshop 2021 a flat-contour
+/// inner glow fills its whole shape at 100 %, out to the centre — Precise and Softer, sizes
+/// 5 and 15, squares and circles — and PhotoCraft's uncapped inner path matches that render
+/// exactly (0 levels difference across the eight shapes; carl-anders' PSD is attached to
+/// #11636). Newer Photoshop versions are untested.
+#[test]
+fn glow_paint_lut_leaves_linear_and_inner_glows_alone() {
+    for t in [GlowTechnique::Precise, GlowTechnique::Softer] {
+        for size in [1.0f32, 4.0, 10.0, 60.0] {
+            for range in [0.5f32, 1.0] {
+                let linear = Glow { contour: Contour::Linear, range, ..contour_glow(t, size, &FLAT) };
+                assert_eq!(glow_paint_lut(&linear, false), glow_lut(&linear), "{t:?} {size} {range}");
+                let straight = Glow { range, ..contour_glow(t, size, &[(0.0, 0.0), (1.0, 1.0)]) };
+                let (Some(a), Some(b)) = (glow_paint_lut(&straight, false), glow_lut(&straight)) else { panic!("custom contours have a table") };
+                assert_eq!(a.len(), 4096);
+                let worst = a.iter().zip(&b).map(|(x, y)| (x - y).abs()).fold(0.0f32, f32::max);
+                assert!(worst < 1e-5, "{t:?} size {size} range {range}: a straight contour moved by {worst}");
+                let flat = Glow { range, ..contour_glow(t, size, &FLAT) };
+                assert_eq!(glow_paint_lut(&flat, true), glow_lut(&flat), "inner glows keep their transfer");
+                let Some(f) = glow_paint_lut(&flat, false) else { panic!("a flat contour has a table") };
+                assert_eq!(f[0], 0.0, "coverage 0 paints nothing");
+                assert!((f[4095] - 1.0).abs() < 1e-6);
+            }
+        }
+    }
+    // Hostile sizes still give a finite table.
+    for size in [f32::NAN, f32::INFINITY, -5.0, 0.0, 1e9] {
+        for t in [GlowTechnique::Precise, GlowTechnique::Softer] {
+            let Some(f) = glow_paint_lut(&contour_glow(t, size, &FLAT), false) else { panic!("table") };
+            assert!(f.iter().all(|v| v.is_finite() && (0.0..=1.0).contains(v)), "{t:?} size {size}");
         }
     }
 }
