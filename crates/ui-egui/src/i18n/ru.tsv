@@ -263,6 +263,7 @@
 	New from Clipboard	Создать из буфера обмена
 	New	Создать
 	Open…	Открыть…
+	Open as Deep…	Открыть как deep…
 	Open	Открыть
 	Open As…	Открыть как…
 	Open EXR Parts…	Открыть части EXR…
@@ -3189,6 +3190,9 @@ curves	Smooth	Сгладить
 	Enter a name for the crop preset	Введите имя набора параметров кадрирования
 	There is no crop size or ratio to save	Нет размера или соотношения сторон кадрирования для сохранения
 	Presentation	Представление
+
+	
+# Color Sampler (added with the i18n coverage repair)
 	Click to place · Alt-click or drag off-canvas to remove	Щёлкните, чтобы разместить · Alt-щелчок или перетаскивание за пределы холста для удаления
 	No document open	Документ не открыт
 	{n} of {max} sample points	{n} из {max} точек замера
@@ -4716,6 +4720,7 @@ shape	Appearance	Оформление
 	Tight Curl	Плотный завиток
 	Loose Curl	Свободный завиток
 	Stylized dabs from a history state	Стилизованные мазки из состояния истории
+	Filter for deep layers	Фильтр по глубоким слоям
 	Font size presets	Наборы размеров шрифта
 	Leading presets	Наборы интерлиньяжа
 	Tracking presets	Наборы трекинга

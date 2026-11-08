@@ -192,7 +192,52 @@ pub(super) fn merge_layers(s: &mut Session) -> Result<Value> {
             Ok(lowest_id)
         } else {
             let top_id = *ids.last().ok_or_else(|| EngineError::Other("Merge Layers needs two or more layers".into()))?;
-            let top = doc.layer(top_id).ok_or(EngineError::NoLayer(top_id))?.clone();
+            let top = solo.layers.last().or_else(|| doc.layer(top_id)).cloned().ok_or(EngineError::NoLayer(top_id))?;
+
+            if solo.layers.iter().all(|l| matches!(l.content, LayerContent::Deep(_))) {
+                // A deep selection merges its samples and stays deep (Nuke's DeepMerge): the
+                // lower layer carries the result (as Merge Down does), so the upper layers
+                // must composite as-is (see `pixels::deep_merge_blocker`).
+                for l in solo.layers.iter().skip(1) {
+                    if let Some(what) = crate::pixels::deep_merge_blocker(l) {
+                        return Err(EngineError::Other(format!(
+                            "layer \"{}\" has {what}; sample merging would drop it. Flatten or rasterize the layer to bake it in first",
+                            l.name
+                        )));
+                    }
+                }
+                let base = solo.layers.first().cloned().ok_or_else(|| EngineError::Other("Merge Layers needs two or more layers".into()))?;
+                let mut data: Option<photocraft_doc::DeepData> = None;
+                for l in &solo.layers {
+                    if let LayerContent::Deep(d) = &l.content
+                        && let Some(acc) = data.as_mut()
+                    {
+                        *acc = acc.merge(d).map_err(|e| EngineError::Other(format!("layer \"{}\": {e}", base.name)))?;
+                    } else if let LayerContent::Deep(d) = &l.content {
+                        data = Some(d.clone());
+                    }
+                }
+                // The lower layer carries the result: its compositing — opacity, fill opacity,
+                // blend, advanced blending, masks, effects, clipping, locks, label, link group
+                // — still applies to the merged samples.
+                let mut merged = base.clone();
+                merged.content = LayerContent::Deep(data.unwrap_or_else(|| photocraft_doc::DeepData {
+                    x: 0,
+                    y: 0,
+                    width: 1,
+                    height: 1,
+                    channels: Vec::new(),
+                    counts: vec![0, 0],
+                }));
+                let mid = merged.id;
+                for id in &ids[..ids.len() - 1] {
+                    doc.remove(*id);
+                }
+                *doc.layer_mut(top_id).ok_or(EngineError::NoLayer(top_id))? = merged;
+                *active = Some(mid);
+                return Ok(mid);
+            }
+
             let fmt = doc.pixel_format();
             let fmt = PixelFormat::new(fmt.mode, fmt.sample, true);
             let mut merged = Layer::raster(top.name.clone(), fmt);

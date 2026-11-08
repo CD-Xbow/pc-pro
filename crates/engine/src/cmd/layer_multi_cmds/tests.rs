@@ -1589,3 +1589,260 @@ fn translate_can_carry_the_selection_in_the_same_step() {
         assert_eq!(state(&s), before, "dx {dx}: and changes nothing");
     }
 }
+
+#[test]
+fn undo_between_identical_deep_layers_reports_no_damage() {
+    let mut s = session(32);
+    let deep = || {
+        LayerContent::Deep(photocraft_doc::DeepData {
+            x: 0,
+            y: 0,
+            width: 2,
+            height: 1,
+            channels: vec![photocraft_doc::DeepChannel { name: "Z".to_string(), samples: vec![1.0] }],
+            counts: vec![0, 1],
+        })
+    };
+    for _ in 0..2 {
+        s.edit("deep", |doc, _| {
+            doc.layers[0].content = deep();
+            Ok(())
+        })
+        .unwrap();
+    }
+    s.undo();
+    // Identical deep samples are equal pixels; the catch-all used to recomposite the
+    // whole canvas for every undo that touched a deep layer.
+    let d = damage(&s);
+    assert!(d.is_none_or(|r| r.is_empty()), "identical deep samples touch no pixels: {d:?}");
+}
+
+/// A deep Merge Down keeps the lower layer's compositing: opacity, fill opacity, masks,
+/// effects, label and locks still apply to the merged samples (review on #1122 — the result
+/// used to reset opacity to 100 % and drop the rest).
+#[test]
+fn merging_deep_layers_keeps_the_lower_layers_compositing() {
+    let mut s = session(8);
+    let ch = |name: &str, v: f32| photocraft_doc::DeepChannel { name: name.to_string(), samples: vec![v] };
+    let deep = |x: i32, z: f32| photocraft_doc::DeepData {
+        x,
+        y: 0,
+        width: 1,
+        height: 1,
+        channels: vec![ch("A", 1.0), ch("B", 0.0), ch("R", 1.0), ch("Z", z)],
+        counts: vec![0, 1],
+    };
+    let (bid, rid) = s
+        .edit("deep", |doc, _| {
+            doc.layers.clear();
+            doc.layers.push(Layer::new("base", LayerContent::Deep(deep(0, 9.0))));
+            doc.layers.push(Layer::new("front", LayerContent::Deep(deep(0, 1.0))));
+            let base = &mut doc.layers[0];
+            base.opacity = 0.5;
+            base.fill_opacity = 0.75;
+            base.label = photocraft_doc::LabelColor::Red;
+            base.link_group = Some(7);
+            base.mask = Some(photocraft_doc::LayerMask {
+                surface: photocraft_raster::Surface::with_default(
+                    photocraft_color::PixelFormat::new(photocraft_color::ColorMode::Grayscale, photocraft_color::SampleType::U8, false),
+                    &[1.0],
+                ),
+                enabled: true,
+                linked: false,
+                density: 1.0,
+                feather: 0.0,
+            });
+            let bid = doc.layers[0].id;
+            let rid = doc.layers[1].id;
+            Ok((bid, rid))
+        })
+        .unwrap();
+    s.execute("layer.select", json!({"layer": rid.0})).unwrap();
+    s.execute("layer.mergeDown", json!({})).unwrap();
+    let merged = doc(&s).layer(bid).cloned().unwrap();
+    let LayerContent::Deep(d) = &merged.content else { panic!("the merge stays deep") };
+    assert_eq!(d.sample_range(0), 0..2, "the pixel holds both inputs' samples");
+    assert_eq!(merged.id, bid);
+    assert!((merged.opacity - 0.5).abs() < 1e-6, "the lower opacity still applies: {}", merged.opacity);
+    assert!((merged.fill_opacity - 0.75).abs() < 1e-6);
+    assert_eq!(merged.label, photocraft_doc::LabelColor::Red);
+    assert_eq!(merged.link_group, Some(7));
+    assert!(merged.mask.is_some(), "the lower mask still applies");
+    // And it composites with both opacities: 0.5 * 0.75 alpha, straight red stays 1.0.
+    let buf = photocraft_compose::render(doc(&s), doc(&s).bounds());
+    assert!((buf.px[0][3] - 0.375).abs() < 1e-6, "{:?}", buf.px[0]);
+    assert!((buf.px[0][0] - 1.0).abs() < 1e-6, "{:?}", buf.px[0]);
+}
+
+/// Everything that changes how an upper deep layer would composite is refused before the
+/// samples merge, so it cannot be silently dropped (review on #1122: fill opacity, advanced
+/// blending, clipping and hidden layers joined opacity, blend, masks and effects).
+#[test]
+fn an_upper_deep_layer_refuses_to_merge_modified() {
+    let mut s = session(8);
+    let ch = |name: &str, v: f32| photocraft_doc::DeepChannel { name: name.to_string(), samples: vec![v] };
+    let deep = || photocraft_doc::DeepData { x: 0, y: 0, width: 1, height: 1, channels: vec![ch("A", 1.0), ch("B", 0.0), ch("Z", 5.0)], counts: vec![0, 1] };
+    let (bid, rid) = s
+        .edit("deep", |doc, _| {
+            doc.layers.clear();
+            doc.layers.push(Layer::new("base", LayerContent::Deep(deep())));
+            doc.layers.push(Layer::new("front", LayerContent::Deep(deep())));
+            Ok((doc.layers[0].id, doc.layers[1].id))
+        })
+        .unwrap();
+    let refuses = |s: &mut Session, what: &str| {
+        s.execute("layer.select", json!({"layer": rid.0})).unwrap();
+        let err = s.execute("layer.mergeDown", json!({})).unwrap_err().to_string();
+        assert!(err.contains(what), "{what}: {err}");
+        // The document is unchanged: the refused merge touched nothing.
+        assert!(
+            doc(s)
+                .layer(bid)
+                .and_then(|l| match &l.content {
+                    LayerContent::Deep(d) => Some(d.channels.len()),
+                    _ => None,
+                })
+                .is_some()
+        );
+        assert!(doc(s).layer(rid).is_some());
+    };
+    s.edit("fill 50", |doc, _| {
+        doc.layers[1].fill_opacity = 0.5;
+        Ok(())
+    })
+    .unwrap();
+    refuses(&mut s, "a fill opacity below 100 %");
+    s.undo();
+    s.edit("blend if", |doc, _| {
+        doc.layers[1].blend_if.ranges =
+            vec![[photocraft_doc::BlendRange { black: [40, 40], white: [255, 255] }, photocraft_doc::BlendRange::FULL], [photocraft_doc::BlendRange::FULL; 2]];
+        Ok(())
+    })
+    .unwrap();
+    refuses(&mut s, "advanced blending");
+    s.undo();
+    s.edit("clip", |doc, _| {
+        doc.layers[1].clipped = true;
+        Ok(())
+    })
+    .unwrap();
+    refuses(&mut s, "a clipped layer");
+    s.undo();
+    s.edit("hide", |doc, _| {
+        doc.layers[1].visible = false;
+        Ok(())
+    })
+    .unwrap();
+    refuses(&mut s, "a hidden layer");
+}
+
+/// A deep Merge Layers carries the lower layer's compositing onto the result (review on
+/// #1122 — the result used to carry the top layer's name and locks with opacity reset).
+#[test]
+fn merging_deep_layers_carries_the_lowest_layers_compositing() {
+    let mut s = session(8);
+    let ch = |name: &str, v: f32| photocraft_doc::DeepChannel { name: name.to_string(), samples: vec![v] };
+    let deep = |x: i32, z: f32| photocraft_doc::DeepData { x, y: 0, width: 1, height: 1, channels: vec![ch("A", 1.0), ch("Z", z)], counts: vec![0, 1] };
+    let ids = s
+        .edit("deep", |doc, _| {
+            doc.layers.clear();
+            doc.layers.push(Layer::new("base", LayerContent::Deep(deep(0, 9.0))));
+            doc.layers.push(Layer::new("mid", LayerContent::Deep(deep(0, 5.0))));
+            doc.layers.push(Layer::new("front", LayerContent::Deep(deep(0, 1.0))));
+            let base = &mut doc.layers[0];
+            base.opacity = 0.5;
+            base.label = photocraft_doc::LabelColor::Green;
+            Ok((doc.layers[0].id, doc.layers[1].id, doc.layers[2].id))
+        })
+        .unwrap();
+    s.execute("layer.select", json!({"layer": ids.0})).unwrap();
+    s.execute("layer.select", json!({"layer": ids.1, "mode": "add"})).unwrap();
+    s.execute("layer.select", json!({"layer": ids.2, "mode": "add"})).unwrap();
+    s.execute("layer.mergeLayers", json!({})).unwrap();
+    let merged_id = s.active().unwrap().active_layer.unwrap();
+    let merged = doc(&s).layer(merged_id).cloned().unwrap();
+    let LayerContent::Deep(d) = &merged.content else { panic!("the merge stays deep") };
+    assert_eq!(d.channels.len(), 2);
+    assert!((merged.opacity - 0.5).abs() < 1e-6, "the lowest layer's opacity still applies: {}", merged.opacity);
+    assert_eq!(merged.label, photocraft_doc::LabelColor::Green, "the lowest layer's label carries");
+    assert!(doc(&s).layer(ids.1).is_none() && doc(&s).layer(ids.2).is_none(), "the upper layers are gone");
+}
+
+#[test]
+fn merging_deep_layers_merges_samples_and_renders_the_stack() {
+    let mut s = session(8);
+    // Two 1x1-grid deep layers, offset by a pixel: a blue sample far away (z=9) and a red
+    // sample in front (z=1). Merged, the shared pixel holds both samples and renders the
+    // front red over the far blue - the deep composite of the stack, not a per-layer flatten.
+    let ch = |name: &str, v: f32| photocraft_doc::DeepChannel { name: name.to_string(), samples: vec![v] };
+    let ch0 = |name: &str| photocraft_doc::DeepChannel { name: name.to_string(), samples: vec![0.0] };
+    let blue =
+        photocraft_doc::DeepData { x: 0, y: 0, width: 2, height: 1, channels: vec![ch("A", 1.0), ch("B", 1.0), ch0("G"), ch("Z", 9.0)], counts: vec![0, 0, 1] };
+    let red =
+        photocraft_doc::DeepData { x: 1, y: 0, width: 1, height: 1, channels: vec![ch("A", 1.0), ch0("G"), ch("R", 1.0), ch("Z", 1.0)], counts: vec![0, 1] };
+    let (bid, rid) = s
+        .edit("deep", |doc, _| {
+            doc.layers.clear();
+            doc.layers.push(Layer::new("blue", LayerContent::Deep(blue.clone())));
+            doc.layers.push(Layer::new("red", LayerContent::Deep(red.clone())));
+            let bid = doc.layers[0].id;
+            let rid = doc.layers[1].id;
+            Ok((bid, rid))
+        })
+        .unwrap();
+    s.execute("layer.select", json!({"layer": rid.0})).unwrap();
+    s.execute("layer.mergeDown", json!({})).unwrap();
+    let merged_id = s.active().unwrap().active_layer.unwrap_or(bid);
+    let merged = doc(&s).layer(merged_id).cloned().unwrap();
+    let LayerContent::Deep(d) = &merged.content else { panic!("the merge stays deep") };
+    assert_eq!((d.x, d.width), (0, 2));
+    assert_eq!(d.sample_range(1), 0..2, "the shared pixel holds both inputs' samples");
+    let buf = photocraft_compose::render(doc(&s), doc(&s).bounds());
+    let px = |x: i32| buf.px[(x) as usize];
+    assert_eq!(px(0), [0.0; 4], "{:?}", px(0));
+    assert!((px(1)[0] - 1.0).abs() < 1e-6 && (px(1)[1] - 0.0).abs() < 1e-6 && (px(1)[2] - 0.0).abs() < 1e-6, "{:?}", px(1));
+    assert_eq!(px(1)[3], 1.0);
+    // With the depths swapped the same merge renders blue: the composite follows Z.
+    let (bid, rid) = s
+        .edit("deep", |doc, _| {
+            doc.layers.clear();
+            let mut far = red.clone();
+            if let Some(z) = far.channel_mut("Z") {
+                z.samples[0] = 9.0;
+            }
+            let mut near = blue.clone();
+            if let Some(z) = near.channel_mut("Z") {
+                z.samples[0] = 1.0;
+            }
+            doc.layers.push(Layer::new("far-red", LayerContent::Deep(far)));
+            doc.layers.push(Layer::new("near-blue", LayerContent::Deep(near)));
+            Ok((doc.layers[0].id, doc.layers[1].id))
+        })
+        .unwrap();
+    let _ = bid;
+    s.execute("layer.select", json!({"layer": rid.0})).unwrap();
+    s.execute("layer.mergeDown", json!({})).unwrap();
+    let buf = photocraft_compose::render(doc(&s), doc(&s).bounds());
+    assert!((buf.px[1][2] - 1.0).abs() < 1e-6 && (buf.px[1][0] - 0.0).abs() < 1e-6, "{:?}", buf.px[1]);
+}
+#[test]
+fn moving_layers_refuses_a_deep_origin_overflow() {
+    let mut s = session(8);
+    let deep = LayerContent::Deep(photocraft_doc::DeepData {
+        x: i32::MAX - 5,
+        y: 0,
+        width: 40,
+        height: 20,
+        channels: vec![photocraft_doc::DeepChannel { name: "A".into(), samples: vec![1.0] }],
+        counts: vec![0, 1],
+    });
+    let id = s
+        .edit("deep", |doc, _| {
+            doc.layers.push(Layer::new("deep", deep));
+            Ok(doc.layers.last().unwrap().id)
+        })
+        .unwrap();
+    let before = s.active().unwrap().doc.clone();
+    let err = moved(&before, &[id], 10, 0).unwrap_err();
+    assert!(err.to_string().contains("32-bit coordinate range"), "{err}");
+}

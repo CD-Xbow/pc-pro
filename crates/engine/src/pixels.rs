@@ -547,9 +547,55 @@ pub fn remap_surface(s: &Surface, map: impl Fn(i32, i32) -> (i32, i32)) -> Surfa
     out
 }
 
+/// Why an upper deep layer cannot merge its samples into the one below: the sample merge
+/// (Nuke's DeepMerge) composites the inputs' samples as they are, so anything that changes
+/// how the upper layer would composite — opacity below 100 %, a blend mode, a mask or layer
+/// effects — is refused instead of silently dropped. Bake it into the samples first
+/// (flatten or rasterize the upper layer) to merge.
+pub fn deep_merge_blocker(l: &Layer) -> Option<&'static str> {
+    if !l.visible {
+        return Some("a hidden layer");
+    }
+    if l.opacity < 1.0 {
+        return Some("an opacity below 100 %");
+    }
+    if l.fill_opacity < 1.0 {
+        return Some("a fill opacity below 100 %");
+    }
+    if !matches!(l.blend, photocraft_doc::BlendMode::Normal | photocraft_doc::BlendMode::PassThrough) {
+        return Some("a blend mode");
+    }
+    if !l.blend_if.is_default() {
+        return Some("advanced blending");
+    }
+    if l.clipped {
+        return Some("a clipped layer");
+    }
+    if l.mask.is_some() || l.vector_mask.is_some() {
+        return Some("a mask");
+    }
+    if photocraft_compose::effects::has_effects(l) {
+        return Some("layer effects");
+    }
+    None
+}
+
 /// Merge `upper` onto `lower` producing a raster layer (Layer → Merge Down).
-pub fn merge_down(doc: &Document, lower: &Layer, upper: &Layer) -> Layer {
+pub fn merge_down(doc: &Document, lower: &Layer, upper: &Layer) -> Result<Layer, String> {
     let format = doc.pixel_format();
+    // Two deep layers merge their samples and stay deep (Nuke's DeepMerge): the Z sort then
+    // composites both inputs' samples together instead of pre-flattening each.
+    if let (LayerContent::Deep(a), LayerContent::Deep(b)) = (&lower.content, &upper.content) {
+        if let Some(what) = deep_merge_blocker(upper) {
+            return Err(format!("the upper deep layer has {what}; sample merging would drop it. Flatten or rasterize the layer to bake it in first"));
+        }
+        // The lower layer carries the result: its compositing — opacity, fill opacity, blend,
+        // advanced blending, masks, effects, clipping, locks, label, link group — still applies
+        // to the merged samples, exactly as for a raster Merge Down (#1122's review).
+        let mut merged = lower.clone();
+        merged.content = LayerContent::Deep(a.merge(b)?);
+        return Ok(merged);
+    }
     let stack = vec![lower.clone(), upper.clone()];
     let mut tmp = Document::new("merge", doc.size, format.mode, format.sample);
     // The pair is read (and a CMYK one separated again) through the document's own profile.
@@ -569,5 +615,5 @@ pub fn merge_down(doc: &Document, lower: &Layer, upper: &Layer) -> Layer {
     merged.clipped = lower.clipped && upper.clipped;
     merged.label = lower.label;
     merged.link_group = lower.link_group;
-    merged
+    Ok(merged)
 }

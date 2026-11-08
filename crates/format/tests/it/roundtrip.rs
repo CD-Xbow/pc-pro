@@ -1091,3 +1091,119 @@ fn arrow_document_is_backward_compatible() {
     let loaded = load_from_bytes(&bytes).unwrap();
     assert_eq!(loaded, doc);
 }
+
+/// A file whose deep counts decrease (a hostile or truncated edit) must be refused on load,
+/// not turned into a `total * 4` slice mismatch or an underflowing index later. The counts
+/// blob is rewritten through the save path, so the bundle itself stays valid.
+#[test]
+fn decreasing_deep_counts_are_refused_at_load() {
+    use photocraft_doc::{DeepChannel, DeepData};
+    let mut doc = Document::new("deep", photocraft_doc::Size::new(2, 1), ColorMode::Rgb, SampleType::F32);
+    doc.layers.clear();
+    doc.layers.push(Layer::new(
+        "deep",
+        LayerContent::Deep(DeepData {
+            x: 0,
+            y: 0,
+            width: 2,
+            height: 1,
+            channels: vec![DeepChannel { name: "A".into(), samples: vec![1.0, 1.0] }],
+            counts: vec![0, 2, 2],
+        }),
+    ));
+    // A decreasing count table behind a *valid* bundle: save a document whose channels match
+    // the patched total, so the length check passes and only monotonicity can reject it.
+    let mut hostile = doc.clone();
+    if let Some(LayerContent::Deep(d)) = hostile.layers.first_mut().map(|l| &mut l.content) {
+        d.counts = vec![0, 2, 1];
+        for c in &mut d.channels {
+            c.samples = vec![1.0, 1.0]; // total == 2 keeps the length check happy
+        }
+    }
+    let bytes = save_to_bytes(&hostile, &SaveOptions::default()).unwrap();
+    let err = load_from_bytes(&bytes).expect_err("decreasing counts must be refused");
+    assert!(err.to_string().contains("must not decrease"), "{err}");
+}
+
+/// Many deep channels referencing one samples blob are charged per decoded channel: each
+/// channel's samples become their own `Vec`, so N channels on one blob expand N-fold past the
+/// load's budget if only the blob is charged (#1122's review: a 12 KiB file forced 256 MiB).
+/// The hostile bundle shares one valid blob across all channels via a manifest rewrite, so
+/// every hash stays valid and only the accounting can reject it.
+#[test]
+fn deep_channels_on_one_blob_are_charged_per_channel() {
+    use photocraft_doc::{DeepChannel, DeepData};
+    let mut doc = Document::new("deep", photocraft_doc::Size::new(2, 2), ColorMode::Rgb, SampleType::F32);
+    doc.layers.clear();
+    let samples = vec![1.0f32, 2.0, 3.0, 4.0];
+    doc.layers.push(Layer::new(
+        "deep",
+        LayerContent::Deep(DeepData {
+            x: 0,
+            y: 0,
+            width: 2,
+            height: 2,
+            channels: (0..64).map(|i| DeepChannel { name: format!("c{i}"), samples: samples.clone() }).collect(),
+            counts: vec![0, 4, 4, 4, 4],
+        }),
+    ));
+    let bytes = save_to_bytes(&doc, &SaveOptions::default()).unwrap();
+    // The manifest still passes with the shared blob when the budget covers the expansion.
+    let r = zip::ZipReader::new(&bytes).unwrap();
+    let mut manifest: serde_json::Value = serde_json::from_slice(&r.read_by_name("manifest.json", usize::MAX).unwrap()).unwrap();
+    let shared = manifest["document"]["layers"][0]["content"]["channels"][0]["samples"].clone();
+    let n = manifest["document"]["layers"][0]["content"]["channels"].as_array().unwrap().len();
+    for c in manifest["document"]["layers"][0]["content"]["channels"].as_array_mut().unwrap() {
+        c["samples"] = shared.clone();
+    }
+    let mut z = zip::ZipWriter::new();
+    z.add("manifest.json", &serde_json::to_vec_pretty(&manifest).unwrap()).unwrap();
+    for e in r.entries.iter().filter(|e| e.name != "manifest.json") {
+        z.add(&e.name, &r.read(e, usize::MAX).unwrap()).unwrap();
+    }
+    let hostile = z.finish().unwrap();
+    // The bundle itself is a few KiB; 64 channels on one blob decode to 64 copies that must
+    // count, so a budget below their expansion refuses the load instead of allocating it.
+    let tight = LoadOptions { max_total_bytes: 900, ..Default::default() };
+    let err = load_from_bytes_with(&hostile, &tight).expect_err("shared-blob channels must be charged per channel");
+    assert!(err.to_string().contains("expands beyond"), "{err}");
+    // With a budget that covers the real expansion the document still opens, unchanged.
+    let roomy = LoadOptions { max_total_bytes: 1 << 20, ..Default::default() };
+    let back = load_from_bytes_with(&hostile, &roomy).unwrap();
+    assert_eq!(back.layers.len(), doc.layers.len());
+    let got = back.layers.first().and_then(|l| match &l.content {
+        LayerContent::Deep(d) => Some(d.channels.len()),
+        _ => None,
+    });
+    assert_eq!(got, Some(n), "all {n} channels load when the budget covers them");
+}
+
+#[test]
+fn deep_layer_round_trips_with_its_samples() {
+    use photocraft_doc::{DeepChannel, DeepData};
+    let mut doc = Document::new("deep", photocraft_doc::Size::new(2, 2), ColorMode::Rgb, SampleType::F32);
+    doc.layers.clear();
+    // One pixel with two unsorted samples (red z=1 over blue z=9), one with none.
+    let channels = |names: &[&str], a: f32, z0: f32, z1: f32| -> Vec<DeepChannel> {
+        names
+            .iter()
+            .map(|n| DeepChannel {
+                name: (*n).to_string(),
+                samples: match *n {
+                    "R" => vec![0.5 * a, 0.0],
+                    "G" => vec![0.0, 0.0],
+                    "B" => vec![0.0, a],
+                    "A" => vec![a, a],
+                    _ => vec![z0, z1],
+                },
+            })
+            .collect()
+    };
+    let d = DeepData { x: 3, y: -2, width: 2, height: 1, channels: channels(&["A", "B", "G", "R", "Z"], 0.5, 1.0, 9.0), counts: vec![0, 2, 2] };
+    doc.layers.push(Layer::new("deep", LayerContent::Deep(d)));
+    let bytes = save_to_bytes(&doc, &SaveOptions::default()).unwrap();
+    let back = load_from_bytes(&bytes).unwrap();
+    assert_eq!(back, doc);
+    // A saved bundle cannot lie about its sample counts: every channel must hold exactly
+    // `counts.last()` samples (checked on load, pinned here with the good case above).
+}
