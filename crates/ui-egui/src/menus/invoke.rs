@@ -108,6 +108,9 @@ fn invoke_early_commands(app: &mut PhotocraftApp, ctx: &egui::Context, id: &str,
     if id == "edit.undo" && crate::vector_ui::pen_undo_last_point(app) {
         return Some(Ok(Value::Null));
     }
+    if id == "edit.undo" && crate::actions::library::edit_undo_label(app).is_some() {
+        return Some(crate::actions::library::undo(app));
+    }
     // Image › Crop while the Crop tool has a pending frame commits that frame (#1918).
     if id == "image.crop" && crate::crop_ui::pending(app) {
         crate::canvas::commit_crop(app);

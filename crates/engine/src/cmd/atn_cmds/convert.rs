@@ -114,17 +114,57 @@ pub fn import(bytes: &[u8]) -> std::result::Result<Imported, String> {
 /// `"gbk"`) instead of working it out. An unknown label fails.
 pub fn import_with_encoding(bytes: &[u8], encoding: Option<&str>) -> std::result::Result<Imported, String> {
     let file = atn::parse_with_encoding(bytes, encoding).map_err(|e| e.to_string())?;
+    Ok(convert_set(&file, None))
+}
+
+pub(super) struct ReplacementSet {
+    pub imported: Imported,
+    pub keys: Vec<(usize, String)>,
+}
+
+pub(super) fn import_first_with_keys(bytes: &[u8], encoding: Option<&str>) -> std::result::Result<ReplacementSet, String> {
+    let file = atn::parse_with_encoding(bytes, encoding).map_err(|error| error.to_string())?;
+    Ok(convert_with_keys(&file, None))
+}
+
+pub(super) fn import_sets(bytes: &[u8], encoding: Option<&str>) -> std::result::Result<Vec<(ReplacementSet, Vec<usize>)>, String> {
+    let files = atn::parse_sets_with_encoding(bytes, encoding).map_err(|error| error.to_string())?;
+    Ok(files
+        .iter()
+        .map(|file| {
+            let mut unsupported_rows = Vec::new();
+            let set = convert_with_keys(file, Some(&mut unsupported_rows));
+            (set, unsupported_rows)
+        })
+        .collect())
+}
+
+fn convert_with_keys(file: &AtnFile, unsupported_rows: Option<&mut Vec<usize>>) -> ReplacementSet {
+    let keys = file
+        .actions
+        .iter()
+        .enumerate()
+        .filter(|(_, action)| action.function_key > 0)
+        .map(|(index, action)| (index, function_key_name(action.function_key, action.shift, action.command)))
+        .collect();
+    ReplacementSet { imported: convert_set(file, unsupported_rows), keys }
+}
+
+fn convert_set(file: &AtnFile, mut unsupported_rows: Option<&mut Vec<usize>>) -> Imported {
     let set = file.name.to_string_lossy();
     let set = if set.trim().is_empty() { DEFAULT_SET.to_string() } else { clip_name(&set) };
     let mut out = Imported { set: set.clone(), warnings: file.warnings.clone(), encoding: file.encoding.clone(), ..Default::default() };
-    for a in &file.actions {
-        let action = convert_action(&file, a, &set, &mut out.unsupported);
+    for (row, a) in file.actions.iter().enumerate() {
+        let action = convert_action(file, a, &set, &mut out.unsupported);
+        if let Some(owners) = unsupported_rows.as_deref_mut() {
+            owners.resize(out.unsupported.len(), row);
+        }
         if a.function_key > 0 {
             out.function_keys.push((action.name.clone(), function_key_name(a.function_key, a.shift, a.command)));
         }
         out.actions.push(action);
     }
-    Ok(out)
+    out
 }
 
 // ------------------------------------------------------------------ export
@@ -224,6 +264,36 @@ pub fn parse_function_key(key: &str) -> Option<(u16, bool, bool)> {
     Some((n, shift, command))
 }
 
+/// ATN uses names for these calls. Only translate an ID when that name identifies
+/// the same exported row; an absent or ambiguous target is an unsupported step.
+fn export_targeted_items(id: &str, params: &Value, set: &str, actions: &[&Action]) -> Option<Vec<AtnItem>> {
+    let targets: &[(&str, &str)] = match id {
+        "actions.play" => &[("actionId", "action")],
+        "actions.conditional" => &[("thenActionId", "then"), ("elseActionId", "else")],
+        _ => &[],
+    };
+    if !targets.iter().any(|(key, _)| params.get(*key).is_some()) {
+        return export_items(id, params, set);
+    }
+    let mut params = params.clone();
+    for (key, name) in targets {
+        if let Some(id) = params.get(*key) {
+            let id = id.as_str().filter(|id| crate::actions_cmds::valid_action_id(id))?;
+            let mut matches = actions.iter().filter(|action| action.action_id.as_deref() == Some(id));
+            let action = matches.next()?;
+            let imported = clip_name(action.name.trim_end_matches('\0'));
+            if matches.next().is_some()
+                || actions.iter().filter(|other| other.name.trim_end_matches('\0').chars().take(MAX_NAME_CHARS).eq(imported.chars())).take(2).count() != 1
+            {
+                return None;
+            }
+            params[*name] = json!(action.name);
+        }
+    }
+    params["set"] = json!(set);
+    export_items(id, &params, set)
+}
+
 /// The `.atn` bytes of `actions` as the set `set`. `function_keys` gives each action's key
 /// (`F1`…`F15`, with `Shift+` and `Cmd+` as [`function_key_name`] writes them). Steps with no Photoshop equivalent are an error unless `skip_unsupported`.
 pub fn export(
@@ -232,15 +302,24 @@ pub fn export(
     function_keys: &[(String, String)],
     skip_unsupported: bool,
 ) -> std::result::Result<(Vec<u8>, Vec<Skipped>), String> {
+    export_with_keys(set, actions, |_, action| function_keys.iter().find(|(name, _)| name == &action.name).map(|(_, key)| key.as_str()), skip_unsupported)
+}
+
+pub(super) fn export_with_keys<'a>(
+    set: &str,
+    actions: &[&Action],
+    key: impl Fn(usize, &Action) -> Option<&'a str>,
+    skip_unsupported: bool,
+) -> std::result::Result<(Vec<u8>, Vec<Skipped>), String> {
     let mut skipped = Vec::new();
     let mut file = AtnFile { name: UnicodeString::new_nul(set), expanded: true, actions: Vec::new(), warnings: Vec::new(), ..Default::default() };
-    for a in actions {
+    for (index, a) in actions.iter().enumerate() {
         let mut out = AtnAction { name: UnicodeString::new_nul(&a.name), expanded: false, ..Default::default() };
-        if let Some((n, shift, command)) = function_keys.iter().find(|(n, _)| n == &a.name).and_then(|(_, key)| parse_function_key(key)) {
+        if let Some((n, shift, command)) = key(index, a).and_then(parse_function_key) {
             (out.function_key, out.shift, out.command) = (n, shift, command);
         }
         for (i, (id, params)) in a.steps.iter().enumerate() {
-            let Some(items) = export_items(id, params, set) else {
+            let Some(items) = export_targeted_items(id, params, set, actions) else {
                 if skip_unsupported {
                     skipped.push(Skipped { action: a.name.clone(), step: i, id: id.clone() });
                     continue;
