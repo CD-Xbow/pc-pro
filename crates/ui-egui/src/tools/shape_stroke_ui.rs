@@ -3,6 +3,7 @@ use egui::vec2;
 use photocraft_doc::{LineCap, LineJoin, ShapeStroke, StrokeAlign};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
+use std::sync::{Arc, Mutex, PoisonError};
 
 /// Colour and width stay in their existing controls. These options never replace a shape's paint.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -131,7 +132,139 @@ pub fn paint_shape_preview(painter: &egui::Painter, shape: &photocraft_doc::Shap
     }
 }
 
+mod document_preview;
 mod editor;
+use document_preview::{PreviewLayout, PreviewReduction};
+
+/// Cache document pixels independently of zoom: the view only transforms the textured quad.
+#[derive(Clone)]
+struct DocumentDragCache {
+    shape: photocraft_doc::ShapeLayer,
+    visible: photocraft_geom::Rect,
+    canvas: photocraft_geom::Rect,
+    bounds: photocraft_geom::Rect,
+    texture: egui::TextureHandle,
+    options: egui::TextureOptions,
+    size: [usize; 2],
+    factor: u32,
+    reduction: Option<Arc<Mutex<PreviewReduction>>>,
+    painted_pass: u64,
+}
+
+/// Clip source coverage before choosing its bounded texture layout.
+fn document_preview_bounds(compiled: &photocraft_vector::CompiledShape, visible: photocraft_geom::Rect) -> Option<photocraft_geom::Rect> {
+    let bounds = compiled.bounds()?.intersect(&visible);
+    (!bounds.is_empty()).then_some(bounds)
+}
+
+/// Preserve native coverage when reducing a large preview, with one bounded pass per frame.
+fn new_document_preview(
+    painter: &egui::Painter,
+    shape: &photocraft_doc::ShapeLayer,
+    visible: photocraft_geom::Rect,
+    canvas: photocraft_geom::Rect,
+    options: egui::TextureOptions,
+) -> Option<DocumentDragCache> {
+    let compiled = photocraft_vector::CompiledShape::with_frames(shape, photocraft_vector::DEFAULT_TOLERANCE, visible, canvas);
+    let bounds = document_preview_bounds(&compiled, visible)?;
+    let layout = PreviewLayout::new(bounds)?;
+    let (image, reduction, options) = if layout.factor == 1 {
+        let rgba = compiled.render_rgba(bounds);
+        let bytes: Vec<u8> = rgba.iter().flat_map(|p| p.map(|v| (v.clamp(0.0, 1.0) * 255.0).round() as u8)).collect();
+        (egui::ColorImage::from_rgba_unmultiplied(layout.size, &bytes), None, options)
+    } else {
+        let mut work = PreviewReduction::new(compiled, layout);
+        work.advance();
+        let image = work.image();
+        let reduction = (!work.complete()).then(|| Arc::new(Mutex::new(work)));
+        (image, reduction, egui::TextureOptions::LINEAR)
+    };
+    let texture = painter.ctx().load_texture("shape-document-drag", image, options);
+    Some(DocumentDragCache {
+        shape: shape.clone(),
+        visible,
+        canvas,
+        bounds,
+        texture,
+        options,
+        size: layout.size,
+        factor: layout.factor,
+        reduction,
+        painted_pass: painter.ctx().cumulative_pass_nr(),
+    })
+}
+
+/// Rasterize aligned strokes in document pixels, then project that coverage into the view.
+/// Curves, diagonals and ineligible widths therefore retain committed antialiasing at any zoom.
+pub(crate) fn paint_document_shape_preview(
+    painter: &egui::Painter,
+    shape: &photocraft_doc::ShapeLayer,
+    transform: &photocraft_geom::Affine,
+    canvas: photocraft_geom::Rect,
+) {
+    use photocraft_geom::{Point, Rect};
+    let clip = painter.clip_rect();
+    let Some(inverse) = transform.inverse() else { return };
+    if !clip.is_finite() || clip.is_negative() {
+        return;
+    }
+    let points = [clip.left_top(), clip.right_top(), clip.right_bottom(), clip.left_bottom()].map(|p| inverse.apply(Point::new(p.x as f64, p.y as f64)));
+    let visible = Rect::new(
+        (points.iter().map(|p| p.x).fold(f64::INFINITY, f64::min).floor() as i32).saturating_sub(1),
+        (points.iter().map(|p| p.y).fold(f64::INFINITY, f64::min).floor() as i32).saturating_sub(1),
+        (points.iter().map(|p| p.x).fold(f64::NEG_INFINITY, f64::max).ceil() as i32).saturating_add(1),
+        (points.iter().map(|p| p.y).fold(f64::NEG_INFINITY, f64::max).ceil() as i32).saturating_add(1),
+    );
+    let id = egui::Id::unique("shape-document-drag-render");
+    // Exact pixel-grid zooms stay crisp. Other transforms filter document coverage just as
+    // displaying a rotated or fractionally positioned rasterized document requires.
+    let integer = |v: f64| (v - v.round()).abs() < 1e-6;
+    let options = if transform.m[1].abs() < 1e-6
+        && transform.m[2].abs() < 1e-6
+        && transform.m[0].abs() >= 1.0
+        && transform.m[3].abs() >= 1.0
+        && [transform.m[0], transform.m[3], transform.m[4], transform.m[5]].into_iter().all(integer)
+    {
+        egui::TextureOptions::NEAREST
+    } else {
+        egui::TextureOptions::LINEAR
+    };
+    let cached = painter.ctx().data(|d| d.get_temp::<DocumentDragCache>(id));
+    let cached = cached.filter(|c| c.shape == *shape && c.visible == visible && c.canvas == canvas && (c.factor > 1 || c.options == options));
+    let was_cached = cached.is_some();
+    if !was_cached {
+        // Release an obsolete progressive accumulator before allocating its replacement.
+        painter.ctx().data_mut(|d| d.remove::<DocumentDragCache>(id));
+    }
+    let Some(mut cache) = cached.or_else(|| new_document_preview(painter, shape, visible, canvas, options)) else { return };
+    if was_cached && let Some(reduction) = &cache.reduction {
+        let (image, complete) = {
+            let mut work = reduction.lock().unwrap_or_else(PoisonError::into_inner);
+            work.advance();
+            (work.image(), work.complete())
+        };
+        cache.texture.set(image, cache.options);
+        if complete {
+            cache.reduction = None;
+        }
+    }
+    if cache.reduction.is_some() {
+        painter.ctx().request_repaint();
+    }
+    let b = cache.bounds;
+    let mut mesh = egui::Mesh::with_texture(cache.texture.id());
+    for (u, v) in [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)] {
+        let p = transform.apply(Point::new(
+            f64::from(b.x0) + u * cache.size[0] as f64 * f64::from(cache.factor),
+            f64::from(b.y0) + v * cache.size[1] as f64 * f64::from(cache.factor),
+        ));
+        mesh.vertices.push(egui::epaint::Vertex { pos: egui::pos2(p.x as f32, p.y as f32), uv: egui::pos2(u as f32, v as f32), color: egui::Color32::WHITE });
+    }
+    mesh.indices.extend([0, 1, 2, 0, 2, 3]);
+    painter.add(egui::Shape::mesh(mesh));
+    cache.painted_pass = painter.ctx().cumulative_pass_nr();
+    painter.ctx().data_mut(|d| d.insert_temp(id, cache));
+}
 
 pub use editor::{StrokeEditor, button};
 
@@ -147,6 +280,14 @@ pub(super) fn mark_rendered(ctx: &egui::Context, key: &str) {
 /// A hidden options row or collapsed Appearance section no longer owns input.
 /// Called after all options bars and Properties windows have had a chance to draw.
 pub(crate) fn finish_frame(app: &mut crate::PhotocraftApp, ctx: &egui::Context) {
+    // A released/cancelled drag must not retain a large, unfinished accumulator.
+    let preview_id = egui::Id::unique("shape-document-drag-render");
+    let pass = ctx.cumulative_pass_nr();
+    ctx.data_mut(|d| {
+        if d.get_temp::<DocumentDragCache>(preview_id).is_some_and(|c| c.painted_pass != pass) {
+            d.remove::<DocumentDragCache>(preview_id);
+        }
+    });
     let Some(e) = &app.ui.stroke_editor else { return };
     let shown = ctx.data(|d| d.get_temp::<u64>(egui::Id::unique(("shape-stroke-rendered", e.key.as_str()))));
     if shown != Some(ctx.cumulative_pass_nr()) {

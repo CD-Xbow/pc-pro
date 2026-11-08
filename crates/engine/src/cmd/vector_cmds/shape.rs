@@ -42,8 +42,9 @@ pub(super) fn copy_shape_fill(s: &mut Session, _p: &Value) -> Result<Value> {
 }
 
 pub(super) fn copy_shape_stroke(s: &mut Session, _p: &Value) -> Result<Value> {
-    let stroke = active_shape(s).map_err(EngineError::Other)?.stroke.clone().ok_or_else(|| EngineError::Other("shape has no stroke".into()))?;
-    s.path_stroke_clipboard = Some(stroke);
+    let shape = active_shape(s).map_err(EngineError::Other)?;
+    let stroke = shape.stroke.clone().ok_or_else(|| EngineError::Other("shape has no stroke".into()))?;
+    s.path_stroke_clipboard = Some((stroke, shape.pixel_align_stroke));
     Ok(Value::Null)
 }
 
@@ -58,10 +59,11 @@ pub(super) fn paste_shape_fill(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 pub(super) fn paste_shape_stroke(s: &mut Session, p: &Value) -> Result<Value> {
-    let stroke = s.path_stroke_clipboard.clone().ok_or_else(|| EngineError::Other("no shape stroke copied".into()))?;
+    let (stroke, pixel_align_stroke) = s.path_stroke_clipboard.clone().ok_or_else(|| EngineError::Other("no shape stroke copied".into()))?;
     let id = layer_id(s, p)?;
     with_shape(s, id, "Paste Complete Stroke", |shape, _| {
         shape.stroke = Some(stroke);
+        shape.pixel_align_stroke = pixel_align_stroke;
         Ok(())
     })?;
     shape_info(s, id)
@@ -379,6 +381,7 @@ pub(super) fn shape_info(s: &Session, id: LayerId) -> Result<Value> {
         "path": path_json(&sh.path),
         "fill": sh.fill.as_ref().map(fill_json),
         "stroke": sh.stroke.as_ref().map(stroke_json),
+        "pixelAlignStroke": sh.pixel_align_stroke,
         "live": sh.live.as_ref().map(live_json),
         "kind": sh.live.as_ref().map_or("path", live_kind),
         "bounds": bounds,
@@ -422,6 +425,7 @@ fn default_name(kind: &str) -> &'static str {
     }
 }
 
+/// Create a shape, or append to one while applying only explicitly supplied alignment.
 pub(super) fn shape_create(s: &mut Session, p: &Value) -> Result<Value> {
     const CMD: &str = "shape.create";
     let kind = p.get("kind").and_then(Value::as_str).unwrap_or("rect");
@@ -434,11 +438,19 @@ pub(super) fn shape_create(s: &mut Session, p: &Value) -> Result<Value> {
     };
     let (fill, stroke) = new_fill_stroke(s, CMD, p)?;
     vector::flatten::validate_shape(&path, stroke.as_ref()).map_err(|e| bad(CMD, e))?;
+    let pixel_align_stroke = match p.get("pixelAlignStroke") {
+        None => None,
+        Some(Value::Bool(enabled)) => Some(*enabled),
+        Some(_) => return Err(bad(CMD, "`pixelAlignStroke` must be a boolean")),
+    };
     // Add to an existing shape layer with a path operation (Shape tool in combine/subtract… mode).
     if let Some(target) = p.get("addTo").and_then(Value::as_u64) {
         let op = p.get("op").and_then(Value::as_str).map_or(Some(PathOp::Combine), op_from).ok_or_else(|| bad(CMD, "unknown `op`"))?;
         let id = LayerId(target);
         with_shape(s, id, "Add Shape", |sh, _| {
+            if let Some(enabled) = pixel_align_stroke {
+                sh.pixel_align_stroke = enabled;
+            }
             for mut sp in path.subpaths {
                 sp.op = op;
                 sh.path.subpaths.push(sp);
@@ -451,7 +463,7 @@ pub(super) fn shape_create(s: &mut Session, p: &Value) -> Result<Value> {
         return shape_info(s, id);
     }
     let name = p.get("name").and_then(Value::as_str).map(str::to_string);
-    let mut sh = ShapeLayer { path, fill, stroke, live, ..Default::default() };
+    let mut sh = ShapeLayer { path, fill, stroke, live, pixel_align_stroke: pixel_align_stroke.unwrap_or(false), ..Default::default() };
     let id = s.edit("New Shape Layer", |doc, active| {
         refresh_shape(doc, &mut sh);
         let name = name.unwrap_or_else(|| doc.next_layer_name(default_name(kind)));
@@ -485,6 +497,11 @@ fn new_fill_stroke(s: &Session, cmd: &str, p: &Value) -> Result<(Option<Fill>, O
 /// that would duplicate the selected shape or vector mask.
 pub(super) fn path_to_shape(s: &mut Session, p: &Value) -> Result<Value> {
     const CMD: &str = "path.toShape";
+    let pixel_align_stroke = match p.get("pixelAlignStroke") {
+        None => false,
+        Some(Value::Bool(enabled)) => *enabled,
+        Some(_) => return Err(bad(CMD, "`pixelAlignStroke` must be a boolean")),
+    };
     let name = match p.get("name") {
         None | Some(Value::Null) => None,
         Some(Value::String(n)) => Some(n.as_str()),
@@ -514,7 +531,7 @@ pub(super) fn path_to_shape(s: &mut Session, p: &Value) -> Result<Value> {
         Some(Value::String(n)) if !n.trim().is_empty() => Some(n.clone()),
         Some(_) => return Err(bad(CMD, "`layerName` must be a name that isn't empty")),
     };
-    let mut sh = ShapeLayer { path, fill, stroke, ..Default::default() };
+    let mut sh = ShapeLayer { path, fill, stroke, pixel_align_stroke, ..Default::default() };
     let id = s.edit("New Shape Layer", |doc, active| {
         refresh_shape(doc, &mut sh);
         let name = layer_name.unwrap_or_else(|| doc.next_layer_name(default_name("path")));
@@ -595,6 +612,9 @@ pub(super) fn shape_edit(s: &mut Session, p: &Value) -> Result<Value> {
         }
         if let Some(v) = p.get("stroke") {
             sh.stroke = parse_stroke(v, sh.stroke.clone(), fgc).map_err(|e| bad(CMD, e))?;
+        }
+        if let Some(value) = p.get("pixelAlignStroke") {
+            sh.pixel_align_stroke = value.as_bool().ok_or_else(|| bad(CMD, "`pixelAlignStroke` must be a boolean"))?;
         }
         if let Some(n) = name {
             layer.name = n;
