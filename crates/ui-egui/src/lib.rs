@@ -1019,6 +1019,10 @@ mod pen_path_ownership_tests;
 mod artboard_options_bar_tests;
 #[cfg(test)]
 mod brush_opacity_minimum_tests;
+
+#[cfg(test)]
+mod pencil_shift_digit_opacity_tests;
+
 #[cfg(test)]
 mod doc_tab_menu_tests;
 #[cfg(test)]
