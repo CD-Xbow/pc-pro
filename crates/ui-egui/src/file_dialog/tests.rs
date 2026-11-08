@@ -3,6 +3,77 @@ use crate::{Services, menus};
 use std::cell::RefCell;
 use std::rc::Rc;
 
+/// Keep the source intact when Timestamp naming uses Ask or Same Folder.
+#[test]
+fn timestamp_quick_export_ask_and_same_folder_preserve_original() {
+    let dir = tempfile::tempdir().unwrap();
+    let own = dir.path().join("photo.png").to_str().unwrap().to_owned();
+    std::fs::write(&own, b"original").unwrap();
+    let (mut app, open, _) = app();
+    app.session.active_mut().unwrap().path = Some(own.clone());
+    std::sync::Arc::make_mut(&mut app.session.active_mut().unwrap().doc).name = "photo.png".into();
+    app.run("prefs.set", json!({"path": "export.quickExportNaming", "value": "timestamp"})).unwrap();
+    let ctx = egui::Context::default();
+    menus::invoke(&mut app, &ctx, "file.export.quickExportAsPng", Value::Null).unwrap();
+    app.poll_file_dialog(&ctx, None);
+    let suggested = match &open.borrow()[0].0 {
+        FileDialogRequest::Save { suggested } => suggested.clone(),
+        request => panic!("expected save request, got {request:?}"),
+    };
+    let selected = Path::new(&suggested);
+    assert_eq!(selected.parent(), Some(dir.path()));
+    assert!(selected.file_name().unwrap().to_str().unwrap().starts_with("photo_"));
+    assert!(!selected.exists(), "the native picker must not check replacement of the original");
+    answer(&open, Some(FileDialogAnswer::SaveTo(suggested.clone())));
+    app.poll_file_dialog(&ctx, None);
+    assert!(!app.ui.status_error, "{}", app.ui.status);
+    assert!(app.ui.status.contains(&suggested));
+    assert!(selected.exists(), "the engine must write the picker name without a second timestamp");
+    app.run("prefs.set", json!({"path": "export.quickExportLocation", "value": "sameFolder"})).unwrap();
+    menus::invoke(&mut app, &ctx, "file.export.quickExportAsPng", Value::Null).unwrap();
+    assert!(open.borrow().is_empty());
+    assert_eq!(std::fs::read(&own).unwrap(), b"original");
+    assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 3);
+    let names: Vec<_> = std::fs::read_dir(dir.path()).unwrap().map(|e| e.unwrap().file_name().into_string().unwrap()).collect();
+    assert_eq!(names.iter().filter(|n| n.starts_with("photo_") && n.contains('-') && n.ends_with(".png")).count(), 2, "{names:?}");
+}
+
+/// A preference change while the picker is open must not change its captured naming policy.
+#[test]
+fn pending_quick_export_keeps_its_naming_mode() {
+    for (opened, changed) in [("timestamp", "default"), ("default", "timestamp")] {
+        let dir = tempfile::tempdir().unwrap();
+        let (mut app, open, _) = app();
+        app.session.active_mut().unwrap().path = Some(dir.path().join("photo.psd").to_str().unwrap().into());
+        std::sync::Arc::make_mut(&mut app.session.active_mut().unwrap().doc).name = "photo.psd".into();
+        app.run("prefs.set", json!({"path": "export.quickExportNaming", "value": opened})).unwrap();
+        let ctx = egui::Context::default();
+        menus::invoke(&mut app, &ctx, "file.export.quickExportAsPng", Value::Null).unwrap();
+        app.poll_file_dialog(&ctx, None);
+        let suggested = match &open.borrow()[0].0 {
+            FileDialogRequest::Save { suggested } => suggested.clone(),
+            request => panic!("expected save request, got {request:?}"),
+        };
+        // A competing export claims the proposed name while the user changes Preferences.
+        std::fs::write(&suggested, b"earlier export").unwrap();
+        app.run("prefs.set", json!({"path": "export.quickExportNaming", "value": changed})).unwrap();
+        answer(&open, Some(FileDialogAnswer::SaveTo(suggested.clone())));
+        app.poll_file_dialog(&ctx, None);
+        assert!(!app.ui.status_error, "{opened} -> {changed}: {}", app.ui.status);
+        if opened == "timestamp" {
+            assert_eq!(std::fs::read(&suggested).unwrap(), b"earlier export");
+            let path = Path::new(&suggested);
+            let unique = path.with_file_name(format!("{}_1.png", path.file_stem().unwrap().to_str().unwrap()));
+            assert!(unique.exists(), "the captured Timestamp policy must keep exclusive publication without restamping");
+        } else {
+            assert_eq!(Path::new(&suggested).file_name().unwrap(), "photo.png");
+            assert_ne!(std::fs::read(&suggested).unwrap(), b"earlier export");
+            assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 1, "Default must keep the selected filename");
+        }
+        assert_eq!(app.session.prefs().export.quick_export_naming.name(), changed, "the later preference must remain stored");
+    }
+}
+
 /// The requests the fake dialog service was given, with their replies: dialogs the user is still in.
 type Open = Rc<RefCell<Vec<(FileDialogRequest, FileDialogReply)>>>;
 
